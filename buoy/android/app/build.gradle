@@ -21,12 +21,17 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+def mapboxMagnolia = localProperties.getProperty('mapboxMagnolia')
+if (mapboxMagnolia == null) {
+   mapboxMagnolia = System.getenv("MAPBOX_MAGNOLIA")
+}
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    compileSdkVersion flutter.compileSdkVersion
+    compileSdkVersion 33
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -47,10 +52,14 @@ android {
         applicationId "com.example.buoy"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion flutter.minSdkVersion
-        targetSdkVersion flutter.targetSdkVersion
+        minSdkVersion 21
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+         manifestPlaceholders += [
+            googleMapsMagnolia: "googleMapsMagnolia",
+            mapboxMagnolia: "mapboxMagnolia",
+       ]
     }
 
     buildTypes {
@@ -58,6 +67,10 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.debug
+            minifyEnabled true
+            shrinkResources false
+            // background_geolocation requires custom Proguard Rules with minifyEnabled
+           // proguardFiles "${background_geolocation.projectDir}/proguard-rules.pro"
         }
     }
 }
