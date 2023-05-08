@@ -51,14 +51,14 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
         await _backgroundLocationRepository.getCurrentLocation();
 
     print('Initial location: $location');
-    _backgroundLocationRepository.onMotionChange((bg.Location location) {
-      print('[location] - $location');
+    _backgroundLocationRepository.onLocationChange((bg.Location location) {
+      print('[initial location changed] - $location');
       add(UpdateGeoLocation(location: location));
     });
 
     /// Update activity bloc
     _activityBloc.add(LoadActivity(activity: location.activity.type));
-    _motionBloc.add(LoadMotion(isMoving: location.isMoving));
+    // _motionBloc.add(LoadMotion(isMoving: location.isMoving));
     emit(GeolocationLoaded(location: location));
   }
 
@@ -68,8 +68,8 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
   ) {
     emit(GeolocationUpdating(location: event.location));
     emit(GeolocationLoaded(location: event.location));
-    bg.BackgroundGeolocation.onMotionChange((bg.Location location) {
-      print('[location] - $location');
+    _backgroundLocationRepository.onLocationChange((bg.Location location) {
+      print('[location updated] - $location');
       add(UpdateGeoLocation(location: location));
     });
   }
