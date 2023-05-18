@@ -8,7 +8,7 @@ class BackgroundLocationRepository {
       desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
       stopOnTerminate: false,
       startOnBoot: true,
-      debug: true,
+      debug: false,
       logLevel: bg.Config.LOG_LEVEL_VERBOSE,
     )).then((state) {
       if (!state.enabled) {

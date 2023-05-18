@@ -41,9 +41,17 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             title: Wrap(
               spacing: 12.0,
               crossAxisAlignment: WrapCrossAlignment.center,
-              children: const [
-                Icon(Icons.directions_boat_filled_rounded),
-                Text('Buoy')
+              children: [
+                Image.asset(
+                  'lib/assets/logo/buoy_logo.png',
+                  color: Colors.orange[800],
+                  width: 24,
+                  height: 24,
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 2.0),
+                  child: Text('Buoy'),
+                )
               ],
             ),
           ),
@@ -267,7 +275,18 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                         isOnline: true,
                                         location: 'Stony Brook, NY',
                                         time: 'Here for 2 hrs.'),
-                                  ],
+                                  ]
+                                      .animate(interval: 200.ms)
+                                      .fadeIn(
+                                        duration: 400.ms,
+                                        curve: Curves.easeOutSine,
+                                      )
+                                      .slideY(
+                                        duration: 800.ms,
+                                        begin: 18.0,
+                                        end: 0.0,
+                                        curve: Curves.easeOutQuint,
+                                      ),
                                 ),
                               )
                             ],
@@ -449,7 +468,18 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                 )
                               ],
                             ),
-                          ),
+                          )
+                              .animate()
+                              .fadeIn(
+                                duration: 400.ms,
+                                curve: Curves.easeOutSine,
+                              )
+                              .slideY(
+                                duration: 600.ms,
+                                begin: -.0,
+                                end: 0.0,
+                                curve: Curves.easeOutSine,
+                              ),
                         ),
                       ),
                     ),
@@ -490,10 +520,17 @@ class FriendLocationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
+        onTap: () {},
         leading: CircleAvatar(
-          foregroundImage: profilePhotoUrl != null
-              ? CachedNetworkImageProvider(profilePhotoUrl!)
-              : null,
+          radius: 23,
+          backgroundColor: isOnline
+              ? Theme.of(context).colorScheme.secondary
+              : Colors.grey[500],
+          child: CircleAvatar(
+            foregroundImage: profilePhotoUrl != null
+                ? CachedNetworkImageProvider(profilePhotoUrl!)
+                : null,
+          ),
         ),
         title: Wrap(
           spacing: 6.0,
@@ -506,7 +543,7 @@ class FriendLocationCard extends StatelessWidget {
                     : Icons.location_off_rounded,
                 color: isOnline
                     ? Theme.of(context).primaryColor
-                    : Colors.grey[400],
+                    : Colors.grey[500],
                 size: isOnline ? 18.0 : 16.0)
           ],
         ),

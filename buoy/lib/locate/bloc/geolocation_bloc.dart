@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:buoy/activity/bloc/activity_bloc.dart';
 import 'package:buoy/locate/repository/background_location_repository.dart';
+import 'package:buoy/locate/repository/location_realtime_repository.dart';
 import 'package:buoy/motion/bloc/motion_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
@@ -13,13 +14,16 @@ part 'geolocation_state.dart';
 
 class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
   final BackgroundLocationRepository _backgroundLocationRepository;
+  final LocationRealtimeRepository _locationRealtimeRepository;
   final ActivityBloc _activityBloc;
   final MotionBloc _motionBloc;
   GeolocationBloc(
       {required BackgroundLocationRepository backgroundLocationRepository,
+      required LocationRealtimeRepository locationRealtimeRepository,
       required ActivityBloc activityBloc,
       required MotionBloc motionBloc})
       : _backgroundLocationRepository = backgroundLocationRepository,
+        _locationRealtimeRepository = locationRealtimeRepository,
         _activityBloc = activityBloc,
         _motionBloc = motionBloc,
         super(GeolocationInitial()) {
@@ -51,9 +55,13 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
         await _backgroundLocationRepository.getCurrentLocation();
 
     print('Initial location: $location');
-    _backgroundLocationRepository.onLocationChange((bg.Location location) {
+    _backgroundLocationRepository
+        .onLocationChange((bg.Location location) async {
       print('[initial location changed] - $location');
       add(UpdateGeoLocation(location: location));
+      await _locationRealtimeRepository.sendLocationUpdate(
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude);
     });
 
     /// Update activity bloc
@@ -68,9 +76,13 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
   ) {
     emit(GeolocationUpdating(location: event.location));
     emit(GeolocationLoaded(location: event.location));
-    _backgroundLocationRepository.onLocationChange((bg.Location location) {
+    _backgroundLocationRepository
+        .onLocationChange((bg.Location location) async {
       print('[location updated] - $location');
       add(UpdateGeoLocation(location: location));
+      await _locationRealtimeRepository.sendLocationUpdate(
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude);
     });
   }
 }
