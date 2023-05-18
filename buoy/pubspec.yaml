@@ -84,6 +84,7 @@ flutter:
     - lib/assets/backgrounds/dark_map_bg.png
     - lib/assets/backgrounds/light_map_bg.png
     - .env
+    - lib/assets/screenshots/
 
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

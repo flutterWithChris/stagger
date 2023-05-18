@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gutter/flutter_gutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PrivacySecurityPage extends StatelessWidget {
   const PrivacySecurityPage({super.key});
@@ -45,15 +47,18 @@ class PrivacySecurityPage extends StatelessWidget {
                           fontFamily: GoogleFonts.corben().fontFamily)),
                 ],
               ),
-              const Gutter(),
+              const GutterLarge(),
               Wrap(
                 spacing: 8.0,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Icon(
-                    Icons.location_off_rounded,
-                    color: Colors.orange[800],
-                    size: 18.0,
+                  CircleAvatar(
+                    radius: 12.0,
+                    child: Icon(
+                      Icons.location_off_rounded,
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                      size: 16.0,
+                    ),
                   ),
                   Text('Location data is never stored.',
                       textAlign: TextAlign.center,
@@ -63,15 +68,18 @@ class PrivacySecurityPage extends StatelessWidget {
                           ?.copyWith(fontWeight: FontWeight.w400)),
                 ],
               ),
-              const GutterSmall(),
+              const Gutter(),
               Wrap(
                 spacing: 8.0,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Icon(
-                    Icons.notification_important_rounded,
-                    color: Colors.orange[800],
-                    size: 18.0,
+                  CircleAvatar(
+                    radius: 12.0,
+                    child: Icon(
+                      Icons.notification_important_rounded,
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                      size: 16.0,
+                    ),
                   ),
                   Text('Alerts when your location is viewed.',
                       textAlign: TextAlign.center,
@@ -81,15 +89,18 @@ class PrivacySecurityPage extends StatelessWidget {
                           ?.copyWith(fontWeight: FontWeight.w400)),
                 ],
               ),
-              const GutterSmall(),
+              const Gutter(),
               Wrap(
                 spacing: 8.0,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Icon(
-                    Icons.tune_rounded,
-                    color: Colors.orange[800],
-                    size: 18.0,
+                  CircleAvatar(
+                    radius: 12.0,
+                    child: Icon(
+                      Icons.tune_rounded,
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                      size: 16.0,
+                    ),
                   ),
                   Text('Custom rules per person.',
                       textAlign: TextAlign.center,
@@ -98,6 +109,22 @@ class PrivacySecurityPage extends StatelessWidget {
                           .bodyLarge
                           ?.copyWith(fontWeight: FontWeight.w400)),
                 ],
+              ),
+              const GutterLarge(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 36.0),
+                child: ElevatedButton.icon(
+                    style: FilledButton.styleFrom(
+                      fixedSize: const Size(240, 40),
+                    ),
+                    onPressed: () async {
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      prefs.setBool('onboardingComplete', true);
+                      context.go('/');
+                    },
+                    icon: const Icon(Icons.check_circle_outline_rounded),
+                    label: const Text('Finish Setup')),
               ),
             ],
           ),

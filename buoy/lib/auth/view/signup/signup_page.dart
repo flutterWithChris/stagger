@@ -1,11 +1,14 @@
+import 'package:buoy/auth/cubit/signup_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gutter/flutter_gutter.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 class Signup extends StatefulWidget {
-  const Signup({super.key});
+  final PageController pageController;
+  const Signup({required this.pageController, super.key});
 
   @override
   State<Signup> createState() => _SignupState();
@@ -43,8 +46,8 @@ class _SignupState extends State<Signup> {
                       child: Image.asset(
                         'lib/assets/logo/buoy_logo.png',
                         color: Colors.orange[800],
-                        width: 58,
-                        height: 58,
+                        width: 52,
+                        height: 52,
                       )
                           .animate(
                             onInit: (controller) => controller.forward(),
@@ -74,58 +77,89 @@ class _SignupState extends State<Signup> {
                 ),
                 const GutterTiny(),
                 Text(
-                  'Make sure your family & friends are safe.',
+                  'Make sure they made it safe.',
                   style: Theme.of(context)
                       .textTheme
                       .titleMedium
                       ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const Gutter(),
-                FractionallySizedBox(
-                  widthFactor: 0.7,
-                  child: SupaSocialsAuth(
-                    socialProviders: const [
-                      SocialProviders.google,
-                    ],
-                    redirectUrl:
-                        'io.supabase.flutterquickstart://login-callback/',
-                    onSuccess: (p0) {},
-                  ),
-                ),
-                // BlocBuilder<SignupCubit, SignupState>(
-                //   builder: (context, state) {
-                //     if (state.status == SignupStatus.submitting) {
-                //       return FilledButton(
-                //           onPressed: () {},
-                //           child: const CircularProgressIndicator.adaptive());
-                //     }
-                //     if (state.status == SignupStatus.failure) {
-                //       return FilledButton.icon(
-                //           icon: const Icon(Icons.error),
-                //           onPressed: () {
-                //             context.read<SignupCubit>().signupWithGoogle();
-                //           },
-                //           label: const Text(
-                //             'Error! Retry.',
-                //           ));
-                //     }
-                //     if (state.status == SignupStatus.success) {
-                //       return FilledButton.icon(
-                //           icon: const Icon(Icons.check),
-                //           onPressed: () {},
-                //           label: const Text(
-                //             'Success!',
-                //           ));
-                //     }
-                //     return FilledButton.icon(
-                //         onPressed: () {
-                //           context.read<SignupCubit>().signupWithGoogle();
-                //         },
-                //         icon: const Icon(FontAwesomeIcons.google),
-                //         label: const Text('Sign up with Google'));
-                //   },
+                // FractionallySizedBox(
+                //   widthFactor: 0.7,
+                //   child: SupaSocialsAuth(
+                //     socialProviders: const [
+                //       SocialProviders.google,
+                //     ],
+                //     redirectUrl:
+                //         'io.supabase.flutterquickstart://login-callback/',
+                //     onSuccess: (p0) {},
+                //   ),
                 // ),
-                const GutterSmall(),
+                BlocBuilder<SignupCubit, SignupState>(
+                  builder: (context, state) {
+                    if (state.status == SignupStatus.submitting) {
+                      return Theme.of(context).brightness == Brightness.dark
+                          ? FilledButton(
+                              onPressed: () {},
+                              child: const CircularProgressIndicator.adaptive())
+                          : ElevatedButton(
+                              onPressed: () {},
+                              child: const CircularProgressIndicator.adaptive());
+                    }
+                    if (state.status == SignupStatus.failure) {
+                      return Theme.of(context).brightness == Brightness.dark
+                          ? FilledButton.icon(
+                              icon: const Icon(Icons.error),
+                              onPressed: () {
+                                context.read<SignupCubit>().signupWithGoogle();
+                              },
+                              label: const Text(
+                                'Error! Retry.',
+                              ))
+                          : ElevatedButton.icon(
+                              onPressed: () {
+                                context.read<SignupCubit>().signupWithGoogle();
+                              },
+                              label: const Text('Error! Retry.'),
+                              icon: const Icon(Icons.error),
+                            );
+                    }
+                    if (state.status == SignupStatus.success) {
+                      return Theme.of(context).brightness == Brightness.dark
+                          ? FilledButton.icon(
+                              icon: const Icon(Icons.check),
+                              onPressed: () {},
+                              label: const Text(
+                                'Success!',
+                              ))
+                          : ElevatedButton.icon(
+                              onPressed: () {},
+                              label: const Text('Success!'),
+                              icon: const Icon(Icons.check),
+                            );
+                    }
+                    return Theme.of(context).brightness == Brightness.dark
+                        ? FilledButton.icon(
+                            onPressed: () {
+                              context.read<SignupCubit>().signupWithGoogle();
+                            },
+                            icon: const Icon(
+                              FontAwesomeIcons.google,
+                              size: 20.0,
+                            ),
+                            label: const Text('Sign up with Google'))
+                        : ElevatedButton.icon(
+                            onPressed: () {
+                              context.read<SignupCubit>().signupWithGoogle();
+                            },
+                            label: const Text('Sign up with Google'),
+                            icon: const Icon(
+                              FontAwesomeIcons.google,
+                              size: 20.0,
+                            ),
+                          );
+                  },
+                ),
                 TextButton(
                     style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(

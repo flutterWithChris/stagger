@@ -12,50 +12,60 @@ class CrossPlatformPage extends StatelessWidget {
           ? Colors.white.withOpacity(0.8)
           : Colors.black.withAlpha(180),
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(36.0),
+        child: SafeArea(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Wrap(
-                spacing: 16.0,
-                crossAxisAlignment: WrapCrossAlignment.center,
+              Image.asset(
+                'lib/assets/screenshots/map_screenshot.png',
+                //height: 100,
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.apple,
-                    size: 100,
-                    color: Colors.orange[800],
-                  ),
-                  Text('&',
+                  const Gutter(),
+                  Text('Supports iOS & Android',
                       style: TextStyle(
-                          fontSize: 48,
-                          color: Colors.orange[800],
                           fontWeight: FontWeight.bold,
+                          fontSize: 28,
                           fontFamily: GoogleFonts.corben().fontFamily)),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16),
-                    child: Icon(
-                      Icons.android,
-                      size: 100,
-                      color: Colors.orange[800],
-                    ),
+                  const Gutter(),
+                  Text(
+                      'Because making sure they\'re safe shouldn\'t depend on their phone.',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyLarge
+                          ?.copyWith(fontWeight: FontWeight.w400)),
+                  const Gutter(),
+                  Wrap(
+                    spacing: 16.0,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.apple,
+                        size: 80,
+                        color: Colors.orange[800],
+                      ),
+                      Text('&',
+                          style: TextStyle(
+                              fontSize: 48,
+                              color: Colors.orange[800],
+                              fontWeight: FontWeight.bold,
+                              fontFamily: GoogleFonts.corben().fontFamily)),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 16),
+                        child: Icon(
+                          Icons.android,
+                          size: 80,
+                          color: Colors.orange[800],
+                        ),
+                      ),
+                    ],
                   ),
+                  const GutterSmall(),
+                  const Gutter(),
                 ],
               ),
-              const GutterSmall(),
-              Text('Supports iOS & Android',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 28,
-                      fontFamily: GoogleFonts.corben().fontFamily)),
-              const Gutter(),
-              Text(
-                  'Because making sure they\'re safe shouldn\'t depend on their phone.',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge
-                      ?.copyWith(fontWeight: FontWeight.w400)),
             ],
           ),
         ),

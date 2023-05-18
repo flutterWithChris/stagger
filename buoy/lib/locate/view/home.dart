@@ -152,6 +152,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                       .fadeIn(duration: 800.ms)
                                       .scale(duration: 1.618.seconds)
                                       .fadeOut(delay: 800.ms),
+                                  // Kelly
                                   const CircleAvatar(
                                     backgroundColor: Colors.white,
                                     radius: 18.0,
@@ -159,13 +160,14 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                       radius: 16.0,
                                       foregroundImage:
                                           CachedNetworkImageProvider(
-                                        'https://scontent-ord5-1.xx.fbcdn.net/v/t39.30808-6/313255261_5446832598772011_8429708394281270457_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=aAfM7ihOqY4AX9ykEsf&_nc_ht=scontent-ord5-1.xx&oh=00_AfA8-XPV0obuRb5Y6GqW5Lo2BjZF9Vmbu7IiLOLXyPIZrA&oe=64595362',
+                                        'https://scontent-lga3-1.xx.fbcdn.net/v/t39.30808-6/313255261_5446832598772011_8429708394281270457_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=cC1oCE1bZZUAX_G0zMK&_nc_ht=scontent-lga3-1.xx&oh=00_AfDSq3JYCnxKwHfooa2ZAGfBoAklU20kUR-LkcOLb7WqGg&oe=646B1FA2',
                                       ),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
+                            // Justin
                             Marker(
                               width: 100.0,
                               height: 100.0,
@@ -225,7 +227,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                       radius: 16.0,
                                       foregroundImage:
                                           CachedNetworkImageProvider(
-                                        'https://scontent-ord5-2.xx.fbcdn.net/v/t39.30808-6/272085883_4774303025995034_4450740488095800449_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=5hC_pbIbS3YAX_wWXn5&_nc_oc=AQkNkw3EI1_fxSSYx63Rss_gOgoFVDpw9e8x30aIwMqnDn47kJPrCcdLR0TJTtONZ4xbfby-qfCPd5BKNopFtnDu&_nc_ht=scontent-ord5-2.xx&oh=00_AfB6LvvSedi9lFQIcgFSFbvvvkXkhkeT-T_s2GNRWpftDg&oe=6459CFDD',
+                                        'https://scontent-lga3-1.xx.fbcdn.net/v/t39.30808-6/272085883_4774303025995034_4450740488095800449_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=kQdSTUdI0H8AX8sEgKo&_nc_oc=AQk8EegLzHae30h4gNftEhLLr7EuKwc9neu5Z_zcy3oETKCMsbXCOJhh-Gjnvcwv_f46q7y7fW-E6ic-xc7IuiNS&_nc_ht=scontent-lga3-1.xx&oh=00_AfAbOxUsSBbm7noFoWLuxa59KKDMZeu2qqs10qWOAmaxrQ&oe=646B9C1D',
                                       ),
                                     ),
                                   ),
@@ -257,24 +259,24 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                     FriendLocationCard(
                                         name: 'Justin',
                                         profilePhotoUrl:
-                                            'https://scontent-ord5-2.xx.fbcdn.net/v/t39.30808-6/272085883_4774303025995034_4450740488095800449_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=5hC_pbIbS3YAX_wWXn5&_nc_oc=AQkNkw3EI1_fxSSYx63Rss_gOgoFVDpw9e8x30aIwMqnDn47kJPrCcdLR0TJTtONZ4xbfby-qfCPd5BKNopFtnDu&_nc_ht=scontent-ord5-2.xx&oh=00_AfB6LvvSedi9lFQIcgFSFbvvvkXkhkeT-T_s2GNRWpftDg&oe=6459CFDD',
+                                            'https://scontent-lga3-1.xx.fbcdn.net/v/t39.30808-6/272085883_4774303025995034_4450740488095800449_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=kQdSTUdI0H8AX8sEgKo&_nc_oc=AQk8EegLzHae30h4gNftEhLLr7EuKwc9neu5Z_zcy3oETKCMsbXCOJhh-Gjnvcwv_f46q7y7fW-E6ic-xc7IuiNS&_nc_ht=scontent-lga3-1.xx&oh=00_AfAbOxUsSBbm7noFoWLuxa59KKDMZeu2qqs10qWOAmaxrQ&oe=646B9C1D',
                                         isOnline: false,
-                                        location: 'Rocky Point, NY',
-                                        time: 'Here for 1 hr.'),
+                                        location: 'Miller Place, NY',
+                                        time: 'Stationary'),
                                     FriendLocationCard(
                                         name: 'Dad',
                                         profilePhotoUrl:
                                             'https://scontent-ord5-2.xx.fbcdn.net/v/t1.18169-9/26993314_10212996658128798_4595686453243734005_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=DvsvZHhuO-8AX_DksWj&_nc_ht=scontent-ord5-2.xx&oh=00_AfDiQsZAOjjtRHD57wwSRfT_c02Yci30fhFO9kNnuXcENA&oe=647B7F09',
                                         isOnline: true,
                                         location: 'Calverton, NY',
-                                        time: 'Currently Moving'),
+                                        time: 'Driving'),
                                     FriendLocationCard(
                                         name: 'Kelly',
                                         profilePhotoUrl:
-                                            'https://scontent-ord5-1.xx.fbcdn.net/v/t39.30808-6/313255261_5446832598772011_8429708394281270457_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=aAfM7ihOqY4AX9ykEsf&_nc_ht=scontent-ord5-1.xx&oh=00_AfA8-XPV0obuRb5Y6GqW5Lo2BjZF9Vmbu7IiLOLXyPIZrA&oe=64595362',
+                                            'https://scontent-lga3-1.xx.fbcdn.net/v/t39.30808-6/313255261_5446832598772011_8429708394281270457_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=cC1oCE1bZZUAX_G0zMK&_nc_ht=scontent-lga3-1.xx&oh=00_AfDSq3JYCnxKwHfooa2ZAGfBoAklU20kUR-LkcOLb7WqGg&oe=646B1FA2',
                                         isOnline: true,
-                                        location: 'Stony Brook, NY',
-                                        time: 'Here for 2 hrs.'),
+                                        location: 'Old Field, NY',
+                                        time: 'Walking'),
                                   ]
                                       .animate(interval: 200.ms)
                                       .fadeIn(
@@ -311,7 +313,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                   padding:
                                       EdgeInsets.symmetric(horizontal: 8.0),
                                   child: CircleAvatar(
-                                    radius: 18.0,
+                                    radius: 20.0,
                                     foregroundImage: CachedNetworkImageProvider(
                                         'https://scontent-ord5-2.xx.fbcdn.net/v/t1.6435-9/193213907_4419559838077181_2959395753433319266_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=wOk65qwQtM4AX-u5oOI&_nc_ht=scontent-ord5-2.xx&oh=00_AfBfuDGJuqIyOTavFvz2JUa7KosApfemDsxTMOf86LbnUg&oe=647BE024'),
                                   ),
@@ -327,10 +329,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              'Wading River, NY',
+                                              'Brookhaven, NY',
                                               style: Theme.of(context)
                                                   .textTheme
-                                                  .titleSmall,
+                                                  .bodyLarge,
                                             ),
                                             Wrap(
                                               spacing: 2.0,
@@ -362,7 +364,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              'Wading River, NY',
+                                              'Brookhaven, NY',
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .titleSmall,
@@ -391,16 +393,16 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                     if (state is ActivityLoaded) {
                                       return Padding(
                                         padding: const EdgeInsets.symmetric(
-                                            horizontal: 0.0, vertical: 6.0),
+                                            horizontal: 0.0, vertical: 10.0),
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              'Wading River, NY',
+                                              'Brookhaven, NY',
                                               style: Theme.of(context)
                                                   .textTheme
-                                                  .titleSmall,
+                                                  .bodySmall,
                                             ),
                                             Wrap(
                                               spacing: 4.0,
@@ -409,8 +411,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                               children: [
                                                 Icon(
                                                   state.activity == 'still'
-                                                      ? Icons
-                                                          .stop_circle_rounded
+                                                      ? Icons.pause
                                                       : state.activity ==
                                                                   'on_foot' ||
                                                               state.activity ==
@@ -430,6 +431,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                                                           .directions_bike_rounded
                                                                       : Icons
                                                                           .error_rounded,
+                                                  color: const Color.fromARGB(
+                                                      255, 100, 100, 100),
                                                   size: 14.0,
                                                 ),
                                                 Text(
@@ -522,15 +525,10 @@ class FriendLocationCard extends StatelessWidget {
       child: ListTile(
         onTap: () {},
         leading: CircleAvatar(
-          radius: 23,
-          backgroundColor: isOnline
-              ? Theme.of(context).colorScheme.secondary
-              : Colors.grey[500],
-          child: CircleAvatar(
-            foregroundImage: profilePhotoUrl != null
-                ? CachedNetworkImageProvider(profilePhotoUrl!)
-                : null,
-          ),
+          radius: 22,
+          foregroundImage: profilePhotoUrl != null
+              ? CachedNetworkImageProvider(profilePhotoUrl!)
+              : null,
         ),
         title: Wrap(
           spacing: 6.0,
@@ -548,13 +546,85 @@ class FriendLocationCard extends StatelessWidget {
           ],
         ),
         subtitle: Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 6.0,
           children: [
             Text.rich(
-              TextSpan(text: location, children: [
-                const TextSpan(text: ' • '),
-                TextSpan(text: time),
+              TextSpan(text: location, children: const [
+                TextSpan(text: ' • '),
               ]),
               style: Theme.of(context).textTheme.bodySmall,
+            ),
+            SizedBox(
+              height: 30,
+              child: FittedBox(
+                child: Chip(
+                  labelStyle: const TextStyle(
+                    color: Color.fromARGB(255, 247, 247, 247),
+                    fontWeight: FontWeight.w600,
+                  ),
+                  backgroundColor: time == 'Walking'
+                      ? Theme.of(context).colorScheme.primaryContainer
+                      : time == 'Driving'
+                          ? Theme.of(context).colorScheme.secondaryContainer
+                          : time == 'Stationary'
+                              ? Theme.of(context).colorScheme.tertiaryContainer
+                              : time == 'Cycling'
+                                  ? Theme.of(context)
+                                      .colorScheme
+                                      .secondaryContainer
+                                  : time == 'Running'
+                                      ? Theme.of(context)
+                                          .colorScheme
+                                          .tertiaryContainer
+                                      : Theme.of(context)
+                                          .colorScheme
+                                          .primaryContainer,
+                  side: BorderSide.none,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(40.0),
+                  ),
+                  visualDensity: VisualDensity.compact,
+                  label: Text(
+                    time,
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: time == 'Walking'
+                            ? const Color.fromARGB(255, 100, 100, 100)
+                            : null),
+                  ),
+                  avatar: time == 'Walking'
+                      ? const Icon(
+                          Icons.hiking_rounded,
+                          color: Color.fromARGB(255, 100, 100, 100),
+                          size: 18.0,
+                        )
+                      : time == 'Driving'
+                          ? const Icon(
+                              Icons.drive_eta_rounded,
+                              size: 18.0,
+                              color: Color.fromARGB(255, 247, 247, 247),
+                            )
+                          : time == 'Stationary'
+                              ? const Icon(Icons.pause,
+                                  size: 18.0,
+                                  color: Color.fromARGB(255, 247, 247, 247))
+                              : time == 'Cycling'
+                                  ? Icon(
+                                      Icons.directions_bike_rounded,
+                                      size: 18.0,
+                                      color: Theme.of(context).primaryColor,
+                                    )
+                                  : time == 'Running'
+                                      ? const Icon(
+                                          Icons.directions_run_rounded,
+                                          size: 18.0,
+                                          color: Color.fromARGB(
+                                              255, 247, 247, 247),
+                                        )
+                                      : const SizedBox(),
+                ),
+              ),
             ),
           ],
         ),

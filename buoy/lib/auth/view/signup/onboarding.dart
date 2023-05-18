@@ -1,5 +1,4 @@
 import 'package:buoy/auth/view/signup/battery_info_page.dart';
-import 'package:buoy/auth/view/signup/cross_platform.dart';
 import 'package:buoy/auth/view/signup/privacy_security_page.dart';
 import 'package:buoy/auth/view/signup/signup_page.dart';
 import 'package:flutter/material.dart';
@@ -59,7 +58,7 @@ class _OnboardingState extends State<Onboarding> {
               ),
               SmoothPageIndicator(
                 controller: pageController,
-                count: 4,
+                count: 3,
                 effect: WormEffect(
                   dotColor: Theme.of(context).colorScheme.secondaryContainer,
                   activeDotColor: Theme.of(context).colorScheme.secondary,
@@ -93,22 +92,23 @@ class _OnboardingState extends State<Onboarding> {
           )),
       body: Stack(
         children: [
-          Image.asset(
-            Theme.of(context).brightness == Brightness.light
-                ? 'lib/assets/backgrounds/light_map_bg.png'
-                : 'lib/assets/backgrounds/dark_map_bg.png',
-            fit: BoxFit.cover,
-            //  color: Colors.black12,
-            width: double.infinity,
-            height: double.infinity,
-          ),
+          // Image.asset(
+          //   Theme.of(context).brightness == Brightness.light
+          //       ? 'lib/assets/backgrounds/light_map_bg.png'
+          //       : 'lib/assets/backgrounds/dark_map_bg.png',
+          //   fit: BoxFit.cover,
+          //   //  color: Colors.black12,
+          //   width: double.infinity,
+          //   height: double.infinity,
+          // ),
           PageView(
             controller: pageController,
-            children: const [
-              Signup(),
-              CrossPlatformPage(),
-              PrivacySecurityPage(),
-              BatteryInfoPage(),
+            children: [
+              Signup(
+                pageController: pageController,
+              ),
+              const BatteryInfoPage(),
+              const PrivacySecurityPage(),
             ],
           ),
         ],
