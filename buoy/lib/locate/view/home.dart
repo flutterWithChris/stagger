@@ -1,4 +1,5 @@
 import 'package:buoy/activity/bloc/activity_bloc.dart';
+import 'package:buoy/core/system/bottom_nav_bar.dart';
 import 'package:buoy/locate/bloc/geolocation_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -23,17 +24,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: 1,
-        destinations: const [
-          NavigationDestination(
-              icon: Icon(Icons.person_rounded), label: 'Profile'),
-          NavigationDestination(
-              icon: Icon(Icons.person_pin_circle_rounded), label: 'Home'),
-          NavigationDestination(
-              icon: Icon(Icons.settings_rounded), label: 'Settings'),
-        ],
-      ),
+      bottomNavigationBar: const BottomNavBar(),
       body: CustomScrollView(
         physics: const NeverScrollableScrollPhysics(),
         slivers: [
