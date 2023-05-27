@@ -3,12 +3,15 @@ import 'package:buoy/auth/bloc/auth_bloc.dart';
 import 'package:buoy/auth/cubit/signup_cubit.dart';
 import 'package:buoy/auth/repository/auth_repository.dart';
 import 'package:buoy/core/router/router.dart';
+import 'package:buoy/friends/bloc/friends_bloc.dart';
+import 'package:buoy/friends/repository/friend_repository.dart';
 import 'package:buoy/locate/bloc/geolocation_bloc.dart';
 import 'package:buoy/locate/repository/background_location_repository.dart';
 import 'package:buoy/locate/repository/location_realtime_repository.dart';
 import 'package:buoy/motion/bloc/motion_bloc.dart';
 import 'package:buoy/profile/repository/bloc/profile_bloc.dart';
 import 'package:buoy/profile/repository/user_repository.dart';
+import 'package:buoy/shared/constants.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -46,6 +49,7 @@ class MyApp extends StatelessWidget {
         RepositoryProvider(
           create: (context) => LocationRealtimeRepository(),
         ),
+        RepositoryProvider(create: (context) => FriendRepository())
       ],
       child: MultiBlocProvider(
         providers: [
@@ -76,11 +80,17 @@ class MyApp extends StatelessWidget {
               ..add(LoadGeolocation()),
           ),
           BlocProvider(
-              create: (context) =>
-                  ProfileBloc(userRepository: context.read<UserRepository>())
-                    ..add(LoadProfile(context.read<AuthBloc>().state.user!.id)))
+              create: (context) => ProfileBloc(
+                  userRepository: context.read<UserRepository>())
+                ..add(LoadProfile(context.read<AuthBloc>().state.user!.id))),
+          BlocProvider(
+              create: (context) => FriendsBloc(
+                  userRepository: context.read<UserRepository>(),
+                  friendRepository: context.read<FriendRepository>())
+                ..add(LoadFriends())),
         ],
         child: MaterialApp.router(
+          scaffoldMessengerKey: scaffoldMessengerKey,
           debugShowCheckedModeBanner: false,
           routeInformationParser: goRouter.routeInformationParser,
           routerDelegate: goRouter.routerDelegate,

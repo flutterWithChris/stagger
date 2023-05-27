@@ -42,6 +42,19 @@ class UserRepository {
     return User.fromMap(response);
   }
 
+  /// Fetch a user by email
+  Future<User?> getUserByEmail(String email) async {
+    try {
+      final Map<String, dynamic> response =
+          await _client.from('users').select().eq('email', email).single();
+
+      return User.fromMap(response);
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
   /// Update a user
   Future<void> updateUser(User user) async {
     await _client.from('users').update(user.toMap()).eq('id', user.id);

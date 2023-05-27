@@ -1,11 +1,13 @@
 import 'package:buoy/activity/bloc/activity_bloc.dart';
 import 'package:buoy/core/system/bottom_nav_bar.dart';
+import 'package:buoy/friends/bloc/friends_bloc.dart';
 import 'package:buoy/locate/bloc/geolocation_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_gutter/flutter_gutter.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:latlong2/latlong.dart';
@@ -45,6 +47,23 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 )
               ],
             ),
+            actions: [
+              IconButton(
+                onPressed: () async {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return const AddFriendDialog();
+                    },
+                  );
+                },
+                icon: const Icon(Icons.person_add_alt_1_rounded),
+              ),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.more_vert),
+              ),
+            ],
           ),
           SliverFillRemaining(
               child: BlocConsumer<GeolocationBloc, GeolocationState>(
@@ -261,13 +280,49 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                         isOnline: true,
                                         location: 'Calverton, NY',
                                         time: 'Driving'),
-                                    FriendLocationCard(
-                                        name: 'Kelly',
-                                        profilePhotoUrl:
-                                            'https://scontent-lga3-1.xx.fbcdn.net/v/t39.30808-6/313255261_5446832598772011_8429708394281270457_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=cC1oCE1bZZUAX_G0zMK&_nc_ht=scontent-lga3-1.xx&oh=00_AfDSq3JYCnxKwHfooa2ZAGfBoAklU20kUR-LkcOLb7WqGg&oe=646B1FA2',
-                                        isOnline: true,
-                                        location: 'Old Field, NY',
-                                        time: 'Walking'),
+                                    // FriendLocationCard(
+                                    //     name: 'Kelly',
+                                    //     profilePhotoUrl:
+                                    //         'https://scontent-lga3-1.xx.fbcdn.net/v/t39.30808-6/313255261_5446832598772011_8429708394281270457_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=cC1oCE1bZZUAX_G0zMK&_nc_ht=scontent-lga3-1.xx&oh=00_AfDSq3JYCnxKwHfooa2ZAGfBoAklU20kUR-LkcOLb7WqGg&oe=646B1FA2',
+                                    //     isOnline: true,
+                                    //     location: 'Old Field, NY',
+                                    //     time: 'Walking'),
+                                    BlocBuilder<FriendsBloc, FriendsState>(
+                                      builder: (context, state) {
+                                        if (state is FriendsLoading) {
+                                          return const Center(
+                                            child: CircularProgressIndicator(),
+                                          );
+                                        }
+                                        if (state is FriendsError) {
+                                          return const Center(
+                                            child: Text('Error'),
+                                          );
+                                        } else if (state is FriendsLoaded) {
+                                          return Column(
+                                            children: [
+                                              ...state.friends
+                                                  .map(
+                                                    (friend) =>
+                                                        FriendLocationCard(
+                                                      name: friend.name!,
+                                                      time: 'Driving',
+                                                      location: 'Ridge, NY',
+                                                      isOnline: true,
+                                                      profilePhotoUrl:
+                                                          friend.photoUrl,
+                                                    ),
+                                                  )
+                                                  .toList(),
+                                            ],
+                                          );
+                                        }
+                                        return const Center(
+                                          child:
+                                              Text('Something Went Wrong...'),
+                                        );
+                                      },
+                                    ),
                                   ]
                                       .animate(interval: 200.ms)
                                       .fadeIn(
@@ -495,6 +550,107 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   }
 }
 
+class AddFriendDialog extends StatelessWidget {
+  const AddFriendDialog({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const GutterSmall(),
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 12.0,
+              children: [
+                const Icon(
+                  Icons.person_add_alt_1_rounded,
+                  size: 24.0,
+                ),
+                Text(
+                  'Add a Friend',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+              ],
+            ),
+            const GutterSmall(),
+            const Text('Enter an email to add a friend.'),
+            const Gutter(),
+            TextField(
+              autofocus: true,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                hintText: 'Enter an email...',
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                    width: 1.0,
+                  ),
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(12.0),
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                      width: 1.0,
+                    ),
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(12.0),
+                    )),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                    width: 1.0,
+                  ),
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(12.0),
+                  ),
+                ),
+              ),
+            ),
+            const Gutter(),
+            BlocBuilder<FriendsBloc, FriendsState>(
+              builder: (context, state) {
+                if (state is FriendsLoading) {
+                  return FilledButton.tonalIcon(
+                      onPressed: () {},
+                      icon: const Icon(Icons.person_add_alt_1_rounded),
+                      label: const Text('Sending...'));
+                }
+                if (state is FriendsError) {
+                  return FilledButton.tonalIcon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.person_add_alt_1_rounded),
+                    label: const Text('Error'),
+                  );
+                }
+                if (state is FriendsLoaded) {
+                  return FilledButton.tonalIcon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.person_add_alt_1_rounded),
+                    label: const Text('Add Friend'),
+                  );
+                } else {
+                  return const Center(
+                    child: Text('Something Went Wrong...'),
+                  );
+                }
+              },
+            ),
+            const GutterSmall(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class FriendLocationCard extends StatelessWidget {
   final bool isOnline;
   final String name;
@@ -520,6 +676,10 @@ class FriendLocationCard extends StatelessWidget {
           foregroundImage: profilePhotoUrl != null
               ? CachedNetworkImageProvider(profilePhotoUrl!)
               : null,
+          child: const Icon(
+            Icons.person_rounded,
+            color: Colors.white,
+          ),
         ),
         title: Wrap(
           spacing: 6.0,
@@ -542,7 +702,7 @@ class FriendLocationCard extends StatelessWidget {
           children: [
             Text.rich(
               TextSpan(text: location, children: const [
-                TextSpan(text: ' • '),
+                TextSpan(text: '  • '),
               ]),
               style: Theme.of(context).textTheme.bodySmall,
             ),
