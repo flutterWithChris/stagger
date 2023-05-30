@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:buoy/locate/model/location.dart';
 import 'package:buoy/shared/constants.dart';
 import 'package:buoy/shared/models/user.dart';
 import 'package:flutter/material.dart';
@@ -69,5 +72,15 @@ class FriendRepository {
         ),
       );
     }
+  }
+
+  /// Subscribe to friend's location updates as Location
+  Stream<Location> subscribeToFriendsLocation(String friendId) {
+    return _client
+        .from('location_updates')
+        .stream(primaryKey: ['user_id'])
+        .eq('user_id', friendId)
+        .map((event) => Location.fromJson(event[0]))
+        .asBroadcastStream();
   }
 }

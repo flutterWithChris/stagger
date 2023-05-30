@@ -112,6 +112,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         ),
                         MarkerLayer(
                           markers: [
+                            /// User Location
                             Marker(
                               anchorPos: AnchorPos.align(AnchorAlign.top),
                               width: 32.0,
@@ -143,6 +144,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                 ],
                               ),
                             ),
+
                             Marker(
                               width: 100.0,
                               height: 100.0,

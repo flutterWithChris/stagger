@@ -7,13 +7,16 @@ class LocationRealtimeRepository {
   Future<void> sendLocationUpdate({
     required double latitude,
     required double longitude,
+    int? batteryLevel,
+    String? activity,
+    bool? isMoving,
   }) async {
     // Delete the existing location data
-    await supabase
+    var existingData = await supabase
         .from('location_updates')
         .delete()
         .eq('user_id', _supabase.auth.currentUser!.id);
-
+    print('existingData: $existingData');
     // TODO: Handle errors
     // if (deleteResponse.error != null) {
     //   print(
@@ -26,6 +29,9 @@ class LocationRealtimeRepository {
         'latitude': '$latitude',
         'longitude': '$longitude',
         'timeStamp': DateTime.now().toIso8601String(),
+        'battery_level': batteryLevel,
+        'activity': activity,
+        'is_moving': isMoving,
       }
     ]);
   }

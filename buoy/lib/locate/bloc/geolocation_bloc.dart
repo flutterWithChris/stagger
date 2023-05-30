@@ -36,6 +36,7 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
     Emitter<GeolocationState> emit,
   ) async {
     /// Check for location permissions
+
     PermissionStatus locationWhenInUseStatus =
         await Permission.locationWhenInUse.request();
     PermissionStatus locationAlwaysStatus =
@@ -51,8 +52,17 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
     await _backgroundLocationRepository.initBackgroundGeolocation();
 
     /// Initial location fetch
-    bg.Location location =
-        await _backgroundLocationRepository.getCurrentLocation();
+    bg.Location location = await _backgroundLocationRepository
+        .getCurrentLocation()
+        .then((location) async {
+      await _locationRealtimeRepository.sendLocationUpdate(
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+          batteryLevel: (location.battery.level * 100).round(),
+          activity: location.activity.type,
+          isMoving: location.isMoving);
+      return location;
+    });
 
     print('Initial location: $location');
     _backgroundLocationRepository
@@ -61,7 +71,10 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
       add(UpdateGeoLocation(location: location));
       await _locationRealtimeRepository.sendLocationUpdate(
           latitude: location.coords.latitude,
-          longitude: location.coords.longitude);
+          longitude: location.coords.longitude,
+          batteryLevel: (location.battery.level * 100).toInt(),
+          activity: location.activity.type,
+          isMoving: location.isMoving);
     });
 
     /// Update activity bloc
@@ -82,7 +95,10 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
       add(UpdateGeoLocation(location: location));
       await _locationRealtimeRepository.sendLocationUpdate(
           latitude: location.coords.latitude,
-          longitude: location.coords.longitude);
+          longitude: location.coords.longitude,
+          batteryLevel: (location.battery.level * 100).toInt(),
+          activity: location.activity.type,
+          isMoving: location.isMoving);
     });
   }
 }

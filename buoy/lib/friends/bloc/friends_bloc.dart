@@ -3,6 +3,7 @@ import 'package:buoy/friends/repository/friend_repository.dart';
 import 'package:buoy/profile/repository/user_repository.dart';
 import 'package:buoy/shared/models/user.dart';
 import 'package:meta/meta.dart';
+import 'package:async/async.dart';
 
 part 'friends_event.dart';
 part 'friends_state.dart';
@@ -35,7 +36,18 @@ class FriendsBloc extends Bloc<FriendsEvent, FriendsState> {
       }
     }
     print('Friends loaded: $friendObjects');
-    emit(FriendsLoaded(friendObjects));
+
+    /// Subscribe to friends location updates.
+    // Create a list of streams for each friend's location updates
+    final locationUpdateStreams = [
+      for (final friend in friendObjects)
+        _friendRepository.subscribeToFriendsLocation(friend.id!)
+    ];
+
+// Combine all of the streams into a single stream using a StreamGroup
+    final locationUpdatesStream = StreamGroup.merge(locationUpdateStreams);
+
+    emit(FriendsLoaded(friendObjects, locationUpdatesStream));
   }
 
   void _onAddFriend(AddFriend event, Emitter<FriendsState> emit) async {
@@ -45,7 +57,7 @@ class FriendsBloc extends Bloc<FriendsEvent, FriendsState> {
     if (friend != null) {
       await _friendRepository.addFriend(friend);
       print('Friend added');
-      emit(FriendsLoaded(state.friends + [friend]));
+      add(LoadFriends());
     } else {
       print('Friend not found');
       emit(FriendsError('Friend not found'));

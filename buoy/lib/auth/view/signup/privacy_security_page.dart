@@ -120,8 +120,9 @@ class PrivacySecurityPage extends StatelessWidget {
                     onPressed: () async {
                       SharedPreferences prefs =
                           await SharedPreferences.getInstance();
-                      prefs.setBool('onboardingComplete', true);
-                      context.go('/');
+                      await prefs
+                          .setBool('onboardingComplete', true)
+                          .then((value) => context.go('/'));
                     },
                     icon: const Icon(Icons.check_circle_outline_rounded),
                     label: const Text('Finish Setup')),
