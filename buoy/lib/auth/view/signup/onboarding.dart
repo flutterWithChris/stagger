@@ -72,7 +72,8 @@ class _OnboardingState extends State<Onboarding> {
                 duration: const Duration(milliseconds: 400),
                 opacity: (pageController.hasClients &&
                             pageController.page != null &&
-                            pageController.page != 0) ==
+                            pageController.page != 0 &&
+                            pageController.page != 2) ==
                         false
                     ? 0.0
                     : 1.0,

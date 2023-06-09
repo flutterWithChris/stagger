@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:buoy/friends/repository/friend_repository.dart';
+import 'package:buoy/locate/model/location.dart';
 import 'package:buoy/profile/repository/user_repository.dart';
 import 'package:buoy/shared/models/user.dart';
 import 'package:meta/meta.dart';

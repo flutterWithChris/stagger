@@ -1,3 +1,4 @@
+import 'package:buoy/auth/view/login/login.dart';
 import 'package:buoy/auth/view/signup/onboarding.dart';
 import 'package:buoy/locate/view/home.dart';
 import 'package:buoy/profile/view/profile.dart';
@@ -36,6 +37,10 @@ GoRouter goRouter = GoRouter(
     GoRoute(
       path: '/profile',
       builder: (context, state) => const Profile(),
+    ),
+    GoRoute(
+      path: '/login',
+      builder: (context, state) => const LoginPage(),
     )
   ],
 );

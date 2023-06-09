@@ -113,7 +113,7 @@ class PrivacySecurityPage extends StatelessWidget {
               const GutterLarge(),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 36.0),
-                child: ElevatedButton.icon(
+                child: FilledButton.icon(
                     style: FilledButton.styleFrom(
                       fixedSize: const Size(240, 40),
                     ),

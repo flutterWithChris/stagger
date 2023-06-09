@@ -1,10 +1,9 @@
 import 'package:buoy/auth/cubit/signup_cubit.dart';
+import 'package:buoy/shared/buoy_logo.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gutter/flutter_gutter.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class Signup extends StatefulWidget {
   final PageController pageController;
@@ -29,55 +28,10 @@ class _SignupState extends State<Signup> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    InkWell(
-                      onTap: () async {
-                        setState(() {
-                          logoClicked = true;
-                        });
-                        await Future.delayed(const Duration(milliseconds: 500));
-                        setState(() {
-                          logoClicked = false;
-                        });
-                      },
-                      child: Image.asset(
-                        'lib/assets/logo/buoy_logo.png',
-                        color: Colors.orange[800],
-                        width: 52,
-                        height: 52,
-                      )
-                          .animate(
-                            onInit: (controller) => controller.forward(),
-                            target: logoClicked ? 1.0 : 0.0,
-                          )
-                          .rotate(
-                            duration: 400.ms,
-                            begin: 0.0,
-                            end: 0.5,
-                            curve: Curves.easeInOut,
-                          ),
-                    ),
-                    const Gutter(),
-                    SizedBox(
-                      height: 80,
-                      child: Text(
-                        'Buoy',
-                        style: Theme.of(context)
-                            .textTheme
-                            .displayLarge
-                            ?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                fontFamily: GoogleFonts.corben().fontFamily),
-                      ),
-                    ),
-                  ],
-                ),
+                const BuoyLogo(),
                 const GutterTiny(),
                 Text(
-                  'Make sure they made it safe.',
+                  'Be sure they made it safe.',
                   style: Theme.of(context)
                       .textTheme
                       .titleMedium
@@ -98,66 +52,37 @@ class _SignupState extends State<Signup> {
                 BlocBuilder<SignupCubit, SignupState>(
                   builder: (context, state) {
                     if (state.status == SignupStatus.submitting) {
-                      return Theme.of(context).brightness == Brightness.dark
-                          ? FilledButton(
-                              onPressed: () {},
-                              child: const CircularProgressIndicator.adaptive())
-                          : ElevatedButton(
-                              onPressed: () {},
-                              child: const CircularProgressIndicator.adaptive());
+                      return FilledButton(
+                          onPressed: () {},
+                          child: const CircularProgressIndicator.adaptive());
                     }
                     if (state.status == SignupStatus.failure) {
-                      return Theme.of(context).brightness == Brightness.dark
-                          ? FilledButton.icon(
-                              icon: const Icon(Icons.error),
-                              onPressed: () {
-                                context.read<SignupCubit>().signupWithGoogle();
-                              },
-                              label: const Text(
-                                'Error! Retry.',
-                              ))
-                          : ElevatedButton.icon(
-                              onPressed: () {
-                                context.read<SignupCubit>().signupWithGoogle();
-                              },
-                              label: const Text('Error! Retry.'),
-                              icon: const Icon(Icons.error),
-                            );
+                      return FilledButton.icon(
+                          icon: const Icon(Icons.error),
+                          onPressed: () {
+                            context.read<SignupCubit>().signupWithGoogle();
+                          },
+                          label: const Text(
+                            'Error! Retry.',
+                          ));
                     }
                     if (state.status == SignupStatus.success) {
-                      return Theme.of(context).brightness == Brightness.dark
-                          ? FilledButton.icon(
-                              icon: const Icon(Icons.check),
-                              onPressed: () {},
-                              label: const Text(
-                                'Success!',
-                              ))
-                          : ElevatedButton.icon(
-                              onPressed: () {},
-                              label: const Text('Success!'),
-                              icon: const Icon(Icons.check),
-                            );
+                      return FilledButton.icon(
+                          icon: const Icon(Icons.check),
+                          onPressed: () {},
+                          label: const Text(
+                            'Success!',
+                          ));
                     }
-                    return Theme.of(context).brightness == Brightness.dark
-                        ? FilledButton.icon(
-                            onPressed: () {
-                              context.read<SignupCubit>().signupWithGoogle();
-                            },
-                            icon: const Icon(
-                              FontAwesomeIcons.google,
-                              size: 20.0,
-                            ),
-                            label: const Text('Sign up with Google'))
-                        : ElevatedButton.icon(
-                            onPressed: () {
-                              context.read<SignupCubit>().signupWithGoogle();
-                            },
-                            label: const Text('Sign up with Google'),
-                            icon: const Icon(
-                              FontAwesomeIcons.google,
-                              size: 20.0,
-                            ),
-                          );
+                    return FilledButton.icon(
+                        onPressed: () {
+                          context.read<SignupCubit>().signupWithGoogle();
+                        },
+                        icon: const Icon(
+                          FontAwesomeIcons.google,
+                          size: 20.0,
+                        ),
+                        label: const Text('Sign up with Google'));
                   },
                 ),
                 TextButton(
@@ -167,13 +92,13 @@ class _SignupState extends State<Signup> {
                     onPressed: () {},
                     child: Text.rich(TextSpan(
                         text: 'Have an account? ',
-                        style: Theme.of(context).textTheme.bodyLarge,
+                        style: Theme.of(context).textTheme.bodyMedium,
                         children: [
                           TextSpan(
                               text: 'Sign in.',
                               style: Theme.of(context)
                                   .textTheme
-                                  .bodyLarge
+                                  .bodyMedium
                                   ?.copyWith(
                                       color: Theme.of(context)
                                           .colorScheme
