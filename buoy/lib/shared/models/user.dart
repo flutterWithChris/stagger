@@ -14,6 +14,17 @@ class User {
     this.friendIds,
   });
 
+  // Create empty user
+  factory User.empty() {
+    return User(
+      id: '',
+      email: '',
+      name: '',
+      photoUrl: '',
+      friendIds: [],
+    );
+  }
+
   User copyWith({
     String? id,
     String? email,
@@ -35,8 +46,8 @@ class User {
       'id': id,
       'email': email,
       'name': name,
-      'photoUrl': photoUrl,
-      'friendIds': friendIds,
+      'photo_url': photoUrl,
+      'friend_ids': friendIds,
     };
   }
 
@@ -45,8 +56,8 @@ class User {
       id: map['id'] ?? '',
       email: map['email'] ?? '',
       name: map['name'] ?? '',
-      photoUrl: map['photoUrl'] ?? '',
-      friendIds: List<String>.from(map['friendIds'] ?? []),
+      photoUrl: map['photo_url'] ?? '',
+      friendIds: List<String>.from(map['friend_ids'] ?? []),
     );
   }
 

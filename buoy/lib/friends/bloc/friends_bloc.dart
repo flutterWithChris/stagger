@@ -5,6 +5,7 @@ import 'package:buoy/profile/repository/user_repository.dart';
 import 'package:buoy/shared/models/user.dart';
 import 'package:meta/meta.dart';
 import 'package:async/async.dart';
+import 'package:rxdart/rxdart.dart';
 
 part 'friends_event.dart';
 part 'friends_state.dart';
@@ -40,15 +41,10 @@ class FriendsBloc extends Bloc<FriendsEvent, FriendsState> {
 
     /// Subscribe to friends location updates.
     // Create a list of streams for each friend's location updates
-    final locationUpdateStreams = [
-      for (final friend in friendObjects)
-        _friendRepository.subscribeToFriendsLocation(friend.id!)
-    ];
+    final locationUpdatesListStream =
+        await _subscribeToFriendsLocationUpdates(friendObjects);
 
-// Combine all of the streams into a single stream using a StreamGroup
-    final locationUpdatesStream = StreamGroup.merge(locationUpdateStreams);
-
-    emit(FriendsLoaded(friendObjects, locationUpdatesStream));
+    emit(FriendsLoaded(friendObjects, locationUpdatesListStream));
   }
 
   void _onAddFriend(AddFriend event, Emitter<FriendsState> emit) async {
@@ -61,7 +57,35 @@ class FriendsBloc extends Bloc<FriendsEvent, FriendsState> {
       add(LoadFriends());
     } else {
       print('Friend not found');
-      emit(FriendsError('Friend not found'));
+      emit(const FriendsError('Friend not found'));
     }
+  }
+
+  Future<Stream<List<Location>>> _subscribeToFriendsLocationUpdates(
+      List<User> friendObjects) async {
+    // Create a list of streams for each friend's location updates
+    final locationUpdateStreams = [
+      for (final friend in friendObjects)
+        _friendRepository.subscribeToFriendsLocation(friend.id!)
+    ];
+
+    // Combine all of the streams into a single stream using a StreamGroup
+    final locationUpdatesStream = StreamGroup.merge(locationUpdateStreams);
+
+    final locationUpdatesListStream = locationUpdatesStream
+        .distinctUnique(
+            equals: (a, b) =>
+                a.userId == b.userId && a.timeStamp == b.timeStamp)
+        .scan<List<Location>>(
+          (List<Location> locationUpdates, Location newLocationUpdate, _) {
+            locationUpdates.add(newLocationUpdate);
+            return locationUpdates;
+          },
+          <Location>[],
+        )
+        .share()
+        .asBroadcastStream();
+
+    return locationUpdatesListStream;
   }
 }

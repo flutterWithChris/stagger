@@ -1,7 +1,10 @@
 part of 'profile_bloc.dart';
 
 @immutable
-abstract class ProfileState {}
+abstract class ProfileState {
+  final User? user;
+  const ProfileState({this.user});
+}
 
 class ProfileInitial extends ProfileState {}
 

@@ -40,7 +40,7 @@ class AuthRepository {
           Provider.google,
           redirectTo: 'io.supabase.flutterquickstart://login-callback/',
           scopes: 'email https://www.googleapis.com/auth/userinfo.profile');
-      print('Supabase response: ${response}');
+      print('Supabase response: $response');
 
       // if (response  != null) {
       //   print('Error during Supabase authentication: ${response.error!.message}');
@@ -49,9 +49,9 @@ class AuthRepository {
     } catch (e) {
       // TODO: Handle Error
       print(e);
-      throw e;
+      rethrow;
     }
-    return null;
+    return;
   }
   // Future<GoogleSignInAccount?> signInWithGoogle() async {
   //   try {
@@ -103,7 +103,7 @@ class AuthRepository {
   }
 
   /// Listen to Auth State Changes
-  Stream<AuthState> getAuthStateStrean() {
+  Stream<AuthState> getAuthStateStream() {
     return _supabaseClient.auth.onAuthStateChange;
   }
 }

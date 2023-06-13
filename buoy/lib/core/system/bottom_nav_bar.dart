@@ -39,8 +39,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
         }
       },
       destinations: const [
-        NavigationDestination(
-            icon: Icon(Icons.person_rounded), label: 'Profile'),
+        NavigationDestination(icon: Icon(Icons.groups), label: 'Friends'),
         NavigationDestination(
             icon: Icon(Icons.person_pin_circle_rounded), label: 'Home'),
         NavigationDestination(

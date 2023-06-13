@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gutter/flutter_gutter.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Signup extends StatefulWidget {
   final PageController pageController;
@@ -89,7 +91,13 @@ class _SignupState extends State<Signup> {
                     style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16.0, vertical: 8.0)),
-                    onPressed: () {},
+                    onPressed: () async {
+                      await SharedPreferences.getInstance().then((prefs) async {
+                        await prefs
+                            .setBool('onboardingComplete', true)
+                            .then((value) => context.go('/login'));
+                      });
+                    },
                     child: Text.rich(TextSpan(
                         text: 'Have an account? ',
                         style: Theme.of(context).textTheme.bodyMedium,

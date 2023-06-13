@@ -2,7 +2,7 @@ part of 'friends_bloc.dart';
 
 @immutable
 abstract class FriendsState {
-  final Stream<Location>? locationUpdatesStream;
+  final Stream<List<Location>>? locationUpdatesStream;
 
   final List<User> friends;
   const FriendsState({
@@ -16,7 +16,8 @@ class FriendsInitial extends FriendsState {}
 class FriendsLoaded extends FriendsState {
   @override
   final List<User> friends;
-  final Stream<Location> locationUpdatesStream;
+  @override
+  final Stream<List<Location>> locationUpdatesStream;
 
   const FriendsLoaded(this.friends, this.locationUpdatesStream);
 }

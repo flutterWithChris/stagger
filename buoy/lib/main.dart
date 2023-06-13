@@ -1,5 +1,6 @@
 import 'package:buoy/activity/bloc/activity_bloc.dart';
 import 'package:buoy/auth/bloc/auth_bloc.dart';
+import 'package:buoy/auth/cubit/login_cubit.dart';
 import 'package:buoy/auth/cubit/signup_cubit.dart';
 import 'package:buoy/auth/repository/auth_repository.dart';
 import 'package:buoy/core/router/router.dart';
@@ -8,6 +9,7 @@ import 'package:buoy/friends/repository/friend_repository.dart';
 import 'package:buoy/locate/bloc/geolocation_bloc.dart';
 import 'package:buoy/locate/repository/background_location_repository.dart';
 import 'package:buoy/locate/repository/location_realtime_repository.dart';
+import 'package:buoy/locate/repository/mapbox_search_repository.dart';
 import 'package:buoy/motion/bloc/motion_bloc.dart';
 import 'package:buoy/profile/repository/bloc/profile_bloc.dart';
 import 'package:buoy/profile/repository/user_repository.dart';
@@ -49,7 +51,12 @@ class MyApp extends StatelessWidget {
         RepositoryProvider(
           create: (context) => LocationRealtimeRepository(),
         ),
-        RepositoryProvider(create: (context) => FriendRepository())
+        RepositoryProvider(
+          create: (context) => FriendRepository(),
+        ),
+        RepositoryProvider(
+          create: (context) => MapboxSearchRepository(),
+        )
       ],
       child: MultiBlocProvider(
         providers: [
@@ -59,6 +66,9 @@ class MyApp extends StatelessWidget {
           BlocProvider(
               create: (context) =>
                   SignupCubit(authRepository: context.read<AuthRepository>())),
+          BlocProvider(
+              create: (context) =>
+                  LoginCubit(authRepository: context.read<AuthRepository>())),
           BlocProvider(
             create: (context) => MotionBloc(
                 backgroundLocationRepository:
@@ -73,8 +83,8 @@ class MyApp extends StatelessWidget {
             create: (context) => GeolocationBloc(
                 locationRealtimeRepository:
                     context.read<LocationRealtimeRepository>(),
+                mapboxSearchRepository: context.read<MapboxSearchRepository>(),
                 activityBloc: context.read<ActivityBloc>(),
-                motionBloc: context.read<MotionBloc>(),
                 backgroundLocationRepository:
                     context.read<BackgroundLocationRepository>())
               ..add(LoadGeolocation()),

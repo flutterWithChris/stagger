@@ -15,8 +15,8 @@ class SignupCubit extends Cubit<SignupState> {
 
   void _onSignupWithGoogle() async {
     emit(SignupState.submitting());
-    final user = await _authRepository.signInWithGoogle();
-    _authRepository.getAuthStateStrean().listen((state) {
+    await _authRepository.signInWithGoogle();
+    _authRepository.getAuthStateStream().listen((state) {
       if (state.session?.user == null) {
         print('User is null');
         emit(SignupState.failure());

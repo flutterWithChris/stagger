@@ -1,7 +1,11 @@
 import 'package:buoy/auth/view/login/login.dart';
 import 'package:buoy/auth/view/signup/onboarding.dart';
+import 'package:buoy/friends/view/friend_details.dart';
+import 'package:buoy/locate/model/location.dart';
 import 'package:buoy/locate/view/home.dart';
 import 'package:buoy/profile/view/profile.dart';
+import 'package:buoy/settings/view/settings_page.dart';
+import 'package:buoy/shared/models/user.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -41,6 +45,17 @@ GoRouter goRouter = GoRouter(
     GoRoute(
       path: '/login',
       builder: (context, state) => const LoginPage(),
-    )
+    ),
+    GoRoute(
+        path: '/settings', builder: (context, state) => const SettingsPage()),
+    GoRoute(
+        path: '/friend-details/:id',
+        builder: (context, state) {
+          final String id = state.pathParameters['id']!;
+          return FriendDetailsPage(
+            friendId: id,
+            location: state.extra as Location,
+          );
+        })
   ],
 );

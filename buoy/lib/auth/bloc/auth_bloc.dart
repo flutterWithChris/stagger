@@ -13,7 +13,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({required AuthRepository authRepository})
       : _authRepository = authRepository,
         super(AuthState.initial()) {
-    _authRepository.getAuthStateStrean().listen((state) {
+    _authRepository.getAuthStateStream().listen((state) {
       add(AuthUserChanged(state.session!.user));
     });
     on<AuthUserChanged>((event, emit) {
