@@ -39,6 +39,7 @@ class Location {
     int? batteryLevel,
     String? activity,
     bool? isMoving,
+    bool? includeNull,
   }) {
     return Location(
       userId: userId ?? this.userId,
@@ -48,9 +49,11 @@ class Location {
       city: city ?? this.city,
       state: state ?? this.state,
       timeStamp: timeStamp ?? this.timeStamp,
-      batteryLevel: batteryLevel ?? this.batteryLevel,
-      activity: activity ?? this.activity,
-      isMoving: isMoving ?? this.isMoving,
+      batteryLevel: includeNull == true
+          ? batteryLevel
+          : batteryLevel ?? this.batteryLevel,
+      activity: includeNull == true ? activity : activity ?? this.activity,
+      isMoving: includeNull == true ? isMoving : isMoving ?? this.isMoving,
     );
   }
 

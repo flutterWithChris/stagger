@@ -11,7 +11,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final UserRepository _userRepository;
   ProfileBloc({required UserRepository userRepository})
       : _userRepository = userRepository,
-        super(ProfileInitial()) {
+        super(ProfileLoading()) {
     on<LoadProfile>(_onLoadProfile);
     on<UpdateProfile>(_onUpdateProfile);
   }
@@ -22,7 +22,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       print('Loading profile for user ${event.userId}');
       final user = await _userRepository.getUserById(event.userId);
       user == null
-          ? emit(ProfileError('User not found'))
+          ? emit(const ProfileError('User not found'))
           : emit(ProfileLoaded(user));
       print('Profile loaded: $user');
     } catch (e) {

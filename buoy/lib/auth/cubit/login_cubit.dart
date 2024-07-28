@@ -15,12 +15,13 @@ class LoginCubit extends Cubit<LoginState> {
     emit(LoginLoading());
     try {
       await _authRepository.signInWithGoogle();
-      _authRepository.getAuthStateStream().listen((authState) {
+      _authRepository.authStateChanges.listen((authState) {
         if (authState.session?.user == null) {
           print('User is null');
           emit(LoginError('User is null'));
         } else {
           print('Signup success');
+
           emit(LoginSuccess());
         }
       });
@@ -33,7 +34,7 @@ class LoginCubit extends Cubit<LoginState> {
     emit(LoginLoading());
     try {
       await _authRepository.signInWithApple();
-      _authRepository.getAuthStateStream().listen((event) {
+      _authRepository.authStateChanges.listen((event) {
         if (event.session?.user == null) {
           print('User is null');
           emit(LoginError('User is null'));

@@ -25,31 +25,31 @@ class Profile extends StatelessWidget {
             if (state is ProfileLoaded) {
               return CustomScrollView(
                 slivers: [
-                  MainSliverAppBar(),
+                  const MainSliverAppBar(),
                   SliverPadding(
                     padding: const EdgeInsets.all(16.0),
                     sliver: SliverList(
                       delegate: SliverChildListDelegate(
                         [
                           ListTile(
-                            leading: CircleAvatar(
-                                child: const Icon(
-                                    Icons.person_pin_circle_rounded)),
+                            leading: const CircleAvatar(
+                                child: Icon(Icons.person_pin_circle_rounded)),
                             title: Text(state.user.name!),
                             subtitle: Text(state.user.email!),
                           ),
-                          Gutter(),
+                          const Gutter(),
                           Wrap(
                             spacing: 8.0,
                             crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
-                              Icon(Icons.groups, size: 18.0),
+                              const Icon(Icons.groups, size: 18.0),
                               Text(
                                 'Friends',
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                             ],
                           ),
+                          const Gutter(),
                           BlocBuilder<FriendsBloc, FriendsState>(
                             builder: (context, state) {
                               if (state is FriendsLoading) {
@@ -65,52 +65,79 @@ class Profile extends StatelessWidget {
                                       child: Text('No Friends'));
                                 } else {
                                   return ListView.builder(
+                                    padding: EdgeInsets.zero,
                                     shrinkWrap: true,
                                     physics:
                                         const NeverScrollableScrollPhysics(),
                                     itemCount: state.friends.length,
                                     itemBuilder: (context, index) {
                                       return Card(
+                                        elevation: 0.3,
                                         child: Padding(
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 16.0, vertical: 8.0),
                                           child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              CircleAvatar(
-                                                radius: 26,
-                                                foregroundImage: state
-                                                            .friends[index]
-                                                            .photoUrl !=
-                                                        null
-                                                    ? NetworkImage(state
-                                                        .friends[index]
-                                                        .photoUrl!)
-                                                    : null,
-                                                child: state.friends[index]
-                                                            .photoUrl ==
-                                                        null
-                                                    ? const Icon(
-                                                        Icons.person_rounded,
-                                                        color: Colors.white,
-                                                        size: 48.0,
-                                                      )
-                                                    : null,
-                                              ),
-                                              Gutter(),
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
+                                              Row(
                                                 children: [
-                                                  Text(
-                                                    state.friends[index].name!,
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .titleMedium,
+                                                  CircleAvatar(
+                                                    radius: 26,
+                                                    foregroundImage: state
+                                                                .friends[index]
+                                                                .photoUrl !=
+                                                            null
+                                                        ? NetworkImage(state
+                                                            .friends[index]
+                                                            .photoUrl!)
+                                                        : null,
+                                                    child: state.friends[index]
+                                                                .photoUrl ==
+                                                            null
+                                                        ? const Icon(
+                                                            Icons
+                                                                .person_rounded,
+                                                            color: Colors.white,
+                                                            size: 48.0,
+                                                          )
+                                                        : null,
                                                   ),
-                                                  Text(state
-                                                      .friends[index].email!),
+                                                  const Gutter(),
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        state.friends[index]
+                                                            .name!,
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .titleMedium,
+                                                      ),
+                                                      Text(state.friends[index]
+                                                          .email!),
+                                                    ],
+                                                  ),
                                                 ],
                                               ),
+                                              PopupMenuButton(
+                                                // elevation: 1.618,
+                                                position:
+                                                    PopupMenuPosition.under,
+                                                itemBuilder: (context) {
+                                                  return [
+                                                    const PopupMenuItem(
+                                                      value: 'remove',
+                                                      child:
+                                                          Text('Remove Friend'),
+                                                    ),
+                                                  ];
+                                                },
+                                              )
                                             ],
                                           ),
                                         ),
@@ -119,7 +146,7 @@ class Profile extends StatelessWidget {
                                   );
                                 }
                               }
-                              return Center(
+                              return const Center(
                                   child: Text('Something Went Wrong...'));
                             },
                           )

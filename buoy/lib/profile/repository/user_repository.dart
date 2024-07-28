@@ -57,6 +57,6 @@ class UserRepository {
 
   /// Update a user
   Future<void> updateUser(User user) async {
-    await _client.from('users').update(user.toMap()).eq('id', user.id);
+    await _client.from('users').update(user.toMap()).eq('id', user.id!);
   }
 }

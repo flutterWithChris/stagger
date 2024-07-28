@@ -4,13 +4,16 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mapbox_search/mapbox_search.dart';
 
 class MapboxSearchRepository {
-  final ReverseGeoCoding _reverseGeoCoding =
-      ReverseGeoCoding(apiKey: dotenv.get('MAPBOX_MAGNOLIA'), limit: 1);
+  final GeoCoding _geoCoding =
+      GeoCoding(apiKey: dotenv.get('MAPBOX_MAGNOLIA'), limit: 1);
 
-  Future<List<MapBoxPlace>?> reverseGeocode(double lat, double lng) async {
+  Future<({FailureResponse? failure, List<MapBoxPlace>? success})?>
+      reverseGeocode(double lat, double lng) async {
     try {
-      List<MapBoxPlace>? places =
-          await _reverseGeoCoding.getAddress(Location(lat: lat, lng: lng));
+      ({FailureResponse? failure, List<MapBoxPlace>? success}) places =
+          await _geoCoding.getAddress((lat: lat, long: lng));
+
+      print('Reverse Geocode: ${places.success!.first.placeName}');
       return places;
     } catch (e) {
       scaffoldMessengerKey.currentState!.showSnackBar(
@@ -28,9 +31,10 @@ class MapboxSearchRepository {
 
   String getCityFromMapboxPlace(MapBoxPlace place) {
     String city = '';
-    for (var i = 0; i < place.context!.length; i++) {
-      if (place.context![i].id!.contains('place')) {
-        city = place.context![i].text!;
+    print('place: $place');
+    for (var i = 0; i < place.geometry!.type.length; i++) {
+      if (place.geometry!.type[i].contains('place')) {
+        city = place.geometry!.type;
       }
     }
     return city;
@@ -38,11 +42,11 @@ class MapboxSearchRepository {
 
   String getStateFromMapboxPlace(MapBoxPlace place) {
     String state = '';
-    for (var i = 0; i < place.context!.length; i++) {
-      if (place.context![i].id!.contains('region')) {
-        state = place.context![i].text!;
-      }
-    }
+    // for (var i = 0; i < place!.length; i++) {
+    //   if (place.context![i].id!.contains('region')) {
+    //     state = place.context![i].text!;
+    //   }
+    // }
     return state;
   }
 }

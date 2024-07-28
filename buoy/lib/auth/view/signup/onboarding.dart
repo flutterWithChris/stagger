@@ -1,8 +1,11 @@
 import 'package:buoy/auth/view/signup/battery_info_page.dart';
+import 'package:buoy/auth/view/signup/location_permissions.dart';
 import 'package:buoy/auth/view/signup/privacy_security_page.dart';
 import 'package:buoy/auth/view/signup/signup_page.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+
+import 'add_friends_page.dart';
 
 class Onboarding extends StatefulWidget {
   const Onboarding({super.key});
@@ -108,6 +111,8 @@ class _OnboardingState extends State<Onboarding> {
               Signup(
                 pageController: pageController,
               ),
+              const LocationPermissionsPage(),
+              const AddFriendsPage(),
               const BatteryInfoPage(),
               const PrivacySecurityPage(),
             ],

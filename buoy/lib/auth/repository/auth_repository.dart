@@ -1,109 +1,140 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
+
+import 'package:crypto/crypto.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 class AuthRepository {
-  final SupabaseClient _supabaseClient = Supabase.instance.client;
+  final supabase.SupabaseClient _supabase = supabase.Supabase.instance.client;
 
-  /// Get Current User
-  Future<User?> getCurrentUser() async {
-    return _supabaseClient.auth.currentUser;
-  }
-
-  /// Sign In with Google
-  Future<void> signInWithGoogle() async {
+  Future<supabase.AuthResponse?> signInWithGoogle() async {
     try {
-      // GoogleSignIn googleSignIn = GoogleSignIn(
-      //   //serverClientId: dotenv.get('GOOGLE_OAUTH_ID'),
-      //   scopes: [
-      //     'email',
-      //     'https://www.googleapis.com/auth/userinfo.profile',
-      //   ],
-      // );
-      // print('Signing in with google');
-      // final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-      // if (googleUser == null) {
-      //   // User canceled sign-in, return null
-      //   return null;
-      // }
+      /// Web Client ID that you registered with Google Cloud.
+      String? webClientId = dotenv.env['GOOGLE_OAUTH_ID'];
 
-      // // Get the ID token to authenticate with your backend:
-      // final GoogleSignInAuthentication googleAuth =
-      //     await googleUser.authentication;
-      // final String googleToken = googleAuth.idToken!;
+      String? androidClientId = dotenv.env['GOOGLE_ANDROID_OAUTH_CLIENT_ID'];
 
-      // // Get user's name:
-      // final String userName = googleUser.displayName ?? '';
+      ///
+      /// iOS Client ID that you registered with Google Cloud.
+      String? iosClientId = dotenv.env['GOOGLE_IOS_OAUTH_CLIENT_ID'];
 
-      // Now you can send googleToken to your Supabase server
-      bool response = await _supabaseClient.auth.signInWithOAuth(
-          Provider.google,
-          redirectTo: 'io.supabase.flutterquickstart://login-callback/',
-          scopes: 'email https://www.googleapis.com/auth/userinfo.profile');
-      print('Supabase response: $response');
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        clientId: Platform.isAndroid ? null : iosClientId,
+        serverClientId: webClientId,
+      );
+      final googleUser = await googleSignIn.signIn();
+      final googleAuth = await googleUser!.authentication;
+      final accessToken = googleAuth.accessToken;
+      final idToken = googleAuth.idToken;
 
-      // if (response  != null) {
-      //   print('Error during Supabase authentication: ${response.error!.message}');
-      //   return null;
-      // }
-    } catch (e) {
-      // TODO: Handle Error
+      if (accessToken == null) {
+        throw 'No Access Token found.';
+      }
+      if (idToken == null) {
+        throw 'No ID Token found.';
+      }
+
+      return await _supabase.auth.signInWithIdToken(
+        provider: supabase.OAuthProvider.google,
+        idToken: idToken,
+        accessToken: accessToken,
+      );
+    } catch (e, stackTrace) {
       print(e);
-      rethrow;
+      print(stackTrace);
+      // scaffoldKey.currentState?.showSnackBar(
+      //   getErrorSnackBar('Failed to sign in. Please try again.'),
+      // );
+      // await Sentry.captureException(
+      //   e,
+      //   stackTrace: stackTrace,
+      // );
+      return null;
     }
-    return;
-  }
-  // Future<GoogleSignInAccount?> signInWithGoogle() async {
-  //   try {
-  //     GoogleSignIn googleSignIn = GoogleSignIn(
-  //       //serverClientId: dotenv.get('GOOGLE_OAUTH_ID'),
-  //       scopes: [
-  //         'email',
-  //         'https://www.googleapis.com/auth/userinfo.profile',
-  //       ],
-  //     );
-  //     print('Signing in with google');
-  //     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-  //     if (googleUser == null) {
-  //       // User canceled sign-in, return null
-  //       return null;
-  //     }
-
-  //     // Get the ID token to authenticate with your backend:
-  //     final GoogleSignInAuthentication googleAuth =
-  //         await googleUser.authentication;
-  //     final String googleToken = googleAuth.idToken!;
-
-  //     // Get user's name:
-  //     final String userName = googleUser.displayName ?? '';
-
-  //     // Now you can send googleToken to your Supabase server
-  //     AuthResponse response = await _supabaseClient.auth
-  //         .signInWithIdToken(provider: Provider.google, idToken: googleToken);
-  //     print('Supabase response: ${response}');
-
-  //     // if (response  != null) {
-  //     //   print('Error during Supabase authentication: ${response.error!.message}');
-  //     //   return null;
-  //     // }
-
-  //     return googleUser;
-  //   } catch (e) {
-  //     // TODO: Handle Error
-  //     print(e);
-  //     throw e;
-  //   }
-  //   return null;
-  // }
-
-  /// Sign In With Apple
-  Future<AuthResponse> signInWithApple() async {
-    final response = await _supabaseClient.auth.signInWithApple();
-    return response;
   }
 
-  /// Listen to Auth State Changes
-  Stream<AuthState> getAuthStateStream() {
-    return _supabaseClient.auth.onAuthStateChange;
+  Stream<supabase.AuthState> get authStateChanges =>
+      _supabase.auth.onAuthStateChange;
+
+  Future<supabase.AuthResponse?> signInWithApple() async {
+    try {
+      // Generate a random nonce for security purposes
+      final rawNonce = _generateNonce();
+      final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
+
+      // Request Apple ID credential with email and full name scopes
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+        nonce: hashedNonce,
+      );
+
+      // Extract the ID token from the credential
+      final idToken = credential.identityToken;
+      if (idToken == null) {
+        throw const supabase.AuthException(
+            'Could not find ID Token from generated credential.');
+      }
+
+      // Sign in to Supabase with the ID token and the original raw nonce
+      return _supabase.auth.signInWithIdToken(
+        provider: supabase.OAuthProvider.apple,
+        idToken: idToken,
+        nonce: rawNonce,
+      );
+    } catch (e, stackTrace) {
+      // scaffoldKey.currentState?.showSnackBar(
+      //   getErrorSnackBar('Failed to sign in. Please try again.'),
+      // );
+      // await Sentry.captureException(
+      //   e,
+      //   stackTrace: stackTrace,
+      // );
+      return null;
+    }
+  }
+
+// Helper function to generate a random nonce
+  String _generateNonce([int length = 32]) {
+    const charset =
+        '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
+    final random = Random.secure();
+    return List.generate(length, (_) => charset[random.nextInt(charset.length)])
+        .join();
+  }
+
+  Future<void> signOut() async {
+    try {
+      await _supabase.auth.signOut();
+    } catch (e, stackTrace) {
+      // scaffoldKey.currentState?.showSnackBar(
+      //   getErrorSnackBar('Failed to sign out. Please try again.'),
+      // );
+      // await Sentry.captureException(
+      //   e,
+      //   stackTrace: stackTrace,
+      // );
+      return;
+    }
+  }
+
+  Future<void> deleteAccount() async {
+    try {
+      await _supabase.auth.admin.deleteUser(_supabase.auth.currentUser!.id);
+    } catch (e, stackTrace) {
+      // scaffoldKey.currentState?.showSnackBar(
+      //   getErrorSnackBar('Failed to delete account. Please try again.'),
+      // );
+      // await Sentry.captureException(
+      //   e,
+      //   stackTrace: stackTrace,
+      // );
+    }
   }
 }

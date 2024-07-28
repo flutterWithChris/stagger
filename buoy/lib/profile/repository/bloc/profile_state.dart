@@ -11,11 +11,12 @@ class ProfileInitial extends ProfileState {}
 class ProfileLoading extends ProfileState {}
 
 class ProfileLoaded extends ProfileState {
+  @override
   final User user;
-  ProfileLoaded(this.user);
+  const ProfileLoaded(this.user);
 }
 
 class ProfileError extends ProfileState {
   final String message;
-  ProfileError(this.message);
+  const ProfileError(this.message);
 }

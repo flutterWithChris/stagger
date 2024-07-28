@@ -2,12 +2,11 @@ part of 'friends_bloc.dart';
 
 @immutable
 abstract class FriendsState {
-  final Stream<List<Location>>? locationUpdatesStream;
-
   final List<User> friends;
+  final List<Location> locations;
   const FriendsState({
     this.friends = const [],
-    this.locationUpdatesStream,
+    this.locations = const [],
   });
 }
 
@@ -17,9 +16,9 @@ class FriendsLoaded extends FriendsState {
   @override
   final List<User> friends;
   @override
-  final Stream<List<Location>> locationUpdatesStream;
+  final List<Location> locations;
 
-  const FriendsLoaded(this.friends, this.locationUpdatesStream);
+  const FriendsLoaded(this.friends, this.locations);
 }
 
 class FriendsError extends FriendsState {

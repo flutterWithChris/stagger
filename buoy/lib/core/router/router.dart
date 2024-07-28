@@ -20,7 +20,7 @@ GoRouter goRouter = GoRouter(
     bool isLoggedIn =
         context.read<AuthBloc>().state.status == AuthStatus.authenticated;
     bool isOnboardingComplete = prefs.getBool('onboardingComplete') ?? false;
-    bool isCurrentlyOnboarding = state.location == '/onboarding';
+    bool isCurrentlyOnboarding = state.fullPath == '/onboarding';
     print('isOnboardingComplete: $isOnboardingComplete');
     print('isLoggedIn: $isLoggedIn');
 

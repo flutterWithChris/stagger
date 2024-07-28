@@ -31,6 +31,7 @@ class GeolocationUpdating extends GeolocationState {
 class GeolocationLoaded extends GeolocationState {
   @override
   final bg.Location bgLocation;
+  @override
   final Location location;
   const GeolocationLoaded({
     required this.bgLocation,

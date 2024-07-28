@@ -1,6 +1,8 @@
 import 'package:buoy/core/system/main_sliver_app_bar.dart';
 import 'package:buoy/friends/bloc/friends_bloc.dart';
 import 'package:buoy/locate/model/location.dart';
+import 'package:buoy/locate/view/widgets/activity_chip.dart';
+import 'package:buoy/locate/view/widgets/battery_chip.dart';
 import 'package:buoy/locate/view/widgets/friend_location_card.dart';
 import 'package:buoy/shared/models/user.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -19,7 +21,7 @@ class FriendDetailsPage extends StatelessWidget {
     return Scaffold(
         body: CustomScrollView(
       slivers: [
-        MainSliverAppBar(),
+        const MainSliverAppBar(),
         SliverFillRemaining(
           child: BlocBuilder<FriendsBloc, FriendsState>(
             builder: (context, state) {

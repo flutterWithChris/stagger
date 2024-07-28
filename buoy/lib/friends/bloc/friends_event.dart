@@ -22,3 +22,10 @@ class UpdateFriend extends FriendsEvent {
 
   UpdateFriend(this.friend);
 }
+
+class UpdateFriends extends FriendsEvent {
+  final List<User> friends;
+  final List<Location> locations;
+
+  UpdateFriends(this.friends, this.locations);
+}

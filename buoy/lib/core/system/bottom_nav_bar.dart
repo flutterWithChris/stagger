@@ -15,6 +15,8 @@ class _BottomNavBarState extends State<BottomNavBar> {
   @override
   Widget build(BuildContext context) {
     return NavigationBar(
+      elevation: 0,
+      backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
       selectedIndex: selectedIndex,
       onDestinationSelected: (index) {
         switch (index) {

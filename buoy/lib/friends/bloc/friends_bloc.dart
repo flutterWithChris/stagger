@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:buoy/friends/repository/friend_repository.dart';
 import 'package:buoy/locate/model/location.dart';
@@ -13,6 +15,8 @@ part 'friends_state.dart';
 class FriendsBloc extends Bloc<FriendsEvent, FriendsState> {
   final FriendRepository _friendRepository;
   final UserRepository _userRepository;
+  StreamSubscription<List<Location>>? _locationUpdatesSubscription;
+
   FriendsBloc(
       {required FriendRepository friendRepository,
       required UserRepository userRepository})
@@ -21,6 +25,7 @@ class FriendsBloc extends Bloc<FriendsEvent, FriendsState> {
         super(FriendsLoading()) {
     on<LoadFriends>(_onLoadFriends);
     on<AddFriend>(_onAddFriend);
+    on<UpdateFriends>(_onUpdateFriends);
   }
 
   void _onLoadFriends(LoadFriends event, Emitter<FriendsState> emit) async {
@@ -43,8 +48,21 @@ class FriendsBloc extends Bloc<FriendsEvent, FriendsState> {
     // Create a list of streams for each friend's location updates
     final locationUpdatesListStream =
         await _subscribeToFriendsLocationUpdates(friendObjects);
+    _locationUpdatesSubscription =
+        locationUpdatesListStream.listen((locations) {
+      print('Locations updated: $locations');
+      if (locations.isNotEmpty) {
+        add(UpdateFriends(friendObjects, locations));
+      }
+    });
+  }
 
-    emit(FriendsLoaded(friendObjects, locationUpdatesListStream));
+  void _onUpdateFriends(UpdateFriends event, Emitter<FriendsState> emit) async {
+    if (state is! FriendsLoading) {
+      emit(FriendsLoading());
+    }
+    print('Updating friends...');
+    emit(FriendsLoaded(event.friends, event.locations));
   }
 
   void _onAddFriend(AddFriend event, Emitter<FriendsState> emit) async {
@@ -87,5 +105,12 @@ class FriendsBloc extends Bloc<FriendsEvent, FriendsState> {
         .asBroadcastStream();
 
     return locationUpdatesListStream;
+  }
+
+  @override
+  Future<void> close() async {
+    // TODO: implement close
+    await _locationUpdatesSubscription?.cancel();
+    return super.close();
   }
 }

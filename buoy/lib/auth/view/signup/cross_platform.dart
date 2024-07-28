@@ -8,9 +8,6 @@ class CrossPlatformPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).brightness == Brightness.light
-          ? Colors.white.withOpacity(0.8)
-          : Colors.black.withAlpha(180),
       body: Center(
         child: SafeArea(
           child: Column(

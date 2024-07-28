@@ -10,3 +10,5 @@ class AuthUserChanged extends AuthEvent {
 
   const AuthUserChanged(this.user);
 }
+
+class AuthLogoutRequested extends AuthEvent {}

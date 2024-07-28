@@ -39,7 +39,7 @@ class FriendRepository {
       final response = await _client
           .from('users')
           .select()
-          .in_('id', friendsList.keys.toList());
+          .eq('id', friendsList.keys.toList());
       print('Friend objects: $response');
       return response.map((e) => User.fromMap(e)).toList();
     } catch (e) {
