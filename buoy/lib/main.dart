@@ -16,6 +16,7 @@ import 'package:buoy/motion/bloc/motion_bloc.dart';
 import 'package:buoy/profile/repository/bloc/profile_bloc.dart';
 import 'package:buoy/profile/repository/user_repository.dart';
 import 'package:buoy/rides/bloc/ride_bloc.dart';
+import 'package:buoy/rides/bloc/rides_bloc.dart';
 import 'package:buoy/rides/repository/ride_repository.dart';
 import 'package:buoy/shared/constants.dart';
 import 'package:buoy/shared/theme/theme_cubit.dart';
@@ -129,6 +130,11 @@ class MyApp extends StatelessWidget {
               mapboxSearchRepository: context.read<MapboxSearchRepository>(),
               rideRepository: context.read<RideRepository>(),
             ),
+          ),
+          BlocProvider(
+            create: (context) => RidesBloc(
+              rideRepository: context.read<RideRepository>(),
+            )..add(LoadRides()),
           )
         ],
         child: BlocBuilder<ThemeCubit, ThemeState>(

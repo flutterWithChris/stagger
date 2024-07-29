@@ -5,6 +5,8 @@ import 'package:buoy/locate/model/location.dart';
 import 'package:buoy/locate/view/widgets/friend_location_card.dart';
 import 'package:buoy/profile/repository/bloc/profile_bloc.dart';
 import 'package:buoy/rides/bloc/ride_bloc.dart';
+import 'package:buoy/rides/bloc/rides_bloc.dart';
+import 'package:buoy/rides/model/ride.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -15,6 +17,7 @@ import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:collection/collection.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../activity/bloc/activity_bloc.dart';
@@ -131,161 +134,86 @@ class MainMap extends StatelessWidget {
                                           'showing location $i: ${friendsState.locations[i].latitude}');
                                     }
 
-                                    return BlocConsumer<RideBloc, RideState>(
-                                      listener: (context, state) {
-                                        if (state is CreatingRide &&
-                                            state.ride.meetingPoint == null) {
-                                          print('Creating Ride State...');
-                                          // Show bottom sheet to create ride
-                                          showBottomSheet(
-                                            context: context,
-                                            // isScrollControlled: true,
-                                            builder: (context) {
-                                              return const SelectDestinationSheet();
-                                            },
+                                    return BlocBuilder<RidesBloc, RidesState>(
+                                      builder: (context, ridesState) {
+                                        if (ridesState is RidesLoading) {
+                                          return const MarkerLayer(
+                                            markers: [],
                                           );
                                         }
-                                      },
-                                      builder: (context, rideState) {
-                                        if (rideState is CreatingRide &&
-                                            rideState.ride.meetingPoint !=
-                                                null) {
-                                          return MarkerLayer(
-                                            markers: [
-                                              /// User Location
-                                              /// Destination Location
-                                              Marker(
-                                                point: LatLng(
-                                                    rideState
-                                                        .ride.meetingPoint![0],
-                                                    rideState
-                                                        .ride.meetingPoint![1]),
-                                                child: PhosphorIcon(
-                                                        PhosphorIcons.mapPin(
-                                                            PhosphorIconsStyle
-                                                                .fill))
-                                                    .animate(
-                                                      onComplete:
-                                                          (controller) =>
-                                                              controller.repeat(
-                                                                  reverse:
-                                                                      true),
-                                                    )
-                                                    .scale(
-                                                        begin: const Offset(
-                                                            1.0, 1.0),
-                                                        end: const Offset(
-                                                            1.6, 1.6),
-                                                        duration:
-                                                            1.618.seconds),
-                                              ),
-                                              Marker(
-                                                // anchorPos:
-                                                //     AnchorPos.align(AnchorAlign.top),
-                                                width: 32.0,
-                                                height: 32.0,
-                                                point: LatLng(
-                                                    state.bgLocation!.coords
-                                                        .latitude,
-                                                    state.bgLocation!.coords
-                                                        .longitude),
-                                                child: Stack(
-                                                  clipBehavior: Clip.none,
-                                                  alignment: Alignment.center,
-                                                  children: [
-                                                    CircleAvatar(
-                                                      radius: 30.0,
-                                                      backgroundColor:
-                                                          Theme.of(context)
-                                                              .splashColor,
-                                                    )
+                                        if (ridesState is RidesError) {
+                                          return const MarkerLayer(
+                                            markers: [],
+                                          );
+                                        }
+
+                                        return BlocConsumer<RideBloc,
+                                            RideState>(
+                                          listener: (context, state) {
+                                            if (state is CreatingRide &&
+                                                state.ride.meetingPoint ==
+                                                    null) {
+                                              print('Creating Ride State...');
+                                              // Show bottom sheet to create ride
+                                              showBottomSheet(
+                                                context: context,
+                                                // isScrollControlled: true,
+                                                builder: (context) {
+                                                  return const SelectDestinationSheet();
+                                                },
+                                              );
+                                            }
+                                          },
+                                          builder: (context, rideState) {
+                                            if (rideState is CreatingRide &&
+                                                rideState.ride.meetingPoint !=
+                                                    null) {
+                                              return MarkerLayer(
+                                                markers: [
+                                                  /// User Location
+                                                  /// Destination Location
+                                                  Marker(
+                                                    point: LatLng(
+                                                        rideState.ride
+                                                            .meetingPoint![0],
+                                                        rideState.ride
+                                                            .meetingPoint![1]),
+                                                    child: PhosphorIcon(
+                                                            PhosphorIcons.mapPin(
+                                                                PhosphorIconsStyle
+                                                                    .fill))
                                                         .animate(
                                                           onComplete:
                                                               (controller) =>
-                                                                  controller
-                                                                      .repeat(),
+                                                                  controller.repeat(
+                                                                      reverse:
+                                                                          true),
                                                         )
-                                                        .fadeIn(
-                                                            duration: 800.ms)
                                                         .scale(
+                                                            begin: const Offset(
+                                                                1.0, 1.0),
+                                                            end: const Offset(
+                                                                1.6, 1.6),
                                                             duration:
-                                                                1.618.seconds)
-                                                        .fadeOut(delay: 800.ms),
-                                                    InkWell(
-                                                      onTap: () async {
-                                                        await mapController?.animateTo(
-                                                            dest: LatLng(
-                                                                state
-                                                                    .bgLocation!
-                                                                    .coords
-                                                                    .latitude,
-                                                                state
-                                                                    .bgLocation!
-                                                                    .coords
-                                                                    .longitude));
-                                                      },
-                                                      child: CircleAvatar(
-                                                        backgroundColor:
-                                                            Colors.white,
-                                                        radius: 18.0,
-                                                        child: CircleAvatar(
-                                                          radius: 16.0,
-                                                          // foregroundImage:
-                                                          //     CachedNetworkImageProvider(
-                                                          //   profileState.user
-                                                          //           .photoUrl ??
-                                                          //       '',
-                                                          // ),
-                                                          child: profileState
-                                                                          .user
-                                                                          .photoUrl ==
-                                                                      null ||
-                                                                  profileState
-                                                                          .user
-                                                                          .photoUrl ==
-                                                                      ''
-                                                              // Show first and last initials if no photo
-                                                              ? Text(
-                                                                  '${profileState.user.name![0]}${profileState.user.name!.split(' ').last[0]}',
-                                                                  style: Theme.of(
-                                                                          context)
-                                                                      .textTheme
-                                                                      .bodyMedium!
-                                                                      .copyWith(
-                                                                        color: Theme.of(context)
-                                                                            .scaffoldBackgroundColor,
-                                                                        fontWeight:
-                                                                            FontWeight.w800,
-                                                                      ),
-                                                                )
-                                                              : null,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-
-                                              if (friendsState
-                                                      .friends.isNotEmpty &&
-                                                  friendsState
-                                                      .locations.isNotEmpty)
-                                                for (Location location
-                                                    in friendsState.locations)
+                                                                1.618.seconds),
+                                                  ),
                                                   Marker(
-                                                    width: 100.0,
-                                                    height: 100.0,
+                                                    // anchorPos:
+                                                    //     AnchorPos.align(AnchorAlign.top),
+                                                    width: 32.0,
+                                                    height: 32.0,
                                                     point: LatLng(
-                                                        double.parse(
-                                                            location.latitude),
-                                                        double.parse(location
-                                                            .longitude)),
+                                                        state.bgLocation!.coords
+                                                            .latitude,
+                                                        state.bgLocation!.coords
+                                                            .longitude),
                                                     child: Stack(
+                                                      clipBehavior: Clip.none,
                                                       alignment:
                                                           Alignment.center,
                                                       children: [
                                                         CircleAvatar(
-                                                          radius: 28.0,
+                                                          radius: 30.0,
                                                           backgroundColor:
                                                               Theme.of(context)
                                                                   .splashColor,
@@ -306,58 +234,16 @@ class MainMap extends StatelessWidget {
                                                                 delay: 800.ms),
                                                         InkWell(
                                                           onTap: () async {
-                                                            showBottomSheet(
-                                                              context: context,
-                                                              //       isScrollControlled: true,
-                                                              builder:
-                                                                  (context) {
-                                                                return DraggableScrollableSheet(
-                                                                    expand:
-                                                                        false,
-                                                                    maxChildSize:
-                                                                        0.28,
-                                                                    initialChildSize:
-                                                                        0.28,
-                                                                    minChildSize:
-                                                                        0.13,
-                                                                    builder:
-                                                                        (context,
-                                                                            controller) {
-                                                                      return FriendDetailsSheet(
-                                                                          friendId: friendsState
-                                                                              .friends[
-                                                                                  1]
-                                                                              .id!,
-                                                                          location:
-                                                                              location,
-                                                                          scrollController:
-                                                                              controller);
-                                                                    });
-                                                              },
-                                                            );
-                                                            await mapController
-                                                                ?.centerOnPoint(
-                                                              LatLng(
-                                                                  double.parse(
-                                                                      location
-                                                                          .latitude),
-                                                                  double.parse(
-                                                                      location
-                                                                          .longitude)),
-                                                            );
-                                                            // await mapController
-                                                            //     ?.centerOnPoint(
-                                                            //         LatLng(
-                                                            //           double.parse(
-                                                            //               location
-                                                            //                   .latitude),
-                                                            //           double.parse(
-                                                            //               location
-                                                            //                   .longitude),
-                                                            //         ),
-                                                            //         zoom: 14.0,
-                                                            //         curve: Curves
-                                                            //             .easeOutSine);
+                                                            await mapController?.animateTo(
+                                                                dest: LatLng(
+                                                                    state
+                                                                        .bgLocation!
+                                                                        .coords
+                                                                        .latitude,
+                                                                    state
+                                                                        .bgLocation!
+                                                                        .coords
+                                                                        .longitude));
                                                           },
                                                           child: CircleAvatar(
                                                             backgroundColor:
@@ -367,31 +253,32 @@ class MainMap extends StatelessWidget {
                                                               radius: 16.0,
                                                               // foregroundImage:
                                                               //     CachedNetworkImageProvider(
-                                                              //   friendsState
-                                                              //           .friends
-                                                              //           .firstWhere((friend) =>
-                                                              //               friend.id ==
-                                                              //               location.userId)
+                                                              //   profileState.user
                                                               //           .photoUrl ??
                                                               //       '',
                                                               // ),
-                                                              child: friendsState
-                                                                          .friends
-                                                                          .firstWhere((friend) =>
-                                                                              friend.id ==
-                                                                              location
-                                                                                  .userId)
-                                                                          .photoUrl ==
-                                                                      null
-                                                                  ? Text(friendsState
-                                                                      .friends
-                                                                      .firstWhere((friend) =>
-                                                                          friend
-                                                                              .id ==
-                                                                          location
-                                                                              .userId)
-                                                                      .name!
-                                                                      .toUpperCase())
+                                                              child: profileState
+                                                                              .user
+                                                                              .photoUrl ==
+                                                                          null ||
+                                                                      profileState
+                                                                              .user
+                                                                              .photoUrl ==
+                                                                          ''
+                                                                  // Show first and last initials if no photo
+                                                                  ? Text(
+                                                                      '${profileState.user.name![0]}${profileState.user.name!.split(' ').last[0]}',
+                                                                      style: Theme.of(
+                                                                              context)
+                                                                          .textTheme
+                                                                          .bodyMedium!
+                                                                          .copyWith(
+                                                                            color:
+                                                                                Theme.of(context).scaffoldBackgroundColor,
+                                                                            fontWeight:
+                                                                                FontWeight.w800,
+                                                                          ),
+                                                                    )
                                                                   : null,
                                                             ),
                                                           ),
@@ -399,118 +286,240 @@ class MainMap extends StatelessWidget {
                                                       ],
                                                     ),
                                                   ),
-                                            ],
-                                          );
-                                        }
-                                        return MarkerLayer(
-                                          markers: [
-                                            /// User Location
-                                            Marker(
-                                              // anchorPos:
-                                              //     AnchorPos.align(AnchorAlign.top),
-                                              width: 32.0,
-                                              height: 32.0,
-                                              point: LatLng(
-                                                  state.bgLocation!.coords
-                                                      .latitude,
-                                                  state.bgLocation!.coords
-                                                      .longitude),
-                                              child: Stack(
-                                                clipBehavior: Clip.none,
-                                                alignment: Alignment.center,
-                                                children: [
-                                                  CircleAvatar(
-                                                    radius: 30.0,
-                                                    backgroundColor:
-                                                        Theme.of(context)
-                                                            .splashColor,
-                                                  )
-                                                      .animate(
-                                                        onComplete:
-                                                            (controller) =>
-                                                                controller
-                                                                    .repeat(),
-                                                      )
-                                                      .fadeIn(duration: 800.ms)
-                                                      .scale(
-                                                          duration:
-                                                              1.618.seconds)
-                                                      .fadeOut(delay: 800.ms),
-                                                  InkWell(
-                                                    onTap: () async {
-                                                      await mapController?.animateTo(
-                                                          dest: LatLng(
-                                                              state
-                                                                  .bgLocation!
-                                                                  .coords
-                                                                  .latitude,
-                                                              state
-                                                                  .bgLocation!
-                                                                  .coords
-                                                                  .longitude));
-                                                    },
-                                                    child: CircleAvatar(
-                                                      backgroundColor:
-                                                          Colors.white,
-                                                      radius: 18.0,
-                                                      child: CircleAvatar(
-                                                        radius: 16.0,
-                                                        // foregroundImage:
-                                                        //     CachedNetworkImageProvider(
-                                                        //   profileState.user
-                                                        //           .photoUrl ??
-                                                        //       '',
-                                                        // ),
-                                                        child: profileState.user
-                                                                        .photoUrl ==
-                                                                    null ||
-                                                                profileState
-                                                                        .user
-                                                                        .photoUrl ==
-                                                                    ''
-                                                            // Show first and last initials if no photo
-                                                            ? Text(
-                                                                '${profileState.user.name![0]}${profileState.user.name!.split(' ').last[0]}',
-                                                                style: Theme.of(
-                                                                        context)
-                                                                    .textTheme
-                                                                    .bodyMedium!
-                                                                    .copyWith(
-                                                                      color: Theme.of(
-                                                                              context)
-                                                                          .scaffoldBackgroundColor,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w800,
-                                                                    ),
+
+                                                  if (friendsState
+                                                          .friends.isNotEmpty &&
+                                                      friendsState
+                                                          .locations.isNotEmpty)
+                                                    for (Location location
+                                                        in friendsState
+                                                            .locations)
+                                                      Marker(
+                                                        width: 100.0,
+                                                        height: 100.0,
+                                                        point: LatLng(
+                                                            double.parse(
+                                                                location
+                                                                    .latitude),
+                                                            double.parse(location
+                                                                .longitude)),
+                                                        child: Stack(
+                                                          alignment:
+                                                              Alignment.center,
+                                                          children: [
+                                                            CircleAvatar(
+                                                              radius: 28.0,
+                                                              backgroundColor:
+                                                                  Theme.of(
+                                                                          context)
+                                                                      .splashColor,
+                                                            )
+                                                                .animate(
+                                                                  onComplete: (controller) =>
+                                                                      controller
+                                                                          .repeat(),
+                                                                )
+                                                                .fadeIn(
+                                                                    duration:
+                                                                        800.ms)
+                                                                .scale(
+                                                                    duration: 1.618
+                                                                        .seconds)
+                                                                .fadeOut(
+                                                                    delay:
+                                                                        800.ms),
+                                                            InkWell(
+                                                              onTap: () async {
+                                                                showBottomSheet(
+                                                                  context:
+                                                                      context,
+                                                                  //       isScrollControlled: true,
+                                                                  builder:
+                                                                      (context) {
+                                                                    return DraggableScrollableSheet(
+                                                                        expand:
+                                                                            false,
+                                                                        maxChildSize:
+                                                                            0.28,
+                                                                        initialChildSize:
+                                                                            0.28,
+                                                                        minChildSize:
+                                                                            0.13,
+                                                                        builder:
+                                                                            (context,
+                                                                                controller) {
+                                                                          return FriendDetailsSheet(
+                                                                              friendId: friendsState.friends[1].id!,
+                                                                              location: location,
+                                                                              scrollController: controller);
+                                                                        });
+                                                                  },
+                                                                );
+                                                                await mapController
+                                                                    ?.centerOnPoint(
+                                                                  LatLng(
+                                                                      double.parse(
+                                                                          location
+                                                                              .latitude),
+                                                                      double.parse(
+                                                                          location
+                                                                              .longitude)),
+                                                                );
+                                                                // await mapController
+                                                                //     ?.centerOnPoint(
+                                                                //         LatLng(
+                                                                //           double.parse(
+                                                                //               location
+                                                                //                   .latitude),
+                                                                //           double.parse(
+                                                                //               location
+                                                                //                   .longitude),
+                                                                //         ),
+                                                                //         zoom: 14.0,
+                                                                //         curve: Curves
+                                                                //             .easeOutSine);
+                                                              },
+                                                              child:
+                                                                  CircleAvatar(
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .white,
+                                                                radius: 18.0,
+                                                                child:
+                                                                    CircleAvatar(
+                                                                  radius: 16.0,
+                                                                  // foregroundImage:
+                                                                  //     CachedNetworkImageProvider(
+                                                                  //   friendsState
+                                                                  //           .friends
+                                                                  //           .firstWhere((friend) =>
+                                                                  //               friend.id ==
+                                                                  //               location.userId)
+                                                                  //           .photoUrl ??
+                                                                  //       '',
+                                                                  // ),
+                                                                  child: friendsState.friends.firstWhere((friend) => friend.id == location.userId).photoUrl ==
+                                                                          null
+                                                                      ? Text(friendsState
+                                                                          .friends
+                                                                          .firstWhere((friend) =>
+                                                                              friend.id ==
+                                                                              location.userId)
+                                                                          .name!
+                                                                          .toUpperCase())
+                                                                      : null,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                ],
+                                              );
+                                            }
+                                            return MarkerLayer(
+                                              markers: [
+                                                for (Ride ride
+                                                    in ridesState.myRides ?? [])
+                                                  Marker(
+                                                    point: LatLng(
+                                                        ride.meetingPoint![0],
+                                                        ride.meetingPoint![1]),
+                                                    child: InkWell(
+                                                      onTap: () async {
+                                                        print('Tapped ride');
+
+                                                        showBottomSheet(
+                                                          context: context,
+                                                          builder: (context) {
+                                                            return DraggableScrollableSheet(
+                                                                expand: false,
+                                                                maxChildSize:
+                                                                    0.4,
+                                                                initialChildSize:
+                                                                    0.33,
+                                                                minChildSize:
+                                                                    0.13,
+                                                                builder: (context,
+                                                                    controller) {
+                                                                  return RideDetailsSheet(
+                                                                      ride:
+                                                                          ride,
+                                                                      scrollController:
+                                                                          controller);
+                                                                });
+                                                          },
+                                                        );
+
+                                                        await mapController?.animateTo(
+                                                            dest: LatLng(
+                                                                ride.meetingPoint![
+                                                                    0],
+                                                                ride.meetingPoint![
+                                                                    1]));
+                                                      },
+                                                      child: Stack(
+                                                        alignment:
+                                                            Alignment.center,
+                                                        children: [
+                                                          CircleAvatar(
+                                                            radius: 200.0,
+                                                            backgroundColor: Theme
+                                                                    .of(context)
+                                                                .colorScheme
+                                                                .primaryContainer,
+                                                          )
+                                                              .animate(
+                                                                onComplete:
+                                                                    (controller) =>
+                                                                        controller
+                                                                            .repeat(),
                                                               )
-                                                            : null,
+                                                              .fade(
+                                                                  begin: 0.0,
+                                                                  end: 0.6,
+                                                                  duration:
+                                                                      800.ms)
+                                                              .scale(
+                                                                  begin:
+                                                                      const Offset(
+                                                                          1.0,
+                                                                          1.0),
+                                                                  end:
+                                                                      const Offset(
+                                                                          1.6,
+                                                                          1.6),
+                                                                  duration: 1.618
+                                                                      .seconds)
+                                                              .fadeOut(
+                                                                  delay:
+                                                                      800.ms),
+                                                          PhosphorIcon(PhosphorIcons
+                                                              .mapPinArea(
+                                                                  PhosphorIconsStyle
+                                                                      .fill)),
+                                                        ],
                                                       ),
                                                     ),
                                                   ),
-                                                ],
-                                              ),
-                                            ),
 
-                                            if (friendsState
-                                                    .friends.isNotEmpty &&
-                                                friendsState
-                                                    .locations.isNotEmpty)
-                                              for (Location location
-                                                  in friendsState.locations)
+                                                /// User Location
                                                 Marker(
-                                                  width: 100.0,
-                                                  height: 100.0,
+                                                  // anchorPos:
+                                                  //     AnchorPos.align(AnchorAlign.top),
+                                                  width: 32.0,
+                                                  height: 32.0,
                                                   point: LatLng(
-                                                      double.parse(
-                                                          location.latitude),
-                                                      double.parse(
-                                                          location.longitude)),
+                                                      state.bgLocation!.coords
+                                                          .latitude,
+                                                      state.bgLocation!.coords
+                                                          .longitude),
                                                   child: Stack(
+                                                    clipBehavior: Clip.none,
                                                     alignment: Alignment.center,
                                                     children: [
                                                       CircleAvatar(
-                                                        radius: 28.0,
+                                                        radius: 30.0,
                                                         backgroundColor:
                                                             Theme.of(context)
                                                                 .splashColor,
@@ -530,55 +539,16 @@ class MainMap extends StatelessWidget {
                                                               delay: 800.ms),
                                                       InkWell(
                                                         onTap: () async {
-                                                          showBottomSheet(
-                                                            context: context,
-                                                            //       isScrollControlled: true,
-                                                            builder: (context) {
-                                                              return DraggableScrollableSheet(
-                                                                  expand: false,
-                                                                  maxChildSize:
-                                                                      0.28,
-                                                                  initialChildSize:
-                                                                      0.28,
-                                                                  minChildSize:
-                                                                      0.13,
-                                                                  builder: (context,
-                                                                      controller) {
-                                                                    return FriendDetailsSheet(
-                                                                        friendId: friendsState
-                                                                            .friends[
-                                                                                1]
-                                                                            .id!,
-                                                                        location:
-                                                                            location,
-                                                                        scrollController:
-                                                                            controller);
-                                                                  });
-                                                            },
-                                                          );
-                                                          await mapController
-                                                              ?.centerOnPoint(
-                                                            LatLng(
-                                                                double.parse(
-                                                                    location
-                                                                        .latitude),
-                                                                double.parse(
-                                                                    location
-                                                                        .longitude)),
-                                                          );
-                                                          // await mapController
-                                                          //     ?.centerOnPoint(
-                                                          //         LatLng(
-                                                          //           double.parse(
-                                                          //               location
-                                                          //                   .latitude),
-                                                          //           double.parse(
-                                                          //               location
-                                                          //                   .longitude),
-                                                          //         ),
-                                                          //         zoom: 14.0,
-                                                          //         curve: Curves
-                                                          //             .easeOutSine);
+                                                          await mapController?.animateTo(
+                                                              dest: LatLng(
+                                                                  state
+                                                                      .bgLocation!
+                                                                      .coords
+                                                                      .latitude,
+                                                                  state
+                                                                      .bgLocation!
+                                                                      .coords
+                                                                      .longitude));
                                                         },
                                                         child: CircleAvatar(
                                                           backgroundColor:
@@ -588,32 +558,32 @@ class MainMap extends StatelessWidget {
                                                             radius: 16.0,
                                                             // foregroundImage:
                                                             //     CachedNetworkImageProvider(
-                                                            //   friendsState.friends
-                                                            //           .firstWhere((friend) =>
-                                                            //               friend
-                                                            //                   .id ==
-                                                            //               location
-                                                            //                   .userId)
+                                                            //   profileState.user
                                                             //           .photoUrl ??
                                                             //       '',
                                                             // ),
-                                                            child: friendsState
-                                                                        .friends
-                                                                        .firstWhere((friend) =>
-                                                                            friend.id ==
-                                                                            location
-                                                                                .userId)
-                                                                        .photoUrl ==
-                                                                    null
-                                                                ? Text(friendsState
-                                                                    .friends
-                                                                    .firstWhere((friend) =>
-                                                                        friend
-                                                                            .id ==
-                                                                        location
-                                                                            .userId)
-                                                                    .name!
-                                                                    .toUpperCase())
+                                                            child: profileState
+                                                                            .user
+                                                                            .photoUrl ==
+                                                                        null ||
+                                                                    profileState
+                                                                            .user
+                                                                            .photoUrl ==
+                                                                        ''
+                                                                // Show first and last initials if no photo
+                                                                ? Text(
+                                                                    '${profileState.user.name![0]}${profileState.user.name!.split(' ').last[0]}',
+                                                                    style: Theme.of(
+                                                                            context)
+                                                                        .textTheme
+                                                                        .bodyMedium!
+                                                                        .copyWith(
+                                                                          color:
+                                                                              Theme.of(context).scaffoldBackgroundColor,
+                                                                          fontWeight:
+                                                                              FontWeight.w800,
+                                                                        ),
+                                                                  )
                                                                 : null,
                                                           ),
                                                         ),
@@ -621,7 +591,142 @@ class MainMap extends StatelessWidget {
                                                     ],
                                                   ),
                                                 ),
-                                          ],
+
+                                                if (friendsState
+                                                        .friends.isNotEmpty &&
+                                                    friendsState
+                                                        .locations.isNotEmpty)
+                                                  for (Location location
+                                                      in friendsState.locations)
+                                                    Marker(
+                                                      width: 100.0,
+                                                      height: 100.0,
+                                                      point: LatLng(
+                                                          double.parse(location
+                                                              .latitude),
+                                                          double.parse(location
+                                                              .longitude)),
+                                                      child: Stack(
+                                                        alignment:
+                                                            Alignment.center,
+                                                        children: [
+                                                          CircleAvatar(
+                                                            radius: 28.0,
+                                                            backgroundColor:
+                                                                Theme.of(
+                                                                        context)
+                                                                    .splashColor,
+                                                          )
+                                                              .animate(
+                                                                onComplete:
+                                                                    (controller) =>
+                                                                        controller
+                                                                            .repeat(),
+                                                              )
+                                                              .fadeIn(
+                                                                  duration:
+                                                                      800.ms)
+                                                              .scale(
+                                                                  duration: 1.618
+                                                                      .seconds)
+                                                              .fadeOut(
+                                                                  delay:
+                                                                      800.ms),
+                                                          InkWell(
+                                                            onTap: () async {
+                                                              showBottomSheet(
+                                                                context:
+                                                                    context,
+                                                                //       isScrollControlled: true,
+                                                                builder:
+                                                                    (context) {
+                                                                  return DraggableScrollableSheet(
+                                                                      expand:
+                                                                          false,
+                                                                      maxChildSize:
+                                                                          0.28,
+                                                                      initialChildSize:
+                                                                          0.28,
+                                                                      minChildSize:
+                                                                          0.13,
+                                                                      builder:
+                                                                          (context,
+                                                                              controller) {
+                                                                        return FriendDetailsSheet(
+                                                                            friendId:
+                                                                                friendsState.friends[1].id!,
+                                                                            location: location,
+                                                                            scrollController: controller);
+                                                                      });
+                                                                },
+                                                              );
+                                                              await mapController
+                                                                  ?.centerOnPoint(
+                                                                LatLng(
+                                                                    double.parse(
+                                                                        location
+                                                                            .latitude),
+                                                                    double.parse(
+                                                                        location
+                                                                            .longitude)),
+                                                              );
+                                                              // await mapController
+                                                              //     ?.centerOnPoint(
+                                                              //         LatLng(
+                                                              //           double.parse(
+                                                              //               location
+                                                              //                   .latitude),
+                                                              //           double.parse(
+                                                              //               location
+                                                              //                   .longitude),
+                                                              //         ),
+                                                              //         zoom: 14.0,
+                                                              //         curve: Curves
+                                                              //             .easeOutSine);
+                                                            },
+                                                            child: CircleAvatar(
+                                                              backgroundColor:
+                                                                  Colors.white,
+                                                              radius: 18.0,
+                                                              child:
+                                                                  CircleAvatar(
+                                                                radius: 16.0,
+                                                                // foregroundImage:
+                                                                //     CachedNetworkImageProvider(
+                                                                //   friendsState.friends
+                                                                //           .firstWhere((friend) =>
+                                                                //               friend
+                                                                //                   .id ==
+                                                                //               location
+                                                                //                   .userId)
+                                                                //           .photoUrl ??
+                                                                //       '',
+                                                                // ),
+                                                                child: friendsState
+                                                                            .friends
+                                                                            .firstWhere((friend) =>
+                                                                                friend.id ==
+                                                                                location
+                                                                                    .userId)
+                                                                            .photoUrl ==
+                                                                        null
+                                                                    ? Text(friendsState
+                                                                        .friends
+                                                                        .firstWhere((friend) =>
+                                                                            friend.id ==
+                                                                            location.userId)
+                                                                        .name!
+                                                                        .toUpperCase())
+                                                                    : null,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                              ],
+                                            );
+                                          },
                                         );
                                       },
                                     );
@@ -673,52 +778,33 @@ class MainMap extends StatelessWidget {
                         SliverList(
                           delegate: SliverChildListDelegate(
                             [
-                              BlocBuilder<FriendsBloc, FriendsState>(
+                              BlocBuilder<RidesBloc, RidesState>(
                                 builder: (context, state) {
-                                  if (state is FriendsLoading) {
+                                  if (state is RidesLoading) {
                                     return const Center(
                                       child: CircularProgressIndicator(),
                                     );
                                   }
-                                  if (state is FriendsError) {
+                                  if (state is RidesError) {
                                     return const Center(
                                       child: Text('Error'),
                                     );
-                                  } else if (state is FriendsLoaded) {
-                                    if (state.locations.isEmpty) {
+                                  } else if (state is RidesLoaded) {
+                                    if (state.myRides.isEmpty) {
                                       return const Center(
                                         child: Text('No Friends Online'),
                                       );
                                     }
-                                    if (state.friends.isEmpty) {
+                                    if (state.myRides.isEmpty) {
                                       return const Chip(
                                           label: Text('No Friends Added'));
                                     }
                                     return Column(
                                       children: [
-                                        ...state.friends.map((friend) {
-                                          Location? location = state.locations
-                                              .singleWhereOrNull((element) =>
-                                                  element.userId == friend.id);
-
-                                          print(
-                                              'location matched: ${location?.toJson().toString()}');
-                                          if (location == null) {
-                                            return const SizedBox();
-                                          }
-                                          return FriendLocationCard(
-                                            friend: friend,
-                                            name: friend.name!,
-                                            activity: location.activity,
-                                            batteryLevel: location.batteryLevel,
-                                            location: location,
-                                            locationString:
-                                                '${location.city}, ${location.state}' ??
-                                                    'Unknown Location',
-                                            isOnline: true,
-                                            profilePhotoUrl: friend.photoUrl,
-                                            mapController: mapController!,
-                                          );
+                                        ...state.myRides.map((ride) {
+                                          return RideDetailsCard(
+                                              ride: ride,
+                                              mapController: mapController!);
                                         }),
                                       ],
                                     );
@@ -747,6 +833,97 @@ class MainMap extends StatelessWidget {
                   ),
                 );
               }),
+              // LayoutBuilder(builder: (context, constraints) {
+              //   return ConstrainedBox(
+              //     constraints: BoxConstraints(
+              //       maxHeight: constraints.maxHeight * 0.5,
+              //       minHeight: 0,
+              //       minWidth: constraints.maxWidth,
+              //     ),
+              //     child: Padding(
+              //       padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
+              //       child: CustomScrollView(
+              //         clipBehavior: Clip.antiAlias,
+              //         reverse: true,
+              //         shrinkWrap: true,
+              //         slivers: [
+              //           SliverList(
+              //             delegate: SliverChildListDelegate(
+              //               [
+              //                 BlocBuilder<FriendsBloc, FriendsState>(
+              //                   builder: (context, state) {
+              //                     if (state is FriendsLoading) {
+              //                       return const Center(
+              //                         child: CircularProgressIndicator(),
+              //                       );
+              //                     }
+              //                     if (state is FriendsError) {
+              //                       return const Center(
+              //                         child: Text('Error'),
+              //                       );
+              //                     } else if (state is FriendsLoaded) {
+              //                       if (state.locations.isEmpty) {
+              //                         return const Center(
+              //                           child: Text('No Friends Online'),
+              //                         );
+              //                       }
+              //                       if (state.friends.isEmpty) {
+              //                         return const Chip(
+              //                             label: Text('No Friends Added'));
+              //                       }
+              //                       return Column(
+              //                         children: [
+              //                           ...state.friends.map((friend) {
+              //                             Location? location = state.locations
+              //                                 .singleWhereOrNull((element) =>
+              //                                     element.userId == friend.id);
+
+              //                             print(
+              //                                 'location matched: ${location?.toJson().toString()}');
+              //                             if (location == null) {
+              //                               return const SizedBox();
+              //                             }
+              //                             return FriendLocationCard(
+              //                               friend: friend,
+              //                               name: friend.name!,
+              //                               activity: location.activity,
+              //                               batteryLevel: location.batteryLevel,
+              //                               location: location,
+              //                               locationString:
+              //                                   '${location.city}, ${location.state}' ??
+              //                                       'Unknown Location',
+              //                               isOnline: true,
+              //                               profilePhotoUrl: friend.photoUrl,
+              //                               mapController: mapController!,
+              //                             );
+              //                           }),
+              //                         ],
+              //                       );
+              //                     }
+              //                     return const Center(
+              //                       child: Text('Something Went Wrong...'),
+              //                     );
+              //                   },
+              //                 ),
+              //               ]
+              //                   .animate(interval: 200.ms)
+              //                   .fadeIn(
+              //                     duration: 400.ms,
+              //                     curve: Curves.easeOutSine,
+              //                   )
+              //                   .slideY(
+              //                     duration: 800.ms,
+              //                     begin: 18.0,
+              //                     end: 0.0,
+              //                     curve: Curves.easeOutQuint,
+              //                   ),
+              //             ),
+              //           )
+              //         ],
+              //       ),
+              //     ),
+              //   );
+              // }),
               Positioned(
                 top: 0,
                 child: Padding(
@@ -1155,6 +1332,90 @@ class SelectDestinationSheet extends StatelessWidget {
   }
 }
 
+class RideDetailsCard extends StatelessWidget {
+  final Ride ride;
+  final AnimatedMapController? mapController;
+  const RideDetailsCard(
+      {required this.ride, required this.mapController, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: InkWell(
+        onTap: () async {
+          showBottomSheet(
+            context: context,
+            builder: (context) {
+              return DraggableScrollableSheet(
+                expand: false,
+                maxChildSize: 0.58,
+                initialChildSize: 0.33,
+                minChildSize: 0.13,
+                builder: (context, controller) {
+                  return RideDetailsSheet(
+                    ride: ride,
+                    scrollController: controller,
+                  );
+                },
+              );
+            },
+          );
+          await mapController?.animateTo(
+            dest: LatLng(ride.meetingPoint![0], ride.meetingPoint![1]),
+            zoom: 12,
+            rotation: 0,
+          );
+        },
+        child: Column(
+          children: [
+            ListTile(
+              leading: Stack(
+                alignment: Alignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 18,
+                    child: PhosphorIcon(PhosphorIcons.motorcycle(
+                      PhosphorIconsStyle.fill,
+                    )),
+                  ),
+                  LoadingAnimationWidget.threeArchedCircle(
+                      color: Theme.of(context).colorScheme.primary, size: 36)
+                ],
+              ),
+              title: Text(
+                'Awaiting Rider Confirmation...',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              subtitle: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Flexible(
+                      child: Text.rich(
+                    TextSpan(
+                      text: 'Meet at: ',
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                      children: [
+                        TextSpan(
+                          text: ride.meetingPointAddress,
+                          style: Theme.of(context).textTheme.bodySmall!,
+                        ),
+                      ],
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  )),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class ConfirmRideRequestSheet extends StatelessWidget {
   const ConfirmRideRequestSheet({super.key});
 
@@ -1313,6 +1574,173 @@ class ConfirmRideRequestSheet extends StatelessWidget {
           },
         );
       },
+    );
+  }
+}
+
+class RideDetailsSheet extends StatelessWidget {
+  const RideDetailsSheet({
+    super.key,
+    required this.ride,
+    required this.scrollController,
+  });
+
+  final Ride ride;
+  final ScrollController scrollController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24.0),
+          topRight: Radius.circular(24.0),
+        ),
+      ),
+      child: Column(
+        children: [
+          const SizedBox(
+            height: 8.0,
+          ),
+          Container(
+            height: 4.0,
+            width: 48.0,
+            decoration: BoxDecoration(
+              color: Theme.of(context).dividerColor,
+              borderRadius: BorderRadius.circular(2.0),
+            ),
+          ),
+          const SizedBox(
+            height: 8.0,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Ride Details',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8.0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            PhosphorIcon(
+                              PhosphorIcons.mapPinArea(
+                                PhosphorIconsStyle.fill,
+                              ),
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8.0),
+                            Flexible(
+                                child: Text.rich(
+                              TextSpan(
+                                text: 'Meet at: ',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall!
+                                    .copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                children: [
+                                  TextSpan(
+                                    text: ride.meetingPointAddress,
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall!,
+                                  ),
+                                ],
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            )),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8.0),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Card(
+                    child: ListTile(
+                      leading: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          CircleAvatar(
+                            radius: 18,
+                            child: PhosphorIcon(PhosphorIcons.motorcycle(
+                              PhosphorIconsStyle.fill,
+                            )),
+                          ),
+                          LoadingAnimationWidget.threeArchedCircle(
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 36)
+                        ],
+                      ),
+                      title: ride.status == RideStatus.pending
+                          ? const Text('Waiting For Rider Response...')
+                          : ride.status == RideStatus.accepted
+                              ? const Text('Ride Request Accepted')
+                              : ride.status == RideStatus.rejected
+                                  ? const Text('Ride Request Rejected')
+                                  : ride.status == RideStatus.completed
+                                      ? const Text('Ride Request Completed')
+                                      : ride.status == RideStatus.canceled
+                                          ? const Text('Ride Request Canceled')
+                                          : ride.status ==
+                                                  RideStatus
+                                                      .rejectedWithResponse
+                                              ? const Text(
+                                                  'Ride Changes Requested')
+                                              : const Text(
+                                                  'Ride Request Unknown'),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8.0),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: TextButton.icon(
+              // style: OutlinedButton.styleFrom(
+              //     side: const BorderSide(
+              //   color: Colors.red,
+              //   width: 2.0,
+              // )),
+              onPressed: () {
+                context.pop();
+              },
+              icon: PhosphorIcon(
+                PhosphorIcons.prohibit(),
+                size: 20,
+              ),
+              label: const Text('Cancel Ride Request'),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

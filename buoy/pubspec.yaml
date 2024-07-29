@@ -67,6 +67,7 @@ dependencies:
   crypto: ^3.0.3
   sign_in_with_apple: ^6.1.1
   phosphor_flutter: ^2.1.0
+  loading_animation_widget: ^1.2.1
 
 dev_dependencies:
   flutter_test:

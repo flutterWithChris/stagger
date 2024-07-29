@@ -65,13 +65,48 @@ class RideRepository {
     }
   }
 
-  Future<List<Ride>?> getRides() async {
+  Future<List<Ride>?> getMyRides(String userId) async {
     try {
-      List<Map<String, dynamic>> response = await ridesTable.select();
+      List<Map<String, dynamic>> response =
+          await ridesTable.select().eq('user_id', userId);
 
       return response.map((e) => Ride.fromJson(e)).toList();
     } catch (e) {
       rethrow;
     }
+  }
+
+  Stream<List<Ride>> getReceivedRides(String userId) {
+    print('Getting received rides for user: $userId');
+
+    // Stream from ride_participants table
+    final rideParticipantsStream =
+        rideParticipantsTable.stream(primaryKey: ['id']).eq('user_id', userId);
+
+    // Map the stream to fetch ride details from the rides table
+    return rideParticipantsStream.asyncMap((participants) async {
+      if (participants.isEmpty) {
+        return <Ride>[];
+      }
+
+      // Extract ride IDs
+      final rideIds = participants
+          .where((p) => p['role'] == 'receiver')
+          .map((p) => p['ride_id'])
+          .toList();
+
+      if (rideIds.isEmpty) {
+        return <Ride>[];
+      }
+
+      // Fetch the corresponding rides
+      final response = await ridesTable.select('*').inFilter('id', rideIds);
+
+      // if (response.error != null) {
+      //   throw Exception('Failed to fetch rides: ${response.error!.message}');
+      // }
+
+      return response.map((json) => Ride.fromJson(json)).toList();
+    });
   }
 }

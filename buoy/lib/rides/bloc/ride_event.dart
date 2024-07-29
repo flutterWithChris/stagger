@@ -69,21 +69,3 @@ class UpdateRideDraft extends RideEvent {
   @override
   List<Object> get props => [ride];
 }
-
-class LoadRides extends RideEvent {
-  final List<Ride> rides;
-
-  const LoadRides(this.rides);
-
-  @override
-  List<Object> get props => [rides];
-}
-
-class UpdateRides extends RideEvent {
-  final List<Ride> rides;
-
-  const UpdateRides(this.rides);
-
-  @override
-  List<Object> get props => [rides];
-}
