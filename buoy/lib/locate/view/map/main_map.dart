@@ -806,6 +806,11 @@ class MainMap extends StatelessWidget {
                                               ride: ride,
                                               mapController: mapController!);
                                         }),
+                                        ...state.myRides.map((ride) {
+                                          return RideRequestCard(
+                                              ride: ride,
+                                              mapController: mapController!);
+                                        }),
                                       ],
                                     );
                                   }
@@ -1369,19 +1374,8 @@ class RideDetailsCard extends StatelessWidget {
         child: Column(
           children: [
             ListTile(
-              leading: Stack(
-                alignment: Alignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 18,
-                    child: PhosphorIcon(PhosphorIcons.motorcycle(
-                      PhosphorIconsStyle.fill,
-                    )),
-                  ),
-                  LoadingAnimationWidget.threeArchedCircle(
-                      color: Theme.of(context).colorScheme.primary, size: 36)
-                ],
-              ),
+              leading: LoadingAnimationWidget.prograssiveDots(
+                  color: Theme.of(context).colorScheme.primary, size: 36),
               title: Text(
                 'Awaiting Rider Confirmation...',
                 style: Theme.of(context).textTheme.titleSmall,
@@ -1409,6 +1403,129 @@ class RideDetailsCard extends StatelessWidget {
                 ],
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class RideRequestCard extends StatelessWidget {
+  final Ride ride;
+  final AnimatedMapController? mapController;
+  const RideRequestCard(
+      {required this.ride, required this.mapController, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: InkWell(
+        onTap: () async {
+          showBottomSheet(
+            context: context,
+            builder: (context) {
+              return DraggableScrollableSheet(
+                expand: false,
+                maxChildSize: 0.58,
+                initialChildSize: 0.33,
+                minChildSize: 0.13,
+                builder: (context, controller) {
+                  return RideDetailsSheet(
+                    ride: ride,
+                    scrollController: controller,
+                  );
+                },
+              );
+            },
+          );
+          await mapController?.animateTo(
+            dest: LatLng(ride.meetingPoint![0], ride.meetingPoint![1]),
+            zoom: 12,
+            rotation: 0,
+          );
+        },
+        child: Column(
+          children: [
+            ListTile(
+              leading: Stack(
+                alignment: Alignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 18,
+                    child: PhosphorIcon(PhosphorIcons.motorcycle(
+                      PhosphorIconsStyle.fill,
+                    )),
+                  ),
+                  LoadingAnimationWidget.threeArchedCircle(
+                      color: Theme.of(context).colorScheme.primary, size: 36)
+                ],
+              ),
+              title: Text(
+                'Ride Request',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              subtitle: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Flexible(
+                      child: Text.rich(
+                    TextSpan(
+                      text: 'Meet at: ',
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                      children: [
+                        TextSpan(
+                          text: ride.meetingPointAddress,
+                          style: Theme.of(context).textTheme.bodySmall!,
+                        ),
+                      ],
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  )),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 16.0,
+                right: 16.0,
+                bottom: 16.0,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: FilledButton.icon(
+                      style: FilledButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white),
+                      onPressed: () {
+                        showBottomSheet(
+                          context: context,
+                          builder: (context) => const ConfirmRideRequestSheet(),
+                        );
+                      },
+                      icon: PhosphorIcon(PhosphorIcons.prohibit()),
+                      label: const Text('Decline'),
+                    ),
+                  ),
+                  const SizedBox(width: 8.0),
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: () {
+                        showBottomSheet(
+                          context: context,
+                          builder: (context) => const ConfirmRideRequestSheet(),
+                        );
+                      },
+                      icon: const Icon(Icons.check_rounded),
+                      label: const Text('Accept'),
+                    ),
+                  ),
+                ],
+              ),
+            )
           ],
         ),
       ),
@@ -1683,20 +1800,9 @@ class RideDetailsSheet extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: Card(
                     child: ListTile(
-                      leading: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          CircleAvatar(
-                            radius: 18,
-                            child: PhosphorIcon(PhosphorIcons.motorcycle(
-                              PhosphorIconsStyle.fill,
-                            )),
-                          ),
-                          LoadingAnimationWidget.threeArchedCircle(
-                              color: Theme.of(context).colorScheme.primary,
-                              size: 36)
-                        ],
-                      ),
+                      leading: LoadingAnimationWidget.prograssiveDots(
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 36),
                       title: ride.status == RideStatus.pending
                           ? const Text('Waiting For Rider Response...')
                           : ride.status == RideStatus.accepted
