@@ -69,3 +69,15 @@ class UpdateRideDraft extends RideEvent {
   @override
   List<Object> get props => [ride];
 }
+
+class UpdateArrivalStatus extends RideEvent {
+  final Ride ride;
+  final String userId;
+  final ArrivalStatus arrivalStatus;
+
+  const UpdateArrivalStatus(
+      {required this.ride, required this.userId, required this.arrivalStatus});
+
+  @override
+  List<Object> get props => [ride, userId, arrivalStatus];
+}

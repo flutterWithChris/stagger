@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 class BuoyLogo extends StatefulWidget {
   final double? size;
 
-  const BuoyLogo({this.size, Key? key}) : super(key: key);
+  const BuoyLogo({this.size, super.key});
 
   @override
   State<BuoyLogo> createState() => _BuoyLogoState();
@@ -32,8 +32,8 @@ class _BuoyLogoState extends State<BuoyLogo> {
             });
           },
           child: Image.asset(
-            'lib/assets/logo/buoy_logo.png',
-            color: Colors.orange[800],
+            'lib/assets/logo/logo_no_bg.png',
+            // color: Colors.orange[800],
             width: widget.size ?? 52,
             height: widget.size ?? 52,
           )
@@ -49,14 +49,11 @@ class _BuoyLogoState extends State<BuoyLogo> {
               ),
         ),
         const Gutter(),
-        SizedBox(
-          height: 80,
-          child: Text(
-            'Buoy',
-            style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-                fontFamily: GoogleFonts.corben().fontFamily),
-          ),
+        Text(
+          'Stagger',
+          style: Theme.of(context).textTheme.displayMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              fontFamily: GoogleFonts.inter().fontFamily),
         ),
       ],
     );

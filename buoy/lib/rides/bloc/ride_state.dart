@@ -16,6 +16,26 @@ final class RideInitial extends RideState {}
 
 final class RideLoading extends RideState {}
 
+final class RideLoaded extends RideState {
+  @override
+  final List<Ride> rides;
+
+  const RideLoaded(this.rides);
+
+  @override
+  List<Object> get props => [rides];
+}
+
+final class RideUpdated extends RideState {
+  @override
+  final Ride ride;
+
+  const RideUpdated(this.ride);
+
+  @override
+  List<Object> get props => [ride];
+}
+
 final class CreatingRide extends RideState {
   @override
   final Ride ride;

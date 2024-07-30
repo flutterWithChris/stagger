@@ -127,4 +127,19 @@ class RideRepository {
       },
     ).asyncMap((data) async => data);
   }
+
+  Future<Ride?> updateArrivalStatus(
+      Ride ride, String userId, ArrivalStatus arrivalStatus) async {
+    try {
+      final response = await rideParticipantsTable
+          .update({'arrival_status': arrivalStatus.name})
+          .eq('ride_id', ride.id!)
+          .eq('user_id', userId)
+          .select();
+
+      return Ride.fromMap(response.first);
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

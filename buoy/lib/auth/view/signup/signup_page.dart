@@ -28,9 +28,9 @@ class _SignupState extends State<Signup> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const BuoyLogo(),
-            const GutterTiny(),
+            const Gutter(),
             Text(
-              'Be sure they made it safe.',
+              'Find riding buddies.',
               style: Theme.of(context)
                   .textTheme
                   .titleMedium

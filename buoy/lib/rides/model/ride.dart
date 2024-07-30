@@ -10,6 +10,8 @@ enum RideStatus {
   completed
 }
 
+enum ArrivalStatus { enRoute, atMeetingPoint, atDestination }
+
 class Ride {
   final String? id;
   final List<String>? senderIds;

@@ -8,9 +8,9 @@ import 'package:buoy/rides/bloc/ride_bloc.dart';
 import 'package:buoy/rides/bloc/rides_bloc.dart';
 import 'package:buoy/rides/model/ride.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:easy_stepper/easy_stepper.dart';
-import 'package:enhance_stepper/enhance_stepper.dart';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -1891,13 +1891,76 @@ class RideDetailsSheet extends StatelessWidget {
                 // Title
                 Positioned(
                   top: 24,
-                  child: Text(
-                    'Ride Details',
-                    style: Theme.of(context).textTheme.titleLarge,
+                  width: MediaQuery.sizeOf(context).width,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            'Ride Details',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                        ),
+                        Flexible(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Flexible(
+                              //   child: Text(
+                              //     'Riders:',
+                              //     style: Theme.of(context)
+                              //         .textTheme
+                              //         .bodySmall
+                              //         ?.copyWith(
+                              //           fontWeight: FontWeight.bold,
+                              //         ),
+                              //     textAlign: TextAlign.right,
+                              //   ),
+                              // ),
+                              Flexible(
+                                child: Chip(
+                                  side: BorderSide.none,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(24.0),
+                                  ),
+                                  visualDensity: VisualDensity.compact,
+                                  avatar: const CircleAvatar(
+                                    radius: 12.0,
+                                    foregroundImage: CachedNetworkImageProvider(
+                                        'https://scontent-lga3-1.cdninstagram.com/v/t51.2885-19/239083158_1041850919887570_7755239183612531984_n.jpg?stp=dst-jpg_s150x150&_nc_ht=scontent-lga3-1.cdninstagram.com&_nc_cat=110&_nc_ohc=-G3T7pl73asQ7kNvgFjLgW4&gid=b72e8aa84d7940049d9af5a959b74669&edm=AEhyXUkBAAAA&ccb=7-5&oh=00_AYCKn1GYP_pojAwBKTvJi8eskcuyXoQoqgp7crpWFQdwXg&oe=66ADCC2B&_nc_sid=8f1549'),
+                                    // child: Icon(
+                                    //   Icons.person_pin_circle_rounded,
+                                    //   color: Colors.white,
+                                    //   size: 20.0,
+                                    //   fill: 1.0,
+                                    // ),
+                                  ),
+                                  label: const Text('Christian'),
+                                ),
+                                // AvatarStack(
+                                //     borderColor: Theme.of(context).primaryColor,
+                                //     borderWidth: 2.0,
+                                //     settings: RestrictedPositions(
+                                //         minCoverage: -0.1,
+                                //         align: StackAlign.right),
+                                //     height: 32,
+                                //     avatars: const [
+                                //       CachedNetworkImageProvider(
+                                //           'https://scontent-lga3-1.cdninstagram.com/v/t51.2885-19/239083158_1041850919887570_7755239183612531984_n.jpg?stp=dst-jpg_s150x150&_nc_ht=scontent-lga3-1.cdninstagram.com&_nc_cat=110&_nc_ohc=-G3T7pl73asQ7kNvgFjLgW4&gid=b72e8aa84d7940049d9af5a959b74669&edm=AEhyXUkBAAAA&ccb=7-5&oh=00_AYCKn1GYP_pojAwBKTvJi8eskcuyXoQoqgp7crpWFQdwXg&oe=66ADCC2B&_nc_sid=8f1549'),
+                                //     ]),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
                 Positioned(
-                  top: 42,
+                  top: 52,
                   child: FittedBox(
                     child: SizedBox(
                         height: 72,
@@ -1922,81 +1985,85 @@ class RideDetailsSheet extends StatelessWidget {
                                         // ignore: deprecated_member_use
                                         background: Colors.grey[600]),
                           ),
-                          child: Stepper(
-                              margin: EdgeInsets.zero,
-                              elevation: 0,
-                              type: StepperType.horizontal,
-                              connectorThickness: 2.5,
-                              controlsBuilder: (context, details) {
-                                return const SizedBox();
-                              },
-                              currentStep: ride.status == RideStatus.accepted
-                                  ? 1
-                                  : ride.status == RideStatus.inProgress
-                                      ? 2
-                                      : 1,
-                              stepIconBuilder: (stepIndex, stepState) {
-                                return stepIndex == 0
-                                    ? PhosphorIcon(
-                                        ride.status == RideStatus.accepted
-                                            ? PhosphorIcons.checkCircle(
-                                                PhosphorIconsStyle.fill,
-                                              )
-                                            : PhosphorIcons.clock(
-                                                PhosphorIconsStyle.fill,
+                          child: IgnorePointer(
+                            child: Stepper(
+                                margin: EdgeInsets.zero,
+                                elevation: 0,
+                                type: StepperType.horizontal,
+                                connectorThickness: 2.5,
+                                controlsBuilder: (context, details) {
+                                  return const SizedBox();
+                                },
+                                currentStep: ride.status == RideStatus.accepted
+                                    ? 1
+                                    : ride.status == RideStatus.inProgress
+                                        ? 2
+                                        : 1,
+                                stepIconBuilder: (stepIndex, stepState) {
+                                  return stepIndex == 0
+                                      ? PhosphorIcon(
+                                          ride.status == RideStatus.accepted
+                                              ? PhosphorIcons.checkCircle(
+                                                  PhosphorIconsStyle.fill,
+                                                )
+                                              : PhosphorIcons.clock(
+                                                  PhosphorIconsStyle.fill,
+                                                ),
+                                          size: 16,
+                                        )
+                                      : stepIndex == 1
+                                          ? CircleAvatar(
+                                              backgroundColor: ride.status ==
+                                                      RideStatus.accepted
+                                                  ? Colors.blue
+                                                  : Colors.transparent,
+                                              foregroundColor: ride.status ==
+                                                      RideStatus.accepted
+                                                  ? Colors.white
+                                                  : null,
+                                              child: PhosphorIcon(
+                                                ride.status ==
+                                                        RideStatus.inProgress
+                                                    ? PhosphorIcons.checkCircle(
+                                                        PhosphorIconsStyle.fill,
+                                                      )
+                                                    : PhosphorIcons.mapPinArea(
+                                                        PhosphorIconsStyle.fill,
+                                                      ),
+                                                size: 16,
                                               ),
-                                        size: 16,
-                                      )
-                                    : stepIndex == 1
-                                        ? CircleAvatar(
-                                            backgroundColor: ride.status ==
-                                                    RideStatus.accepted
-                                                ? Colors.blue
-                                                : Colors.transparent,
-                                            foregroundColor: ride.status ==
-                                                    RideStatus.accepted
-                                                ? Colors.white
-                                                : null,
-                                            child: PhosphorIcon(
+                                            )
+                                          : PhosphorIcon(
                                               ride.status ==
                                                       RideStatus.inProgress
                                                   ? PhosphorIcons.checkCircle(
                                                       PhosphorIconsStyle.fill,
                                                     )
-                                                  : PhosphorIcons.mapPinArea(
+                                                  : PhosphorIcons.motorcycle(
                                                       PhosphorIconsStyle.fill,
                                                     ),
                                               size: 16,
-                                            ),
-                                          )
-                                        : PhosphorIcon(
-                                            ride.status == RideStatus.inProgress
-                                                ? PhosphorIcons.checkCircle(
-                                                    PhosphorIconsStyle.fill,
-                                                  )
-                                                : PhosphorIcons.motorcycle(
-                                                    PhosphorIconsStyle.fill,
-                                                  ),
-                                            size: 16,
-                                          );
-                              },
-                              steps: [
-                                Step(
-                                  isActive: ride.status == RideStatus.accepted,
-                                  title: const Text('Request'),
-                                  content: const SizedBox.shrink(),
-                                ),
-                                Step(
-                                  isActive:
-                                      ride.status == RideStatus.inProgress,
-                                  title: const Text('Meet Up'),
-                                  content: const SizedBox.shrink(),
-                                ),
-                                const Step(
-                                  title: Text('Ride'),
-                                  content: SizedBox.shrink(),
-                                ),
-                              ]),
+                                            );
+                                },
+                                steps: [
+                                  Step(
+                                    isActive:
+                                        ride.status == RideStatus.accepted,
+                                    title: const Text('Request'),
+                                    content: const SizedBox.shrink(),
+                                  ),
+                                  Step(
+                                    isActive:
+                                        ride.status == RideStatus.inProgress,
+                                    title: const Text('Meet Up'),
+                                    content: const SizedBox.shrink(),
+                                  ),
+                                  const Step(
+                                    title: Text('Ride'),
+                                    content: SizedBox.shrink(),
+                                  ),
+                                ]),
+                          ),
                         )),
                   ),
                 ),
@@ -2004,7 +2071,7 @@ class RideDetailsSheet extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const SizedBox(
-                      height: 92.0,
+                      height: 100.0,
                     ),
 
                     Padding(
@@ -2112,35 +2179,6 @@ class RideDetailsSheet extends StatelessWidget {
                                       ],
                                     ),
                                   ),
-                                // if (ride.status == RideStatus.accepted)
-                                //   Expanded(
-                                //     child: Row(
-                                //       mainAxisAlignment: MainAxisAlignment.center,
-                                //       children: [
-                                //         Flexible(
-                                //             child: Chip(
-                                //           visualDensity: VisualDensity.compact,
-                                //           avatar: CircleAvatar(
-                                //             backgroundColor: Colors.white,
-                                //             child: ClipRRect(
-                                //               borderRadius:
-                                //                   BorderRadius.circular(50.0),
-                                //               child: CachedNetworkImage(
-                                //                 imageUrl:
-                                //                     'https://scontent-lga3-1.cdninstagram.com/v/t51.2885-19/239083158_1041850919887570_7755239183612531984_n.jpg?stp=dst-jpg_s150x150&_nc_ht=scontent-lga3-1.cdninstagram.com&_nc_cat=110&_nc_ohc=-G3T7pl73asQ7kNvgFjLgW4&gid=b72e8aa84d7940049d9af5a959b74669&edm=AEhyXUkBAAAA&ccb=7-5&oh=00_AYCKn1GYP_pojAwBKTvJi8eskcuyXoQoqgp7crpWFQdwXg&oe=66ADCC2B&_nc_sid=8f1549',
-                                //               ),
-                                //             ),
-                                //           ),
-                                //           label: Text(
-                                //             'Christian',
-                                //             style: Theme.of(context)
-                                //                 .textTheme
-                                //                 .bodySmall,
-                                //           ),
-                                //         )),
-                                //       ],
-                                //     ),
-                                //   ),
                               ],
                             ),
                           ),
@@ -2234,18 +2272,35 @@ class RideDetailsSheet extends StatelessWidget {
                                         overflow: TextOverflow.ellipsis,
                                       )
                                     : null,
+                                trailing: IconButton.filledTonal(
+                                  onPressed: () {},
+                                  icon: PhosphorIcon(
+                                      PhosphorIcons.navigationArrow(
+                                          PhosphorIconsStyle.fill)),
+                                ),
                               ),
                             ),
                           ),
                         ),
+                        // // Get Directions Button
+
+                        // const SizedBox(height: 8.0),
                       ],
                     ),
                     const SizedBox(height: 8.0),
+
                     // Get Directions Button
-                    OutlinedButton.icon(
-                      onPressed: () {},
-                      label: const Text('Get Directions'),
-                      icon: const Icon(Icons.navigation_rounded),
+                    FilledButton.icon(
+                      onPressed: () {
+                        context.read<RideBloc>().add(UpdateArrivalStatus(
+                            ride: ride,
+                            userId: context.read<ProfileBloc>().state.user!.id!,
+                            arrivalStatus: ArrivalStatus.atMeetingPoint));
+                      },
+                      label: const Text('I\'m Here'),
+                      icon: PhosphorIcon(
+                        PhosphorIcons.checkCircle(PhosphorIconsStyle.fill),
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),

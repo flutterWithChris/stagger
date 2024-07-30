@@ -2,7 +2,10 @@ import 'package:bloc/bloc.dart';
 import 'package:buoy/locate/repository/mapbox_search_repository.dart';
 import 'package:buoy/rides/model/ride.dart';
 import 'package:buoy/rides/repository/ride_repository.dart';
+import 'package:buoy/shared/constants.dart';
+import 'package:buoy/shared/models/user.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:mapbox_search/mapbox_search.dart';
 
 part 'ride_event.dart';
@@ -51,6 +54,24 @@ class RideBloc extends Bloc<RideEvent, RideState> {
         emit(RideRequestSent(event.ride));
       } catch (e) {
         print('Error requesting ride: $e');
+        emit(RideError(e.toString(), ride: event.ride));
+      }
+    });
+    on<UpdateArrivalStatus>((event, emit) async {
+      try {
+        emit(RideLoading());
+        await _rideRepository.updateArrivalStatus(
+            event.ride, event.userId, event.arrivalStatus);
+
+        print('Updating ride: ${event.ride}');
+        emit(RideUpdated(event.ride));
+        scaffoldMessengerKey.currentState!.showSnackBar(
+          const SnackBar(
+            content: Text('Arrival status updated'),
+          ),
+        );
+      } catch (e) {
+        print('Error updating ride: $e');
         emit(RideError(e.toString(), ride: event.ride));
       }
     });
