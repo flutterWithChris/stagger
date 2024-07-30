@@ -1,8 +1,10 @@
 import 'package:bloc/bloc.dart';
 import 'package:buoy/rides/model/ride.dart';
+import 'package:buoy/rides/model/ride_participant.dart';
 import 'package:buoy/rides/repository/ride_repository.dart';
 import 'package:equatable/equatable.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart' as sb;
+
 part 'rides_event.dart';
 part 'rides_state.dart';
 
@@ -22,8 +24,9 @@ class RidesBloc extends Bloc<RidesEvent, RidesState> {
         await emit.forEach(
           ridesStream,
           onData: (rides) {
+            print('Participants in bloc: ${rides.$3}');
             print('Rides receieved: $rides');
-            return RidesLoaded(rides.$1, rides.$2);
+            return RidesLoaded(rides.$1, rides.$2, rides.$3);
           },
           onError: (error, stackTrace) {
             print('Error loading rides: $error');
