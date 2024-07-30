@@ -10,18 +10,18 @@ class MainSliverAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliverAppBar(
       title: Wrap(
-        spacing: 12.0,
+        spacing: 16.0,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           Image.asset(
-            'lib/assets/logo/buoy_logo.png',
-            color: Colors.orange[800],
-            width: 24,
-            height: 24,
+            'lib/assets/logo/logo_no_bg.png',
+            //  color: Colors.orange[800],
+            width: 26,
+            height: 26,
           ),
           const Padding(
             padding: EdgeInsets.only(bottom: 2.0),
-            child: Text('Buoy'),
+            child: Text('Staggered'),
           )
         ],
       ),

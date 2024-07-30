@@ -3,6 +3,7 @@ import 'package:latlong2/latlong.dart';
 enum RideStatus {
   pending,
   accepted,
+  inProgress,
   rejected,
   rejectedWithResponse,
   canceled,

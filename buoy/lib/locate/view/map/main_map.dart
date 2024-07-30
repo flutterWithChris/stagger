@@ -8,6 +8,8 @@ import 'package:buoy/rides/bloc/ride_bloc.dart';
 import 'package:buoy/rides/bloc/rides_bloc.dart';
 import 'package:buoy/rides/model/ride.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_stepper/easy_stepper.dart';
+import 'package:enhance_stepper/enhance_stepper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -422,6 +424,8 @@ class MainMap extends StatelessWidget {
                                                 for (Ride ride
                                                     in ridesState.myRides ?? [])
                                                   Marker(
+                                                    height: 36.0,
+                                                    width: 36.0,
                                                     point: LatLng(
                                                         ride.meetingPoint![0],
                                                         ride.meetingPoint![1]),
@@ -437,7 +441,7 @@ class MainMap extends StatelessWidget {
                                                                 maxChildSize:
                                                                     0.4,
                                                                 initialChildSize:
-                                                                    0.33,
+                                                                    0.4,
                                                                 minChildSize:
                                                                     0.13,
                                                                 builder: (context,
@@ -494,10 +498,60 @@ class MainMap extends StatelessWidget {
                                                               .fadeOut(
                                                                   delay:
                                                                       800.ms),
-                                                          PhosphorIcon(PhosphorIcons
-                                                              .mapPinArea(
-                                                                  PhosphorIconsStyle
-                                                                      .fill)),
+                                                          CircleAvatar(
+                                                            radius: 30,
+                                                            child: Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(2.0),
+                                                              child:
+                                                                  PhosphorIcon(
+                                                                switch (ride
+                                                                    .status) {
+                                                                  RideStatus
+                                                                        .pending =>
+                                                                    PhosphorIcons.mapPin(
+                                                                        PhosphorIconsStyle
+                                                                            .fill),
+                                                                  RideStatus
+                                                                        .accepted =>
+                                                                    PhosphorIcons.mapPinArea(
+                                                                        PhosphorIconsStyle
+                                                                            .fill),
+                                                                  RideStatus
+                                                                        .rejected =>
+                                                                    PhosphorIcons.prohibit(
+                                                                        PhosphorIconsStyle
+                                                                            .fill),
+                                                                  RideStatus
+                                                                        .rejectedWithResponse =>
+                                                                    PhosphorIcons.question(
+                                                                        PhosphorIconsStyle
+                                                                            .fill),
+                                                                  RideStatus
+                                                                        .canceled =>
+                                                                    PhosphorIcons.prohibit(
+                                                                        PhosphorIconsStyle
+                                                                            .fill),
+                                                                  RideStatus
+                                                                        .completed =>
+                                                                    PhosphorIcons.flagCheckered(
+                                                                        PhosphorIconsStyle
+                                                                            .fill),
+                                                                  RideStatus
+                                                                        .inProgress =>
+                                                                    PhosphorIcons.mapPinArea(
+                                                                        PhosphorIconsStyle
+                                                                            .fill),
+                                                                  null =>
+                                                                    PhosphorIcons.mapPinArea(
+                                                                        PhosphorIconsStyle
+                                                                            .fill),
+                                                                },
+                                                                size: 20,
+                                                              ),
+                                                            ),
+                                                          )
                                                         ],
                                                       ),
                                                     ),
@@ -790,15 +844,13 @@ class MainMap extends StatelessWidget {
                                       child: Text('Error'),
                                     );
                                   } else if (state is RidesLoaded) {
-                                    if (state.myRides.isEmpty) {
-                                      return const Center(
-                                        child: Text('No Friends Online'),
-                                      );
+                                    if (state.myRides.isEmpty &&
+                                        state.receivedRides.isEmpty) {
+                                      return const SizedBox();
                                     }
-                                    if (state.myRides.isEmpty) {
-                                      return const Chip(
-                                          label: Text('No Friends Added'));
-                                    }
+                                    print('My Rides: ${state.myRides}');
+                                    print(
+                                        'Received Rides: ${state.receivedRides}');
                                     return Column(
                                       children: [
                                         ...state.myRides.map((ride) {
@@ -806,7 +858,7 @@ class MainMap extends StatelessWidget {
                                               ride: ride,
                                               mapController: mapController!);
                                         }),
-                                        ...state.myRides.map((ride) {
+                                        ...state.receivedRides.map((ride) {
                                           return RideRequestCard(
                                               ride: ride,
                                               mapController: mapController!);
@@ -1345,6 +1397,44 @@ class RideDetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String titleText = switch (ride.status) {
+      RideStatus.pending => 'Awaiting Rider Confirmation...',
+      RideStatus.accepted => 'Ride Accepted',
+      RideStatus.inProgress => 'Ride In Progress',
+      RideStatus.rejected => 'Ride Rejected',
+      RideStatus.rejectedWithResponse => 'Ride Rejected',
+      RideStatus.completed => 'Ride Completed',
+      RideStatus.canceled => 'Ride Cancelled',
+      null => 'Unknown Status',
+    };
+    Widget iconWidget = switch (ride.status) {
+      RideStatus.pending => LoadingAnimationWidget.prograssiveDots(
+          color: Theme.of(context).colorScheme.primary, size: 36),
+      RideStatus.accepted => PhosphorIcon(
+          PhosphorIcons.checkCircle(
+            PhosphorIconsStyle.fill,
+          ),
+          color: Colors.green[400],
+        ),
+      RideStatus.inProgress => PhosphorIcon(PhosphorIcons.motorcycle(
+          PhosphorIconsStyle.fill,
+        )),
+      RideStatus.rejected => PhosphorIcon(PhosphorIcons.motorcycle(
+          PhosphorIconsStyle.fill,
+        )),
+      RideStatus.rejectedWithResponse => PhosphorIcon(PhosphorIcons.motorcycle(
+          PhosphorIconsStyle.fill,
+        )),
+      RideStatus.completed => PhosphorIcon(PhosphorIcons.motorcycle(
+          PhosphorIconsStyle.fill,
+        )),
+      RideStatus.canceled => PhosphorIcon(PhosphorIcons.motorcycle(
+          PhosphorIconsStyle.fill,
+        )),
+      null => PhosphorIcon(PhosphorIcons.motorcycle(
+          PhosphorIconsStyle.fill,
+        )),
+    };
     return Card(
       child: InkWell(
         onTap: () async {
@@ -1374,33 +1464,90 @@ class RideDetailsCard extends StatelessWidget {
         child: Column(
           children: [
             ListTile(
-              leading: LoadingAnimationWidget.prograssiveDots(
-                  color: Theme.of(context).colorScheme.primary, size: 36),
-              title: Text(
-                'Awaiting Rider Confirmation...',
-                style: Theme.of(context).textTheme.titleSmall,
+              leading: iconWidget,
+              title: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    titleText,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleSmall
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(width: 8.0),
+                  if (ride.status == RideStatus.accepted)
+                    Row(
+                      children: [
+                        // Middle Dot
+                        Text(
+                          '•',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(width: 8.0),
+                        CircleAvatar(
+                          // backgroundColor: Colors.white,
+                          radius: 8,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(50.0),
+                            child: CachedNetworkImage(
+                              imageUrl:
+                                  'https://scontent-lga3-1.cdninstagram.com/v/t51.2885-19/239083158_1041850919887570_7755239183612531984_n.jpg?stp=dst-jpg_s150x150&_nc_ht=scontent-lga3-1.cdninstagram.com&_nc_cat=110&_nc_ohc=-G3T7pl73asQ7kNvgFjLgW4&gid=b72e8aa84d7940049d9af5a959b74669&edm=AEhyXUkBAAAA&ccb=7-5&oh=00_AYCKn1GYP_pojAwBKTvJi8eskcuyXoQoqgp7crpWFQdwXg&oe=66ADCC2B&_nc_sid=8f1549',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8.0),
+                        Text(
+                          'Christian',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    )
+                ],
               ),
               subtitle: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  PhosphorIcon(PhosphorIcons.path(PhosphorIconsStyle.fill),
+                      size: 12, color: Theme.of(context).colorScheme.primary),
+                  const SizedBox(width: 6.0),
                   Flexible(
                       child: Text.rich(
                     TextSpan(
-                      text: 'Meet at: ',
-                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                      children: [
-                        TextSpan(
-                          text: ride.meetingPointAddress,
-                          style: Theme.of(context).textTheme.bodySmall!,
-                        ),
-                      ],
+                      text: ride.meetingPointAddress,
+                      style: Theme.of(context).textTheme.bodySmall!,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   )),
                 ],
+              ),
+              trailing: IconButton.filledTonal(
+                icon: Icon(
+                  PhosphorIcons.navigationArrow(PhosphorIconsStyle.fill),
+                  size: 18,
+                ),
+                onPressed: () {
+                  showBottomSheet(
+                    context: context,
+                    builder: (context) {
+                      return DraggableScrollableSheet(
+                        expand: false,
+                        maxChildSize: 0.58,
+                        initialChildSize: 0.33,
+                        minChildSize: 0.13,
+                        builder: (context, controller) {
+                          return RideDetailsSheet(
+                            ride: ride,
+                            scrollController: controller,
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
               ),
             ),
           ],
@@ -1715,137 +1862,419 @@ class RideDetailsSheet extends StatelessWidget {
           topRight: Radius.circular(24.0),
         ),
       ),
-      child: Column(
-        children: [
-          const SizedBox(
-            height: 8.0,
-          ),
-          Container(
-            height: 4.0,
-            width: 48.0,
-            decoration: BoxDecoration(
-              color: Theme.of(context).dividerColor,
-              borderRadius: BorderRadius.circular(2.0),
-            ),
-          ),
-          const SizedBox(
-            height: 8.0,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: BlocBuilder<RidesBloc, RidesState>(
+        builder: (context, state) {
+          if (state is RidesLoading) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          if (state is RidesError) {
+            return const Center(
+              child: Text('Error'),
+            );
+          } else if (state is RidesLoaded) {
+            return Stack(
+              alignment: Alignment.topCenter,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Positioned(
+                  top: 8,
+                  child: Container(
+                    height: 4.0,
+                    width: 48.0,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).dividerColor,
+                      borderRadius: BorderRadius.circular(2.0),
+                    ),
+                  ),
+                ),
+                // Title
+                Positioned(
+                  top: 24,
+                  child: Text(
+                    'Ride Details',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
+                Positioned(
+                  top: 42,
+                  child: FittedBox(
+                    child: SizedBox(
+                        height: 72,
+                        width: MediaQuery.sizeOf(context).width,
+                        child: Theme(
+                          data: Theme.of(context).copyWith(
+                            canvasColor: Colors.transparent,
+                            colorScheme:
+                                Theme.of(context).brightness == Brightness.light
+                                    ? ColorScheme.light(
+                                        primary: Theme.of(context)
+                                            .colorScheme
+                                            .primaryContainer,
+                                        secondary: Colors.blue,
+                                        onSurface: Colors.grey,
+                                        // ignore: deprecated_member_use
+                                        background: Colors.blue)
+                                    : ColorScheme.dark(
+                                        primary: Colors.green[600]!,
+                                        secondary: Colors.green[600]!,
+
+                                        // ignore: deprecated_member_use
+                                        background: Colors.grey[600]),
+                          ),
+                          child: Stepper(
+                              margin: EdgeInsets.zero,
+                              elevation: 0,
+                              type: StepperType.horizontal,
+                              connectorThickness: 2.5,
+                              controlsBuilder: (context, details) {
+                                return const SizedBox();
+                              },
+                              currentStep: ride.status == RideStatus.accepted
+                                  ? 1
+                                  : ride.status == RideStatus.inProgress
+                                      ? 2
+                                      : 1,
+                              stepIconBuilder: (stepIndex, stepState) {
+                                return stepIndex == 0
+                                    ? PhosphorIcon(
+                                        ride.status == RideStatus.accepted
+                                            ? PhosphorIcons.checkCircle(
+                                                PhosphorIconsStyle.fill,
+                                              )
+                                            : PhosphorIcons.clock(
+                                                PhosphorIconsStyle.fill,
+                                              ),
+                                        size: 16,
+                                      )
+                                    : stepIndex == 1
+                                        ? CircleAvatar(
+                                            backgroundColor: ride.status ==
+                                                    RideStatus.accepted
+                                                ? Colors.blue
+                                                : Colors.transparent,
+                                            foregroundColor: ride.status ==
+                                                    RideStatus.accepted
+                                                ? Colors.white
+                                                : null,
+                                            child: PhosphorIcon(
+                                              ride.status ==
+                                                      RideStatus.inProgress
+                                                  ? PhosphorIcons.checkCircle(
+                                                      PhosphorIconsStyle.fill,
+                                                    )
+                                                  : PhosphorIcons.mapPinArea(
+                                                      PhosphorIconsStyle.fill,
+                                                    ),
+                                              size: 16,
+                                            ),
+                                          )
+                                        : PhosphorIcon(
+                                            ride.status == RideStatus.inProgress
+                                                ? PhosphorIcons.checkCircle(
+                                                    PhosphorIconsStyle.fill,
+                                                  )
+                                                : PhosphorIcons.motorcycle(
+                                                    PhosphorIconsStyle.fill,
+                                                  ),
+                                            size: 16,
+                                          );
+                              },
+                              steps: [
+                                Step(
+                                  isActive: ride.status == RideStatus.accepted,
+                                  title: const Text('Request'),
+                                  content: const SizedBox.shrink(),
+                                ),
+                                Step(
+                                  isActive:
+                                      ride.status == RideStatus.inProgress,
+                                  title: const Text('Meet Up'),
+                                  content: const SizedBox.shrink(),
+                                ),
+                                const Step(
+                                  title: Text('Ride'),
+                                  content: SizedBox.shrink(),
+                                ),
+                              ]),
+                        )),
+                  ),
+                ),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      'Ride Details',
-                      style: Theme.of(context).textTheme.titleLarge,
+                    const SizedBox(
+                      height: 92.0,
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.center,
+                          //   children: [
+                          //     PhosphorIcon(
+                          //       switch (ride.status) {
+                          //         RideStatus.pending =>
+                          //           PhosphorIcons.clock(PhosphorIconsStyle.fill),
+                          //         RideStatus.accepted => PhosphorIcons.checkCircle(
+                          //             PhosphorIconsStyle.fill,
+                          //           ),
+                          //         RideStatus.rejected => PhosphorIcons.xCircle(
+                          //             PhosphorIconsStyle.fill,
+                          //           ),
+                          //         RideStatus.rejectedWithResponse =>
+                          //           PhosphorIcons.question(
+                          //             PhosphorIconsStyle.fill,
+                          //           ),
+                          //         RideStatus.completed => PhosphorIcons.checkCircle(
+                          //             PhosphorIconsStyle.fill,
+                          //           ),
+                          //         RideStatus.canceled => PhosphorIcons.xCircle(
+                          //             PhosphorIconsStyle.fill,
+                          //           ),
+                          //         null => PhosphorIcons.xCircle(
+                          //             PhosphorIconsStyle.fill,
+                          //           ),
+                          //       },
+                          //       color: switch (ride.status) {
+                          //         RideStatus.pending =>
+                          //           Theme.of(context).colorScheme.primary,
+                          //         RideStatus.accepted => Colors.green[400],
+                          //         RideStatus.rejected => Colors.red[400],
+                          //         RideStatus.rejectedWithResponse =>
+                          //           Theme.of(context).colorScheme.secondary,
+                          //         RideStatus.completed => Colors.green[400],
+                          //         RideStatus.canceled => Colors.red[400],
+                          //         null => Colors.red[400],
+                          //       },
+                          //       size: 20,
+                          //     ),
+                          //     const SizedBox(width: 8.0),
+                          //     Text(
+                          //       switch (ride.status) {
+                          //         RideStatus.pending =>
+                          //           'Awaiting Rider Confirmation...',
+                          //         RideStatus.accepted => 'Ride Accepted',
+                          //         RideStatus.rejected => 'Ride Rejected',
+                          //         RideStatus.rejectedWithResponse =>
+                          //           'Ride Changes Requested',
+                          //         RideStatus.completed => 'Ride Completed',
+                          //         RideStatus.canceled => 'Ride Cancelled',
+                          //         null => 'Unknown Status',
+                          //       },
+                          //       style: Theme.of(context).textTheme.titleLarge,
+                          //     ),
+                          //   ],
+                          // ),
+                          // const SizedBox(height: 8.0),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                if (ride.status != RideStatus.accepted)
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        PhosphorIcon(
+                                          PhosphorIcons.mapPinArea(
+                                            PhosphorIconsStyle.fill,
+                                          ),
+                                          size: 20,
+                                        ),
+                                        const SizedBox(width: 8.0),
+                                        Flexible(
+                                            child: Text.rich(
+                                          TextSpan(
+                                            text: 'Meet at: ',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall!
+                                                .copyWith(
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                            children: [
+                                              TextSpan(
+                                                text: ride.meetingPointAddress,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodySmall!,
+                                              ),
+                                            ],
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        )),
+                                      ],
+                                    ),
+                                  ),
+                                // if (ride.status == RideStatus.accepted)
+                                //   Expanded(
+                                //     child: Row(
+                                //       mainAxisAlignment: MainAxisAlignment.center,
+                                //       children: [
+                                //         Flexible(
+                                //             child: Chip(
+                                //           visualDensity: VisualDensity.compact,
+                                //           avatar: CircleAvatar(
+                                //             backgroundColor: Colors.white,
+                                //             child: ClipRRect(
+                                //               borderRadius:
+                                //                   BorderRadius.circular(50.0),
+                                //               child: CachedNetworkImage(
+                                //                 imageUrl:
+                                //                     'https://scontent-lga3-1.cdninstagram.com/v/t51.2885-19/239083158_1041850919887570_7755239183612531984_n.jpg?stp=dst-jpg_s150x150&_nc_ht=scontent-lga3-1.cdninstagram.com&_nc_cat=110&_nc_ohc=-G3T7pl73asQ7kNvgFjLgW4&gid=b72e8aa84d7940049d9af5a959b74669&edm=AEhyXUkBAAAA&ccb=7-5&oh=00_AYCKn1GYP_pojAwBKTvJi8eskcuyXoQoqgp7crpWFQdwXg&oe=66ADCC2B&_nc_sid=8f1549',
+                                //               ),
+                                //             ),
+                                //           ),
+                                //           label: Text(
+                                //             'Christian',
+                                //             style: Theme.of(context)
+                                //                 .textTheme
+                                //                 .bodySmall,
+                                //           ),
+                                //         )),
+                                //       ],
+                                //     ),
+                                //   ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (ride.status != RideStatus.accepted)
+                      const SizedBox(height: 8.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Card(
+                              child: ListTile(
+                                leading: switch (ride.status) {
+                                  RideStatus.pending =>
+                                    LoadingAnimationWidget.prograssiveDots(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        size: 36),
+                                  RideStatus.accepted => PhosphorIcon(
+                                      PhosphorIcons.mapPinArea(
+                                        PhosphorIconsStyle.fill,
+                                      ),
+                                      // color: Colors.green[400],
+                                    ),
+                                  RideStatus.inProgress =>
+                                    PhosphorIcon(PhosphorIcons.motorcycle(
+                                      PhosphorIconsStyle.fill,
+                                    )),
+                                  RideStatus.rejected =>
+                                    PhosphorIcon(PhosphorIcons.motorcycle(
+                                      PhosphorIconsStyle.fill,
+                                    )),
+                                  RideStatus.rejectedWithResponse =>
+                                    PhosphorIcon(PhosphorIcons.motorcycle(
+                                      PhosphorIconsStyle.fill,
+                                    )),
+                                  RideStatus.completed =>
+                                    PhosphorIcon(PhosphorIcons.motorcycle(
+                                      PhosphorIconsStyle.fill,
+                                    )),
+                                  RideStatus.canceled =>
+                                    PhosphorIcon(PhosphorIcons.motorcycle(
+                                      PhosphorIconsStyle.fill,
+                                    )),
+                                  null => PhosphorIcon(PhosphorIcons.motorcycle(
+                                      PhosphorIconsStyle.fill,
+                                    )),
+                                },
+                                title: Text(
+                                  ride.status == RideStatus.pending
+                                      ? 'Waiting For Rider Response...'
+                                      : ride.status == RideStatus.accepted
+                                          ? '${ride.meetingPointAddress}'
+                                          : ride.status == RideStatus.rejected
+                                              ? 'Ride Request Rejected'
+                                              : ride.status ==
+                                                      RideStatus.completed
+                                                  ? 'Ride Request Completed'
+                                                  : ride.status ==
+                                                          RideStatus.canceled
+                                                      ? 'Ride Request Canceled'
+                                                      : ride.status ==
+                                                              RideStatus
+                                                                  .rejectedWithResponse
+                                                          ? 'Ride Changes Requested'
+                                                          : 'Ride Request Unknown',
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                subtitle: ride.status == RideStatus.accepted
+                                    ? Text.rich(
+                                        TextSpan(
+                                          text:
+                                              'It\'s time to head to the meeting point!',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall!
+                                              .copyWith(
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      )
+                                    : null,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8.0),
+                    // Get Directions Button
+                    OutlinedButton.icon(
+                      onPressed: () {},
+                      label: const Text('Get Directions'),
+                      icon: const Icon(Icons.navigation_rounded),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: TextButton.icon(
+                        // style: OutlinedButton.styleFrom(
+                        //     side: const BorderSide(
+                        //   color: Colors.red,
+                        //   width: 2.0,
+                        // )),
+                        onPressed: () {
+                          context.pop();
+                        },
+                        icon: PhosphorIcon(
+                          PhosphorIcons.prohibit(),
+                          size: 20,
+                        ),
+                        label: const Text('Cancel Ride'),
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8.0),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Row(
-                          children: [
-                            PhosphorIcon(
-                              PhosphorIcons.mapPinArea(
-                                PhosphorIconsStyle.fill,
-                              ),
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8.0),
-                            Flexible(
-                                child: Text.rich(
-                              TextSpan(
-                                text: 'Meet at: ',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall!
-                                    .copyWith(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                children: [
-                                  TextSpan(
-                                    text: ride.meetingPointAddress,
-                                    style:
-                                        Theme.of(context).textTheme.bodySmall!,
-                                  ),
-                                ],
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            )),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ],
-            ),
-          ),
-          const SizedBox(height: 8.0),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Card(
-                    child: ListTile(
-                      leading: LoadingAnimationWidget.prograssiveDots(
-                          color: Theme.of(context).colorScheme.primary,
-                          size: 36),
-                      title: ride.status == RideStatus.pending
-                          ? const Text('Waiting For Rider Response...')
-                          : ride.status == RideStatus.accepted
-                              ? const Text('Ride Request Accepted')
-                              : ride.status == RideStatus.rejected
-                                  ? const Text('Ride Request Rejected')
-                                  : ride.status == RideStatus.completed
-                                      ? const Text('Ride Request Completed')
-                                      : ride.status == RideStatus.canceled
-                                          ? const Text('Ride Request Canceled')
-                                          : ride.status ==
-                                                  RideStatus
-                                                      .rejectedWithResponse
-                                              ? const Text(
-                                                  'Ride Changes Requested')
-                                              : const Text(
-                                                  'Ride Request Unknown'),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8.0),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: TextButton.icon(
-              // style: OutlinedButton.styleFrom(
-              //     side: const BorderSide(
-              //   color: Colors.red,
-              //   width: 2.0,
-              // )),
-              onPressed: () {
-                context.pop();
-              },
-              icon: PhosphorIcon(
-                PhosphorIcons.prohibit(),
-                size: 20,
-              ),
-              label: const Text('Cancel Ride Request'),
-            ),
-          ),
-        ],
+            );
+          } else {
+            return const Center(
+              child: Text('Something Went Wrong...'),
+            );
+          }
+        },
       ),
     );
   }

@@ -92,7 +92,7 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
       });
 
       /// Update activity bloc
-      _activityBloc.add(LoadActivity(activity: bgLocation.activity.type));
+      // _activityBloc.add(LoadActivity(activity: bgLocation.activity.type));
       // _motionBloc.add(LoadMotion(isMoving: location.isMoving));
       // emit(GeolocationLoaded(bgLocation: bgLocation));
     } catch (e) {

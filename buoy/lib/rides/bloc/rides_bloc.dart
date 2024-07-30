@@ -15,24 +15,15 @@ class RidesBloc extends Bloc<RidesEvent, RidesState> {
     on<LoadRides>((event, emit) async {
       try {
         emit(RidesLoading());
-        final myRides = await _rideRepository
-            .getMyRides(sb.Supabase.instance.client.auth.currentUser!.id);
 
-        print('My rides: $myRides');
-
-        if (myRides == null) {
-          emit(const RidesError('Failed to load rides'));
-          return;
-        }
-
-        final recievedRidesStream = _rideRepository
+        final ridesStream = _rideRepository
             .getReceivedRides(sb.Supabase.instance.client.auth.currentUser!.id);
 
         await emit.forEach(
-          recievedRidesStream,
-          onData: (receievedRides) {
-            print('Rides receieved: $receievedRides');
-            return RidesLoaded(myRides, receievedRides);
+          ridesStream,
+          onData: (rides) {
+            print('Rides receieved: $rides');
+            return RidesLoaded(rides.$1, rides.$2);
           },
           onError: (error, stackTrace) {
             print('Error loading rides: $error');

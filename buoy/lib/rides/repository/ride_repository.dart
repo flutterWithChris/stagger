@@ -1,4 +1,5 @@
 import 'package:buoy/rides/model/ride.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
@@ -76,37 +77,54 @@ class RideRepository {
     }
   }
 
-  Stream<List<Ride>> getReceivedRides(String userId) {
+  Stream<(List<Ride> myRides, List<Ride> receivedRides)> getReceivedRides(
+      String userId) {
     print('Getting received rides for user: $userId');
 
     // Stream from ride_participants table
     final rideParticipantsStream =
         rideParticipantsTable.stream(primaryKey: ['id']).eq('user_id', userId);
 
-    // Map the stream to fetch ride details from the rides table
-    return rideParticipantsStream.asyncMap((participants) async {
-      if (participants.isEmpty) {
-        return <Ride>[];
-      }
+    // Stream from rides table
+    final ridesStream = ridesTable.stream(primaryKey: ['id']);
 
-      // Extract ride IDs
-      final rideIds = participants
-          .where((p) => p['role'] == 'receiver')
-          .map((p) => p['ride_id'])
-          .toList();
+    // Combine both streams
+    return CombineLatestStream.combine2(
+      rideParticipantsStream,
+      ridesStream,
+      (participants, rides) async {
+        List<Ride> receivedRides = [];
+        List<Ride> myCreatedRides = [];
 
-      if (rideIds.isEmpty) {
-        return <Ride>[];
-      }
+        if (participants.isNotEmpty) {
+          // Extract ride IDs
+          final receivedRideIds = participants
+              .where((p) => p['role'] == 'receiver')
+              .map((p) => p['ride_id'])
+              .toList();
 
-      // Fetch the corresponding rides
-      final response = await ridesTable.select('*').inFilter('id', rideIds);
+          final myRideIds = participants
+              .where((p) => p['role'] == 'sender')
+              .map((p) => p['ride_id'])
+              .toList();
 
-      // if (response.error != null) {
-      //   throw Exception('Failed to fetch rides: ${response.error!.message}');
-      // }
+          // Fetch the corresponding rides
+          if (receivedRideIds.isNotEmpty) {
+            final receivedRidesData =
+                rides.where((ride) => receivedRideIds.contains(ride['id']));
+            receivedRides =
+                receivedRidesData.map((e) => Ride.fromJson(e)).toList();
+          }
 
-      return response.map((json) => Ride.fromJson(json)).toList();
-    });
+          if (myRideIds.isNotEmpty) {
+            final myRidesData =
+                rides.where((ride) => myRideIds.contains(ride['id']));
+            myCreatedRides = myRidesData.map((e) => Ride.fromJson(e)).toList();
+          }
+        }
+
+        return (myCreatedRides, receivedRides);
+      },
+    ).asyncMap((data) async => data);
   }
 }
