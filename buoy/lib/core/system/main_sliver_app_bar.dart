@@ -21,7 +21,7 @@ class MainSliverAppBar extends StatelessWidget {
           ),
           const Padding(
             padding: EdgeInsets.only(bottom: 2.0),
-            child: Text('Staggered'),
+            child: Text('Stagger'),
           )
         ],
       ),

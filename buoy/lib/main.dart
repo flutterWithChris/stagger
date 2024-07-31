@@ -15,6 +15,8 @@ import 'package:buoy/locate/repository/public_key_repository.dart';
 import 'package:buoy/motion/bloc/motion_bloc.dart';
 import 'package:buoy/profile/repository/bloc/profile_bloc.dart';
 import 'package:buoy/profile/repository/user_repository.dart';
+import 'package:buoy/riders/bloc/riders_bloc.dart';
+import 'package:buoy/riders/repo/riders_repository.dart';
 import 'package:buoy/rides/bloc/ride_bloc.dart';
 import 'package:buoy/rides/bloc/rides_bloc.dart';
 import 'package:buoy/rides/repository/ride_repository.dart';
@@ -78,6 +80,9 @@ class MyApp extends StatelessWidget {
         RepositoryProvider(
           create: (context) => RideRepository(),
         ),
+        RepositoryProvider(
+          create: (context) => RidersRepository(),
+        )
       ],
       child: MultiBlocProvider(
         providers: [
@@ -135,6 +140,11 @@ class MyApp extends StatelessWidget {
             create: (context) => RidesBloc(
               rideRepository: context.read<RideRepository>(),
             )..add(LoadRides()),
+          ),
+          BlocProvider(
+            create: (context) => RidersBloc(
+              ridersRepository: context.read<RidersRepository>(),
+            ),
           )
         ],
         child: BlocBuilder<ThemeCubit, ThemeState>(

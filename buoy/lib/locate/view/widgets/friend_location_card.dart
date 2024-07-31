@@ -59,8 +59,7 @@ class FriendLocationCard extends StatelessWidget {
             },
           );
           await mapController.centerOnPoint(
-            LatLng(double.parse(location.latitude),
-                double.parse(location.longitude)),
+            LatLng(location.latitude!, location.longitude!),
           );
         },
         child: Padding(
@@ -197,8 +196,7 @@ class FriendLocationCard extends StatelessWidget {
                         },
                       );
                       await mapController.centerOnPoint(
-                        LatLng(double.parse(location.latitude),
-                            double.parse(location.longitude)),
+                        LatLng(location.latitude!, location.longitude!),
                       );
                     },
                     icon: const Icon(Icons.chevron_right_rounded)),

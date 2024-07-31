@@ -29,33 +29,4 @@ class LocationRealtimeRepository {
       rethrow;
     }
   }
-
-  Future<Location> encrpytLocationData(Location location) async {
-    const FlutterSecureStorage storage = FlutterSecureStorage();
-    String magnolia = await storage.read(key: 'magnolia') as String;
-    final key = encrpyt.Key(base64Url.decode(magnolia));
-    final iv = encrpyt.IV.fromLength(16);
-
-    final encrypter = encrpyt.Encrypter(encrpyt.AES(key));
-
-    final encryptedLatitude = encrypter.encrypt(location.latitude, iv: iv);
-    final encryptedLongitude = encrypter.encrypt(location.longitude, iv: iv);
-    final encryptedLocationString = location.locationString != null
-        ? encrypter.encrypt(location.locationString!, iv: iv)
-        : null;
-    final encryptedCity = location.city != null
-        ? encrypter.encrypt(location.city!, iv: iv)
-        : null;
-    final encryptedState = location.state != null
-        ? encrypter.encrypt(location.state!, iv: iv)
-        : null;
-
-    return location.copyWith(
-      latitude: encryptedLatitude.base64,
-      longitude: encryptedLongitude.base64,
-      locationString: encryptedLocationString?.base64,
-      city: encryptedCity?.base64,
-      state: encryptedState?.base64,
-    );
-  }
 }

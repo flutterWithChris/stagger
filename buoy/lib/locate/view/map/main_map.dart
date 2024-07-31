@@ -3,6 +3,8 @@ import 'package:buoy/friends/view/friend_details_sheet.dart';
 import 'package:buoy/locate/bloc/geolocation_bloc.dart';
 import 'package:buoy/locate/model/location.dart';
 import 'package:buoy/profile/repository/bloc/profile_bloc.dart';
+import 'package:buoy/riders/bloc/riders_bloc.dart';
+import 'package:buoy/riders/model/rider.dart';
 import 'package:buoy/rides/bloc/ride_bloc.dart';
 import 'package:buoy/rides/bloc/rides_bloc.dart';
 import 'package:buoy/rides/model/ride.dart';
@@ -61,6 +63,10 @@ class MainMap extends StatelessWidget {
                   //     InteractiveFlag.drag |
                   //     InteractiveFlag.doubleTapZoom |
                   //     InteractiveFlag.flingAnimation,
+                  onMapReady: () {
+                    context.read<RidersBloc>().add(LoadRiders(
+                        mapController!.mapController.camera.visibleBounds));
+                  },
                   onTap: (tapPosition, point) {
                     if (context.read<RideBloc>().state is CreatingRide) {
                       context.read<RideBloc>().add(
@@ -298,11 +304,9 @@ class MainMap extends StatelessWidget {
                                                         width: 100.0,
                                                         height: 100.0,
                                                         point: LatLng(
-                                                            double.parse(
-                                                                location
-                                                                    .latitude),
-                                                            double.parse(location
-                                                                .longitude)),
+                                                            location.latitude!,
+                                                            location
+                                                                .longitude!),
                                                         child: Stack(
                                                           alignment:
                                                               Alignment.center,
@@ -358,12 +362,10 @@ class MainMap extends StatelessWidget {
                                                                 await mapController
                                                                     ?.centerOnPoint(
                                                                   LatLng(
-                                                                      double.parse(
-                                                                          location
-                                                                              .latitude),
-                                                                      double.parse(
-                                                                          location
-                                                                              .longitude)),
+                                                                      location
+                                                                          .latitude!,
+                                                                      location
+                                                                          .longitude!),
                                                                 );
                                                                 // await mapController
                                                                 //     ?.centerOnPoint(
@@ -417,353 +419,385 @@ class MainMap extends StatelessWidget {
                                                 ],
                                               );
                                             }
-                                            return MarkerLayer(
-                                              markers: [
-                                                for (Ride ride
-                                                    in ridesState.myRides ?? [])
-                                                  Marker(
-                                                    height: 36.0,
-                                                    width: 36.0,
-                                                    point: LatLng(
-                                                        ride.meetingPoint![0],
-                                                        ride.meetingPoint![1]),
-                                                    child: InkWell(
-                                                      onTap: () async {
-                                                        print('Tapped ride');
-
-                                                        showBottomSheet(
-                                                          context: context,
-                                                          builder: (context) {
-                                                            return RideDetailsSheet(
-                                                              ride: ride,
-                                                            );
-                                                          },
-                                                        );
-
-                                                        await mapController?.animateTo(
-                                                            dest: LatLng(
-                                                                ride.meetingPoint![
-                                                                    0],
-                                                                ride.meetingPoint![
-                                                                    1]));
-                                                      },
-                                                      child: Stack(
-                                                        alignment:
-                                                            Alignment.center,
-                                                        children: [
-                                                          CircleAvatar(
-                                                            radius: 200.0,
-                                                            backgroundColor: Theme
-                                                                    .of(context)
-                                                                .colorScheme
-                                                                .primaryContainer,
-                                                          )
-                                                              .animate(
-                                                                onComplete:
-                                                                    (controller) =>
-                                                                        controller
-                                                                            .repeat(),
-                                                              )
-                                                              .fade(
-                                                                  begin: 0.0,
-                                                                  end: 0.6,
-                                                                  duration:
-                                                                      800.ms)
-                                                              .scale(
-                                                                  begin:
-                                                                      const Offset(
-                                                                          1.0,
-                                                                          1.0),
-                                                                  end:
-                                                                      const Offset(
-                                                                          1.6,
-                                                                          1.6),
-                                                                  duration: 1.618
-                                                                      .seconds)
-                                                              .fadeOut(
-                                                                  delay:
-                                                                      800.ms),
-                                                          CircleAvatar(
-                                                            radius: 30,
-                                                            child: Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .all(2.0),
-                                                              child:
-                                                                  PhosphorIcon(
-                                                                switch (ride
-                                                                    .status) {
-                                                                  RideStatus
-                                                                        .pending =>
-                                                                    PhosphorIcons.mapPin(
-                                                                        PhosphorIconsStyle
-                                                                            .fill),
-                                                                  RideStatus
-                                                                        .accepted =>
-                                                                    PhosphorIcons.mapPinArea(
-                                                                        PhosphorIconsStyle
-                                                                            .fill),
-                                                                  RideStatus
-                                                                        .rejected =>
-                                                                    PhosphorIcons.prohibit(
-                                                                        PhosphorIconsStyle
-                                                                            .fill),
-                                                                  RideStatus
-                                                                        .rejectedWithResponse =>
-                                                                    PhosphorIcons.question(
-                                                                        PhosphorIconsStyle
-                                                                            .fill),
-                                                                  RideStatus
-                                                                        .canceled =>
-                                                                    PhosphorIcons.prohibit(
-                                                                        PhosphorIconsStyle
-                                                                            .fill),
-                                                                  RideStatus
-                                                                        .completed =>
-                                                                    PhosphorIcons.flagCheckered(
-                                                                        PhosphorIconsStyle
-                                                                            .fill),
-                                                                  RideStatus
-                                                                        .inProgress =>
-                                                                    PhosphorIcons.mapPinArea(
-                                                                        PhosphorIconsStyle
-                                                                            .fill),
-                                                                  null =>
-                                                                    PhosphorIcons.mapPinArea(
-                                                                        PhosphorIconsStyle
-                                                                            .fill),
-                                                                },
-                                                                size: 20,
-                                                              ),
-                                                            ),
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-
-                                                /// User Location
-                                                Marker(
-                                                  // anchorPos:
-                                                  //     AnchorPos.align(AnchorAlign.top),
-                                                  width: 32.0,
-                                                  height: 32.0,
-                                                  point: LatLng(
-                                                      state.bgLocation!.coords
-                                                          .latitude,
-                                                      state.bgLocation!.coords
-                                                          .longitude),
-                                                  child: Stack(
-                                                    clipBehavior: Clip.none,
-                                                    alignment: Alignment.center,
-                                                    children: [
-                                                      CircleAvatar(
-                                                        radius: 30.0,
-                                                        backgroundColor:
-                                                            Theme.of(context)
-                                                                .splashColor,
-                                                      )
-                                                          .animate(
-                                                            onComplete:
-                                                                (controller) =>
-                                                                    controller
-                                                                        .repeat(),
-                                                          )
-                                                          .fadeIn(
-                                                              duration: 800.ms)
-                                                          .scale(
-                                                              duration:
-                                                                  1.618.seconds)
-                                                          .fadeOut(
-                                                              delay: 800.ms),
-                                                      InkWell(
-                                                        onTap: () async {
-                                                          await mapController?.animateTo(
-                                                              dest: LatLng(
-                                                                  state
-                                                                      .bgLocation!
-                                                                      .coords
-                                                                      .latitude,
-                                                                  state
-                                                                      .bgLocation!
-                                                                      .coords
-                                                                      .longitude));
-                                                        },
-                                                        child: CircleAvatar(
-                                                          backgroundColor:
-                                                              Colors.white,
-                                                          radius: 18.0,
-                                                          child: CircleAvatar(
-                                                            radius: 16.0,
-                                                            // foregroundImage:
-                                                            //     CachedNetworkImageProvider(
-                                                            //   profileState.user
-                                                            //           .photoUrl ??
-                                                            //       '',
-                                                            // ),
-                                                            child: profileState
-                                                                            .user
-                                                                            .photoUrl ==
-                                                                        null ||
-                                                                    profileState
-                                                                            .user
-                                                                            .photoUrl ==
-                                                                        ''
-                                                                // Show first and last initials if no photo
-                                                                ? Text(
-                                                                    '${profileState.user.name![0]}${profileState.user.name!.split(' ').last[0]}',
-                                                                    style: Theme.of(
-                                                                            context)
-                                                                        .textTheme
-                                                                        .bodyMedium!
-                                                                        .copyWith(
-                                                                          color:
-                                                                              Theme.of(context).scaffoldBackgroundColor,
-                                                                          fontWeight:
-                                                                              FontWeight.w800,
-                                                                        ),
-                                                                  )
-                                                                : null,
-                                                          ),
+                                            return BlocBuilder<RidersBloc,
+                                                RidersState>(
+                                              builder: (context, ridersState) {
+                                                if (ridersState
+                                                    is RidersLoading) {
+                                                  return const MarkerLayer(
+                                                    markers: [],
+                                                  );
+                                                }
+                                                if (ridersState
+                                                    is RidersLoaded) {
+                                                  return MarkerLayer(
+                                                    markers: [
+                                                      for (Rider rider
+                                                          in ridersState.riders)
+                                                        Marker(
+                                                          point: LatLng(
+                                                              rider
+                                                                  .currentLocation!
+                                                                  .latitude!,
+                                                              rider
+                                                                  .currentLocation!
+                                                                  .longitude!),
+                                                          child: PhosphorIcon(
+                                                              PhosphorIcons
+                                                                  .motorcycle(
+                                                                      PhosphorIconsStyle
+                                                                          .fill)),
                                                         ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-
-                                                if (friendsState
-                                                        .friends.isNotEmpty &&
-                                                    friendsState
-                                                        .locations.isNotEmpty)
-                                                  for (Location location
-                                                      in friendsState.locations)
-                                                    Marker(
-                                                      width: 100.0,
-                                                      height: 100.0,
-                                                      point: LatLng(
-                                                          double.parse(location
-                                                              .latitude),
-                                                          double.parse(location
-                                                              .longitude)),
-                                                      child: Stack(
-                                                        alignment:
-                                                            Alignment.center,
-                                                        children: [
-                                                          CircleAvatar(
-                                                            radius: 28.0,
-                                                            backgroundColor:
-                                                                Theme.of(
-                                                                        context)
-                                                                    .splashColor,
-                                                          )
-                                                              .animate(
-                                                                onComplete:
-                                                                    (controller) =>
-                                                                        controller
-                                                                            .repeat(),
-                                                              )
-                                                              .fadeIn(
-                                                                  duration:
-                                                                      800.ms)
-                                                              .scale(
-                                                                  duration: 1.618
-                                                                      .seconds)
-                                                              .fadeOut(
-                                                                  delay:
-                                                                      800.ms),
-                                                          InkWell(
+                                                      for (Ride ride
+                                                          in ridesState
+                                                                  .myRides ??
+                                                              [])
+                                                        Marker(
+                                                          height: 36.0,
+                                                          width: 36.0,
+                                                          point: LatLng(
+                                                              ride.meetingPoint![
+                                                                  0],
+                                                              ride.meetingPoint![
+                                                                  1]),
+                                                          child: InkWell(
                                                             onTap: () async {
+                                                              print(
+                                                                  'Tapped ride');
+
                                                               showBottomSheet(
                                                                 context:
                                                                     context,
-                                                                //       isScrollControlled: true,
                                                                 builder:
                                                                     (context) {
-                                                                  return DraggableScrollableSheet(
-                                                                      expand:
-                                                                          false,
-                                                                      maxChildSize:
-                                                                          0.28,
-                                                                      initialChildSize:
-                                                                          0.28,
-                                                                      minChildSize:
-                                                                          0.13,
-                                                                      builder:
-                                                                          (context,
-                                                                              controller) {
-                                                                        return FriendDetailsSheet(
-                                                                            friendId:
-                                                                                friendsState.friends[1].id!,
-                                                                            location: location,
-                                                                            scrollController: controller);
-                                                                      });
+                                                                  return RideDetailsSheet(
+                                                                    ride: ride,
+                                                                  );
                                                                 },
                                                               );
-                                                              await mapController
-                                                                  ?.centerOnPoint(
-                                                                LatLng(
-                                                                    double.parse(
-                                                                        location
-                                                                            .latitude),
-                                                                    double.parse(
-                                                                        location
-                                                                            .longitude)),
-                                                              );
-                                                              // await mapController
-                                                              //     ?.centerOnPoint(
-                                                              //         LatLng(
-                                                              //           double.parse(
-                                                              //               location
-                                                              //                   .latitude),
-                                                              //           double.parse(
-                                                              //               location
-                                                              //                   .longitude),
-                                                              //         ),
-                                                              //         zoom: 14.0,
-                                                              //         curve: Curves
-                                                              //             .easeOutSine);
+
+                                                              await mapController?.animateTo(
+                                                                  dest: LatLng(
+                                                                      ride.meetingPoint![
+                                                                          0],
+                                                                      ride.meetingPoint![
+                                                                          1]));
                                                             },
-                                                            child: CircleAvatar(
-                                                              backgroundColor:
-                                                                  Colors.white,
-                                                              radius: 18.0,
-                                                              child:
-                                                                  CircleAvatar(
-                                                                radius: 16.0,
-                                                                // foregroundImage:
-                                                                //     CachedNetworkImageProvider(
-                                                                //   friendsState.friends
-                                                                //           .firstWhere((friend) =>
-                                                                //               friend
-                                                                //                   .id ==
-                                                                //               location
-                                                                //                   .userId)
-                                                                //           .photoUrl ??
-                                                                //       '',
-                                                                // ),
-                                                                child: friendsState
-                                                                            .friends
-                                                                            .firstWhere((friend) =>
-                                                                                friend.id ==
-                                                                                location
-                                                                                    .userId)
-                                                                            .photoUrl ==
-                                                                        null
-                                                                    ? Text(friendsState
-                                                                        .friends
-                                                                        .firstWhere((friend) =>
-                                                                            friend.id ==
-                                                                            location.userId)
-                                                                        .name!
-                                                                        .toUpperCase())
-                                                                    : null,
-                                                              ),
+                                                            child: Stack(
+                                                              alignment:
+                                                                  Alignment
+                                                                      .center,
+                                                              children: [
+                                                                CircleAvatar(
+                                                                  radius: 200.0,
+                                                                  backgroundColor: Theme.of(
+                                                                          context)
+                                                                      .colorScheme
+                                                                      .primaryContainer,
+                                                                )
+                                                                    .animate(
+                                                                      onComplete:
+                                                                          (controller) =>
+                                                                              controller.repeat(),
+                                                                    )
+                                                                    .fade(
+                                                                        begin:
+                                                                            0.0,
+                                                                        end:
+                                                                            0.6,
+                                                                        duration: 800
+                                                                            .ms)
+                                                                    .scale(
+                                                                        begin: const Offset(
+                                                                            1.0,
+                                                                            1.0),
+                                                                        end: const Offset(
+                                                                            1.6,
+                                                                            1.6),
+                                                                        duration:
+                                                                            1.618
+                                                                                .seconds)
+                                                                    .fadeOut(
+                                                                        delay: 800
+                                                                            .ms),
+                                                                CircleAvatar(
+                                                                  radius: 30,
+                                                                  child:
+                                                                      Padding(
+                                                                    padding:
+                                                                        const EdgeInsets
+                                                                            .all(
+                                                                            2.0),
+                                                                    child:
+                                                                        PhosphorIcon(
+                                                                      switch (ride
+                                                                          .status) {
+                                                                        RideStatus
+                                                                              .pending =>
+                                                                          PhosphorIcons.mapPin(
+                                                                              PhosphorIconsStyle.fill),
+                                                                        RideStatus
+                                                                              .accepted =>
+                                                                          PhosphorIcons.mapPinArea(
+                                                                              PhosphorIconsStyle.fill),
+                                                                        RideStatus
+                                                                              .rejected =>
+                                                                          PhosphorIcons.prohibit(
+                                                                              PhosphorIconsStyle.fill),
+                                                                        RideStatus
+                                                                              .rejectedWithResponse =>
+                                                                          PhosphorIcons.question(
+                                                                              PhosphorIconsStyle.fill),
+                                                                        RideStatus
+                                                                              .canceled =>
+                                                                          PhosphorIcons.prohibit(
+                                                                              PhosphorIconsStyle.fill),
+                                                                        RideStatus
+                                                                              .completed =>
+                                                                          PhosphorIcons.flagCheckered(
+                                                                              PhosphorIconsStyle.fill),
+                                                                        RideStatus
+                                                                              .inProgress =>
+                                                                          PhosphorIcons.mapPinArea(
+                                                                              PhosphorIconsStyle.fill),
+                                                                        null =>
+                                                                          PhosphorIcons.mapPinArea(
+                                                                              PhosphorIconsStyle.fill),
+                                                                      },
+                                                                      size: 20,
+                                                                    ),
+                                                                  ),
+                                                                )
+                                                              ],
                                                             ),
                                                           ),
-                                                        ],
+                                                        ),
+
+                                                      /// User Location
+                                                      Marker(
+                                                        // anchorPos:
+                                                        //     AnchorPos.align(AnchorAlign.top),
+                                                        width: 32.0,
+                                                        height: 32.0,
+                                                        point: LatLng(
+                                                            state
+                                                                .bgLocation!
+                                                                .coords
+                                                                .latitude,
+                                                            state
+                                                                .bgLocation!
+                                                                .coords
+                                                                .longitude),
+                                                        child: Stack(
+                                                          clipBehavior:
+                                                              Clip.none,
+                                                          alignment:
+                                                              Alignment.center,
+                                                          children: [
+                                                            CircleAvatar(
+                                                              radius: 30.0,
+                                                              backgroundColor:
+                                                                  Theme.of(
+                                                                          context)
+                                                                      .splashColor,
+                                                            )
+                                                                .animate(
+                                                                  onComplete: (controller) =>
+                                                                      controller
+                                                                          .repeat(),
+                                                                )
+                                                                .fadeIn(
+                                                                    duration:
+                                                                        800.ms)
+                                                                .scale(
+                                                                    duration: 1.618
+                                                                        .seconds)
+                                                                .fadeOut(
+                                                                    delay:
+                                                                        800.ms),
+                                                            InkWell(
+                                                              onTap: () async {
+                                                                await mapController?.animateTo(
+                                                                    dest: LatLng(
+                                                                        state
+                                                                            .bgLocation!
+                                                                            .coords
+                                                                            .latitude,
+                                                                        state
+                                                                            .bgLocation!
+                                                                            .coords
+                                                                            .longitude));
+                                                              },
+                                                              child:
+                                                                  CircleAvatar(
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .white,
+                                                                radius: 18.0,
+                                                                child:
+                                                                    CircleAvatar(
+                                                                  radius: 16.0,
+                                                                  // foregroundImage:
+                                                                  //     CachedNetworkImageProvider(
+                                                                  //   profileState.user
+                                                                  //           .photoUrl ??
+                                                                  //       '',
+                                                                  // ),
+                                                                  child: profileState.user.photoUrl ==
+                                                                              null ||
+                                                                          profileState.user.photoUrl ==
+                                                                              ''
+                                                                      // Show first and last initials if no photo
+                                                                      ? Text(
+                                                                          '${profileState.user.name![0]}${profileState.user.name!.split(' ').last[0]}',
+                                                                          style: Theme.of(context)
+                                                                              .textTheme
+                                                                              .bodyMedium!
+                                                                              .copyWith(
+                                                                                color: Theme.of(context).scaffoldBackgroundColor,
+                                                                                fontWeight: FontWeight.w800,
+                                                                              ),
+                                                                        )
+                                                                      : null,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
                                                       ),
-                                                    ),
-                                              ],
+
+                                                      // if (friendsState.friends
+                                                      //         .isNotEmpty &&
+                                                      //     friendsState.locations
+                                                      //         .isNotEmpty)
+                                                      //   for (Location location
+                                                      //       in friendsState
+                                                      //           .locations)
+                                                      //     Marker(
+                                                      //       width: 100.0,
+                                                      //       height: 100.0,
+                                                      //       point: LatLng(
+                                                      //           location
+                                                      //               .latitude!,
+                                                      //           location
+                                                      //               .longitude!),
+                                                      //       child: Stack(
+                                                      //         alignment:
+                                                      //             Alignment
+                                                      //                 .center,
+                                                      //         children: [
+                                                      //           CircleAvatar(
+                                                      //             radius: 28.0,
+                                                      //             backgroundColor:
+                                                      //                 Theme.of(
+                                                      //                         context)
+                                                      //                     .splashColor,
+                                                      //           )
+                                                      //               .animate(
+                                                      //                 onComplete:
+                                                      //                     (controller) =>
+                                                      //                         controller.repeat(),
+                                                      //               )
+                                                      //               .fadeIn(
+                                                      //                   duration: 800
+                                                      //                       .ms)
+                                                      //               .scale(
+                                                      //                   duration:
+                                                      //                       1.618
+                                                      //                           .seconds)
+                                                      //               .fadeOut(
+                                                      //                   delay: 800
+                                                      //                       .ms),
+                                                      //           InkWell(
+                                                      //             onTap:
+                                                      //                 () async {
+                                                      //               showBottomSheet(
+                                                      //                 context:
+                                                      //                     context,
+                                                      //                 //       isScrollControlled: true,
+                                                      //                 builder:
+                                                      //                     (context) {
+                                                      //                   return DraggableScrollableSheet(
+                                                      //                       expand:
+                                                      //                           false,
+                                                      //                       maxChildSize:
+                                                      //                           0.28,
+                                                      //                       initialChildSize:
+                                                      //                           0.28,
+                                                      //                       minChildSize:
+                                                      //                           0.13,
+                                                      //                       builder:
+                                                      //                           (context, controller) {
+                                                      //                         return FriendDetailsSheet(friendId: friendsState.friends[1].id!, location: location, scrollController: controller);
+                                                      //                       });
+                                                      //                 },
+                                                      //               );
+                                                      //               await mapController
+                                                      //                   ?.centerOnPoint(
+                                                      //                 LatLng(
+                                                      //                     location
+                                                      //                         .latitude!,
+                                                      //                     location
+                                                      //                         .longitude!),
+                                                      //               );
+                                                      //               // await mapController
+                                                      //               //     ?.centerOnPoint(
+                                                      //               //         LatLng(
+                                                      //               //           double.parse(
+                                                      //               //               location
+                                                      //               //                   .latitude),
+                                                      //               //           double.parse(
+                                                      //               //               location
+                                                      //               //                   .longitude),
+                                                      //               //         ),
+                                                      //               //         zoom: 14.0,
+                                                      //               //         curve: Curves
+                                                      //               //             .easeOutSine);
+                                                      //             },
+                                                      //             child:
+                                                      //                 CircleAvatar(
+                                                      //               backgroundColor:
+                                                      //                   Colors
+                                                      //                       .white,
+                                                      //               radius:
+                                                      //                   18.0,
+                                                      //               child:
+                                                      //                   CircleAvatar(
+                                                      //                 radius:
+                                                      //                     16.0,
+                                                      //                 // foregroundImage:
+                                                      //                 //     CachedNetworkImageProvider(
+                                                      //                 //   friendsState.friends
+                                                      //                 //           .firstWhere((friend) =>
+                                                      //                 //               friend
+                                                      //                 //                   .id ==
+                                                      //                 //               location
+                                                      //                 //                   .userId)
+                                                      //                 //           .photoUrl ??
+                                                      //                 //       '',
+                                                      //                 // ),
+                                                      //                 child: friendsState.friends.firstWhere((friend) => friend.id == location.userId).photoUrl ==
+                                                      //                         null
+                                                      //                     ? Text(friendsState
+                                                      //                         .friends
+                                                      //                         .firstWhere((friend) => friend.id == location.userId)
+                                                      //                         .name!
+                                                      //                         .toUpperCase())
+                                                      //                     : null,
+                                                      //               ),
+                                                      //             ),
+                                                      //           ),
+                                                      //         ],
+                                                      //       ),
+                                                      //     ),
+                                                    ],
+                                                  );
+                                                } else {
+                                                  return const MarkerLayer(
+                                                    markers: [],
+                                                  );
+                                                }
+                                              },
                                             );
                                           },
                                         );
@@ -1849,6 +1883,22 @@ class RideDetailsSheet extends StatelessWidget {
                           rider.id !=
                           context.read<ProfileBloc>().state.user!.id)
                       .toList();
+                  bool allRidersAtMeetingPoint = rider.arrivalStatus ==
+                          ArrivalStatus.atMeetingPoint &&
+                      riders.every((rider) =>
+                          rider.arrivalStatus == ArrivalStatus.atMeetingPoint);
+                  bool waitingForRiders =
+                      rider.arrivalStatus == ArrivalStatus.atMeetingPoint &&
+                          riders.any((rider) =>
+                              rider.arrivalStatus == ArrivalStatus.stopped ||
+                              rider.arrivalStatus == ArrivalStatus.enRoute);
+                  bool atMeetingPoint =
+                      rider.arrivalStatus == ArrivalStatus.atMeetingPoint;
+                  bool atDestination =
+                      rider.arrivalStatus == ArrivalStatus.atDestination;
+                  bool enRoute = rider.arrivalStatus == ArrivalStatus.enRoute;
+                  bool stopped = rider.arrivalStatus == ArrivalStatus.stopped;
+
                   return Stack(
                     alignment: Alignment.topCenter,
                     children: [
@@ -1993,8 +2043,49 @@ class RideDetailsSheet extends StatelessWidget {
                                             : stepIndex == 1
                                                 ? CircleAvatar(
                                                     backgroundColor: ride
+                                                                    .status ==
+                                                                RideStatus
+                                                                    .accepted &&
+                                                            allRidersAtMeetingPoint ==
+                                                                false
+                                                        ? Colors.blue
+                                                        : Colors.transparent,
+                                                    foregroundColor: ride
                                                                 .status ==
                                                             RideStatus.accepted
+                                                        ? Colors.white
+                                                        : null,
+                                                    child: PhosphorIcon(
+                                                      ride.status ==
+                                                                  RideStatus
+                                                                      .inProgress ||
+                                                              allRidersAtMeetingPoint
+                                                          ? PhosphorIcons
+                                                              .checkCircle(
+                                                              PhosphorIconsStyle
+                                                                  .fill,
+                                                            )
+                                                          : waitingForRiders
+                                                              ? PhosphorIcons
+                                                                  .clock(
+                                                                  PhosphorIconsStyle
+                                                                      .fill,
+                                                                )
+                                                              : PhosphorIcons
+                                                                  .mapPinArea(
+                                                                  PhosphorIconsStyle
+                                                                      .fill,
+                                                                ),
+                                                      size: 16,
+                                                    ),
+                                                  )
+                                                : CircleAvatar(
+                                                    backgroundColor: ride
+                                                                    .status ==
+                                                                RideStatus
+                                                                    .inProgress ||
+                                                            allRidersAtMeetingPoint ==
+                                                                true
                                                         ? Colors.blue
                                                         : Colors.transparent,
                                                     foregroundColor: ride
@@ -2012,28 +2103,12 @@ class RideDetailsSheet extends StatelessWidget {
                                                                   .fill,
                                                             )
                                                           : PhosphorIcons
-                                                              .mapPinArea(
+                                                              .motorcycle(
                                                               PhosphorIconsStyle
                                                                   .fill,
                                                             ),
                                                       size: 16,
                                                     ),
-                                                  )
-                                                : PhosphorIcon(
-                                                    ride.status ==
-                                                            RideStatus
-                                                                .inProgress
-                                                        ? PhosphorIcons
-                                                            .checkCircle(
-                                                            PhosphorIconsStyle
-                                                                .fill,
-                                                          )
-                                                        : PhosphorIcons
-                                                            .motorcycle(
-                                                            PhosphorIconsStyle
-                                                                .fill,
-                                                          ),
-                                                    size: 16,
                                                   );
                                       },
                                       steps: [
@@ -2045,7 +2120,8 @@ class RideDetailsSheet extends StatelessWidget {
                                         ),
                                         Step(
                                           isActive: ride.status ==
-                                              RideStatus.inProgress,
+                                                  RideStatus.inProgress ||
+                                              allRidersAtMeetingPoint,
                                           title: const Text('Meet Up'),
                                           content: const SizedBox.shrink(),
                                         ),
@@ -2180,124 +2256,196 @@ class RideDetailsSheet extends StatelessWidget {
                           ),
                           if (ride.status != RideStatus.accepted)
                             const SizedBox(height: 8.0),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
-                                  child: Card(
-                                    child: ListTile(
-                                      leading: switch (ride.status) {
-                                        RideStatus.pending =>
-                                          LoadingAnimationWidget
-                                              .prograssiveDots(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .primary,
-                                                  size: 36),
-                                        RideStatus.accepted => PhosphorIcon(
-                                            PhosphorIcons.mapPinArea(
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Card(
+                              child: ListTile(
+                                leading: switch (ride.status) {
+                                  RideStatus.pending =>
+                                    LoadingAnimationWidget.prograssiveDots(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        size: 36),
+                                  RideStatus.accepted => PhosphorIcon(
+                                      rider.arrivalStatus ==
+                                                  ArrivalStatus
+                                                      .atMeetingPoint &&
+                                              riders.any((rider) =>
+                                                  rider.arrivalStatus ==
+                                                  ArrivalStatus.enRoute)
+                                          ? PhosphorIcons.clock(
+                                              PhosphorIconsStyle.fill,
+                                            )
+                                          : PhosphorIcons.mapPinArea(
                                               PhosphorIconsStyle.fill,
                                             ),
-                                            // color: Colors.green[400],
-                                          ),
-                                        RideStatus.inProgress =>
-                                          PhosphorIcon(PhosphorIcons.motorcycle(
-                                            PhosphorIconsStyle.fill,
-                                          )),
-                                        RideStatus.rejected =>
-                                          PhosphorIcon(PhosphorIcons.motorcycle(
-                                            PhosphorIconsStyle.fill,
-                                          )),
-                                        RideStatus.rejectedWithResponse =>
-                                          PhosphorIcon(PhosphorIcons.motorcycle(
-                                            PhosphorIconsStyle.fill,
-                                          )),
-                                        RideStatus.completed =>
-                                          PhosphorIcon(PhosphorIcons.motorcycle(
-                                            PhosphorIconsStyle.fill,
-                                          )),
-                                        RideStatus.canceled =>
-                                          PhosphorIcon(PhosphorIcons.motorcycle(
-                                            PhosphorIconsStyle.fill,
-                                          )),
-                                        null =>
-                                          PhosphorIcon(PhosphorIcons.motorcycle(
-                                            PhosphorIconsStyle.fill,
-                                          )),
-                                      },
-                                      title: Text(
-                                        ride.status == RideStatus.pending
-                                            ? 'Waiting For Rider Response...'
-                                            : ride.status ==
-                                                        RideStatus.accepted &&
-                                                    rider.arrivalStatus !=
-                                                        ArrivalStatus
-                                                            .atMeetingPoint
-                                                ? '${ride.meetingPointAddress}'
-                                                : ride.status ==
-                                                            RideStatus
-                                                                .accepted &&
-                                                        rider.arrivalStatus ==
-                                                            ArrivalStatus
-                                                                .atMeetingPoint
-                                                    ? 'Wait for Christian to arrive!'
-                                                    : ride.status ==
-                                                            RideStatus.rejected
-                                                        ? 'Ride Request Rejected'
-                                                        : ride.status ==
-                                                                RideStatus
-                                                                    .completed
-                                                            ? 'Ride Request Completed'
-                                                            : ride.status ==
-                                                                    RideStatus
-                                                                        .canceled
-                                                                ? 'Ride Request Canceled'
-                                                                : ride.status ==
-                                                                        RideStatus
-                                                                            .rejectedWithResponse
-                                                                    ? 'Ride Changes Requested'
-                                                                    : 'Ride Request Unknown',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium,
+
+                                      // color: Colors.green[400],
+                                    ),
+                                  RideStatus.inProgress =>
+                                    PhosphorIcon(PhosphorIcons.motorcycle(
+                                      PhosphorIconsStyle.fill,
+                                    )),
+                                  RideStatus.rejected =>
+                                    PhosphorIcon(PhosphorIcons.motorcycle(
+                                      PhosphorIconsStyle.fill,
+                                    )),
+                                  RideStatus.rejectedWithResponse =>
+                                    PhosphorIcon(PhosphorIcons.motorcycle(
+                                      PhosphorIconsStyle.fill,
+                                    )),
+                                  RideStatus.completed =>
+                                    PhosphorIcon(PhosphorIcons.motorcycle(
+                                      PhosphorIconsStyle.fill,
+                                    )),
+                                  RideStatus.canceled =>
+                                    PhosphorIcon(PhosphorIcons.motorcycle(
+                                      PhosphorIconsStyle.fill,
+                                    )),
+                                  null => PhosphorIcon(PhosphorIcons.motorcycle(
+                                      PhosphorIconsStyle.fill,
+                                    )),
+                                },
+                                title: Text(
+                                  ride.status == RideStatus.pending
+                                      ? 'Waiting For Rider Response...'
+                                      : ride.status == RideStatus.accepted &&
+                                              rider.arrivalStatus !=
+                                                  ArrivalStatus.atMeetingPoint
+                                          ? '${ride.meetingPointAddress}'
+                                          : ride.status ==
+                                                      RideStatus.accepted &&
+                                                  rider.arrivalStatus ==
+                                                      ArrivalStatus
+                                                          .atMeetingPoint &&
+                                                  riders.any((rider) =>
+                                                      rider.arrivalStatus ==
+                                                      ArrivalStatus.enRoute)
+                                              ? 'Wait for Christian to arrive...'
+                                              : ride.status ==
+                                                      RideStatus.rejected
+                                                  ? 'Ride Request Rejected'
+                                                  : ride.status ==
+                                                          RideStatus.completed
+                                                      ? 'Ride Request Completed'
+                                                      : ride.status ==
+                                                              RideStatus
+                                                                  .canceled
+                                                          ? 'Ride Request Canceled'
+                                                          : ride.status ==
+                                                                  RideStatus
+                                                                      .rejectedWithResponse
+                                                              ? 'Ride Changes Requested'
+                                                              : 'Ride Request Unknown',
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                subtitle: ride.status == RideStatus.accepted &&
+                                        (rider.arrivalStatus ==
+                                                ArrivalStatus.stopped ||
+                                            rider.arrivalStatus ==
+                                                ArrivalStatus.enRoute)
+                                    ? Text.rich(
+                                        TextSpan(
+                                          text:
+                                              'It\'s time to head to the meeting point!',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall!
+                                              .copyWith(
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                        ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
-                                      ),
-                                      subtitle: ride.status ==
-                                              RideStatus.accepted
-                                          ? Text.rich(
-                                              TextSpan(
-                                                text:
-                                                    'It\'s time to head to the meeting point!',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodySmall!
-                                                    .copyWith(
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                              ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            )
-                                          : null,
-                                      trailing: IconButton.filledTonal(
+                                      )
+                                    : ride.status == RideStatus.accepted &&
+                                            (rider.arrivalStatus ==
+                                                ArrivalStatus.atMeetingPoint)
+                                        ? Text.rich(
+                                            TextSpan(
+                                              text:
+                                                  'We let them know you\'re here!',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodySmall!
+                                                  .copyWith(
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          )
+                                        : null,
+                                trailing: ride.status == RideStatus.accepted &&
+                                        (rider.arrivalStatus ==
+                                                ArrivalStatus.enRoute ||
+                                            rider.arrivalStatus ==
+                                                ArrivalStatus.stopped)
+                                    ? IconButton.filledTonal(
                                         onPressed: () {},
                                         icon: PhosphorIcon(
-                                            PhosphorIcons.navigationArrow(
-                                                PhosphorIconsStyle.fill)),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                                          switch (ride.status) {
+                                            RideStatus.pending =>
+                                              PhosphorIcons.clock(
+                                                PhosphorIconsStyle.fill,
+                                              ),
+                                            RideStatus.accepted => switch (
+                                                  rider.arrivalStatus) {
+                                                ArrivalStatus.stopped =>
+                                                  PhosphorIcons.navigationArrow(
+                                                    PhosphorIconsStyle.fill,
+                                                  ),
+                                                ArrivalStatus.enRoute =>
+                                                  PhosphorIcons.navigationArrow(
+                                                    PhosphorIconsStyle.fill,
+                                                  ),
+                                                ArrivalStatus.atMeetingPoint =>
+                                                  PhosphorIcons.navigationArrow(
+                                                    PhosphorIconsStyle.fill,
+                                                  ),
+                                                ArrivalStatus.atDestination =>
+                                                  PhosphorIcons.navigationArrow(
+                                                    PhosphorIconsStyle.fill,
+                                                  ),
+                                                null =>
+                                                  PhosphorIcons.navigationArrow(
+                                                    PhosphorIconsStyle.fill,
+                                                  ),
+                                              },
+                                            RideStatus.inProgress =>
+                                              PhosphorIcons.motorcycle(
+                                                PhosphorIconsStyle.fill,
+                                              ),
+                                            RideStatus.rejected =>
+                                              PhosphorIcons.motorcycle(
+                                                PhosphorIconsStyle.fill,
+                                              ),
+                                            RideStatus.rejectedWithResponse =>
+                                              PhosphorIcons.motorcycle(
+                                                PhosphorIconsStyle.fill,
+                                              ),
+                                            RideStatus.completed =>
+                                              PhosphorIcons.motorcycle(
+                                                PhosphorIconsStyle.fill,
+                                              ),
+                                            RideStatus.canceled =>
+                                              PhosphorIcons.motorcycle(
+                                                PhosphorIconsStyle.fill,
+                                              ),
+                                            null => PhosphorIcons.motorcycle(
+                                                PhosphorIconsStyle.fill,
+                                              ),
+                                          },
+                                        ),
+                                      )
+                                    : null,
                               ),
-                              // // Get Directions Button
-
-                              // const SizedBox(height: 8.0),
-                            ],
+                            ),
                           ),
                           const SizedBox(height: 8.0),
 

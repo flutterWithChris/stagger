@@ -4,8 +4,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Location {
   String userId;
-  String latitude;
-  String longitude;
+  double? latitude;
+  double? longitude;
   String timeStamp;
   String? locationString;
   String? city;
@@ -30,8 +30,8 @@ class Location {
   // CopyWith
   Location copyWith({
     String? userId,
-    String? latitude,
-    String? longitude,
+    double? latitude,
+    double? longitude,
     String? locationString,
     String? city,
     String? state,
@@ -75,8 +75,8 @@ class Location {
   factory Location.fromBGLocation(bg.Location location) {
     return Location(
       userId: Supabase.instance.client.auth.currentUser!.id,
-      latitude: location.coords.latitude.toString(),
-      longitude: location.coords.longitude.toString(),
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
       timeStamp: DateTime.now().toIso8601String(),
       batteryLevel: (location.battery.level * 100).round(),
       activity: location.activity.type,
