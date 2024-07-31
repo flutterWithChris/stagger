@@ -6,9 +6,8 @@ class BackgroundLocationRepository {
   Future<void> initBackgroundGeolocation() async {
     await bg.BackgroundGeolocation.ready(bg.Config(
       desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
-      stopOnTerminate: false,
-      startOnBoot: true,
-      debug: false,
+      stopOnTerminate: true,
+      debug: true,
       logLevel: bg.Config.LOG_LEVEL_VERBOSE,
     )).then((state) {
       if (!state.enabled) {
@@ -20,8 +19,7 @@ class BackgroundLocationRepository {
   /// Fetch current location
   Future<bg.Location> getCurrentLocation() async {
     return await bg.BackgroundGeolocation.getCurrentPosition(
-      persist: false,
-      samples: 1,
+   
     );
   }
 

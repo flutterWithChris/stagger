@@ -10,6 +10,8 @@ import 'package:buoy/rides/bloc/rides_bloc.dart';
 import 'package:buoy/rides/model/ride.dart';
 import 'package:buoy/rides/model/ride_participant.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_debounce/easy_debounce.dart';
+import 'package:easy_debounce/easy_throttle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,6 +25,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 import '../../../activity/bloc/activity_bloc.dart';
+import 'dart:math' as math;
 
 class MainMap extends StatelessWidget {
   const MainMap({
@@ -58,7 +61,12 @@ class MainMap extends StatelessWidget {
                   cameraConstraint: CameraConstraint.contain(
                       bounds: LatLngBounds(const LatLng(-90.0, -180.0),
                           const LatLng(90.0, 180.0))),
-                  interactionOptions: const InteractionOptions(),
+                  interactionOptions: const InteractionOptions(
+                    flags: InteractiveFlag.pinchZoom |
+                        InteractiveFlag.drag |
+                        InteractiveFlag.doubleTapZoom |
+                        InteractiveFlag.flingAnimation,
+                  ),
                   // interactiveFlags: InteractiveFlag.pinchZoom |
                   //     InteractiveFlag.drag |
                   //     InteractiveFlag.doubleTapZoom |
@@ -66,6 +74,19 @@ class MainMap extends StatelessWidget {
                   onMapReady: () {
                     context.read<RidersBloc>().add(LoadRiders(
                         mapController!.mapController.camera.visibleBounds));
+                  },
+                  onMapEvent: (p0) {
+                    if (p0 is MapEventMove) {
+                      EasyDebounce.debounce(
+                          'rider-fetch-debounce', const Duration(seconds: 1),
+                          () {
+                        print('Fetching riders... ${DateTime.now()}');
+                        context.read<RidersBloc>().add(LoadRiders(
+                            mapController!.mapController.camera.visibleBounds));
+                      });
+                    }
+                    // context.read<RidersBloc>().add(LoadRiders(
+                    //     mapController!.mapController.camera.visibleBounds));
                   },
                   onTap: (tapPosition, point) {
                     if (context.read<RideBloc>().state is CreatingRide) {
@@ -251,42 +272,21 @@ class MainMap extends StatelessWidget {
                                                                         .coords
                                                                         .longitude));
                                                           },
-                                                          child: CircleAvatar(
-                                                            backgroundColor:
-                                                                Colors.white,
-                                                            radius: 18.0,
-                                                            child: CircleAvatar(
-                                                              radius: 16.0,
-                                                              // foregroundImage:
-                                                              //     CachedNetworkImageProvider(
-                                                              //   profileState.user
-                                                              //           .photoUrl ??
-                                                              //       '',
-                                                              // ),
-                                                              child: profileState
-                                                                              .user
-                                                                              .photoUrl ==
-                                                                          null ||
-                                                                      profileState
-                                                                              .user
-                                                                              .photoUrl ==
-                                                                          ''
-                                                                  // Show first and last initials if no photo
-                                                                  ? Text(
-                                                                      '${profileState.user.name![0]}${profileState.user.name!.split(' ').last[0]}',
-                                                                      style: Theme.of(
-                                                                              context)
-                                                                          .textTheme
-                                                                          .bodyMedium!
-                                                                          .copyWith(
-                                                                            color:
-                                                                                Theme.of(context).scaffoldBackgroundColor,
-                                                                            fontWeight:
-                                                                                FontWeight.w800,
-                                                                          ),
-                                                                    )
-                                                                  : null,
-                                                            ),
+                                                          child:
+                                                              Transform.rotate(
+                                                            angle: state.location
+                                                                        ?.heading !=
+                                                                    null
+                                                                ? (state.location!
+                                                                        .heading! *
+                                                                    math.pi /
+                                                                    180)
+                                                                : 0.0,
+                                                            child: PhosphorIcon(
+                                                                PhosphorIcons
+                                                                    .motorcycle(
+                                                                        PhosphorIconsStyle
+                                                                            .fill)),
                                                           ),
                                                         ),
                                                       ],
@@ -442,11 +442,15 @@ class MainMap extends StatelessWidget {
                                                               rider
                                                                   .currentLocation!
                                                                   .longitude!),
-                                                          child: PhosphorIcon(
-                                                              PhosphorIcons
-                                                                  .motorcycle(
-                                                                      PhosphorIconsStyle
-                                                                          .fill)),
+                                                          child:
+                                                              Transform.rotate(
+                                                            angle: 193.01,
+                                                            child: PhosphorIcon(
+                                                                PhosphorIcons
+                                                                    .motorcycle(
+                                                                        PhosphorIconsStyle
+                                                                            .fill)),
+                                                          ),
                                                         ),
                                                       for (Ride ride
                                                           in ridesState
@@ -628,37 +632,21 @@ class MainMap extends StatelessWidget {
                                                                             .coords
                                                                             .longitude));
                                                               },
-                                                              child:
-                                                                  CircleAvatar(
-                                                                backgroundColor:
-                                                                    Colors
-                                                                        .white,
-                                                                radius: 18.0,
-                                                                child:
-                                                                    CircleAvatar(
-                                                                  radius: 16.0,
-                                                                  // foregroundImage:
-                                                                  //     CachedNetworkImageProvider(
-                                                                  //   profileState.user
-                                                                  //           .photoUrl ??
-                                                                  //       '',
-                                                                  // ),
-                                                                  child: profileState.user.photoUrl ==
-                                                                              null ||
-                                                                          profileState.user.photoUrl ==
-                                                                              ''
-                                                                      // Show first and last initials if no photo
-                                                                      ? Text(
-                                                                          '${profileState.user.name![0]}${profileState.user.name!.split(' ').last[0]}',
-                                                                          style: Theme.of(context)
-                                                                              .textTheme
-                                                                              .bodyMedium!
-                                                                              .copyWith(
-                                                                                color: Theme.of(context).scaffoldBackgroundColor,
-                                                                                fontWeight: FontWeight.w800,
-                                                                              ),
-                                                                        )
-                                                                      : null,
+                                                              child: Transform
+                                                                  .flip(
+                                                                child: Transform
+                                                                    .rotate(
+                                                                  angle: 0,
+                                                                  //  state.location
+                                                                  //             ?.heading !=
+                                                                  //         null
+                                                                  //     ? (state.location!.heading! * math.pi / 180) -
+                                                                  //             90
+                                                                  //     : 0.0,
+                                                                  child: PhosphorIcon(
+                                                                      PhosphorIcons.motorcycle(
+                                                                          PhosphorIconsStyle
+                                                                              .fill)),
                                                                 ),
                                                               ),
                                                             ),
@@ -2261,214 +2249,265 @@ class RideDetailsSheet extends StatelessWidget {
                                 const EdgeInsets.symmetric(horizontal: 8.0),
                             child: Card(
                               child: ListTile(
-                                leading: switch (ride.status) {
-                                  RideStatus.pending =>
-                                    LoadingAnimationWidget.prograssiveDots(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                        size: 36),
-                                  RideStatus.accepted => PhosphorIcon(
-                                      rider.arrivalStatus ==
-                                                  ArrivalStatus
-                                                      .atMeetingPoint &&
-                                              riders.any((rider) =>
-                                                  rider.arrivalStatus ==
+                                  leading: switch (ride.status) {
+                                    RideStatus.pending =>
+                                      LoadingAnimationWidget.prograssiveDots(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          size: 36),
+                                    RideStatus.accepted => PhosphorIcon(
+                                        atMeetingPoint && waitingForRiders
+                                            ? PhosphorIcons.clock(
+                                                PhosphorIconsStyle.fill,
+                                              )
+                                            : allRidersAtMeetingPoint
+                                                ? PhosphorIcons.checkCircle(
+                                                    PhosphorIconsStyle.fill,
+                                                  )
+                                                : PhosphorIcons.mapPinArea(
+                                                    PhosphorIconsStyle.fill,
+                                                  ),
+                                        color: allRidersAtMeetingPoint
+                                            ? Colors.green[400]
+                                            : null,
+                                      ),
+                                    RideStatus.inProgress =>
+                                      PhosphorIcon(PhosphorIcons.motorcycle(
+                                        PhosphorIconsStyle.fill,
+                                      )),
+                                    RideStatus.rejected =>
+                                      PhosphorIcon(PhosphorIcons.motorcycle(
+                                        PhosphorIconsStyle.fill,
+                                      )),
+                                    RideStatus.rejectedWithResponse =>
+                                      PhosphorIcon(PhosphorIcons.motorcycle(
+                                        PhosphorIconsStyle.fill,
+                                      )),
+                                    RideStatus.completed =>
+                                      PhosphorIcon(PhosphorIcons.motorcycle(
+                                        PhosphorIconsStyle.fill,
+                                      )),
+                                    RideStatus.canceled =>
+                                      PhosphorIcon(PhosphorIcons.motorcycle(
+                                        PhosphorIconsStyle.fill,
+                                      )),
+                                    null =>
+                                      PhosphorIcon(PhosphorIcons.motorcycle(
+                                        PhosphorIconsStyle.fill,
+                                      )),
+                                  },
+                                  title: Text(
+                                    ride.status == RideStatus.pending
+                                        ? 'Waiting For Rider Response...'
+                                        : ride.status == RideStatus.accepted
+                                            ? enRoute
+                                                ? '${ride.meetingPointAddress}'
+                                                : atMeetingPoint &&
+                                                        waitingForRiders
+                                                    ? 'Wait for Christian to arrive...'
+                                                    : atMeetingPoint &&
+                                                            allRidersAtMeetingPoint
+                                                        ? 'It\'s time to ride!'
+                                                        : ride.status ==
+                                                                RideStatus
+                                                                    .rejected
+                                                            ? 'Ride Request Rejected'
+                                                            : ride.status ==
+                                                                    RideStatus
+                                                                        .completed
+                                                                ? 'Ride Request Completed'
+                                                                : ride.status ==
+                                                                        RideStatus
+                                                                            .canceled
+                                                                    ? 'Ride Request Canceled'
+                                                                    : ride.status ==
+                                                                            RideStatus.rejectedWithResponse
+                                                                        ? 'Ride Changes Requested'
+                                                                        : 'Ride Request Unknown'
+                                            : 'Ride In Progress',
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  subtitle: ride.status ==
+                                              RideStatus.accepted &&
+                                          (rider.arrivalStatus ==
+                                                  ArrivalStatus.stopped ||
+                                              rider.arrivalStatus ==
                                                   ArrivalStatus.enRoute)
-                                          ? PhosphorIcons.clock(
-                                              PhosphorIconsStyle.fill,
-                                            )
-                                          : PhosphorIcons.mapPinArea(
-                                              PhosphorIconsStyle.fill,
-                                            ),
-
-                                      // color: Colors.green[400],
-                                    ),
-                                  RideStatus.inProgress =>
-                                    PhosphorIcon(PhosphorIcons.motorcycle(
-                                      PhosphorIconsStyle.fill,
-                                    )),
-                                  RideStatus.rejected =>
-                                    PhosphorIcon(PhosphorIcons.motorcycle(
-                                      PhosphorIconsStyle.fill,
-                                    )),
-                                  RideStatus.rejectedWithResponse =>
-                                    PhosphorIcon(PhosphorIcons.motorcycle(
-                                      PhosphorIconsStyle.fill,
-                                    )),
-                                  RideStatus.completed =>
-                                    PhosphorIcon(PhosphorIcons.motorcycle(
-                                      PhosphorIconsStyle.fill,
-                                    )),
-                                  RideStatus.canceled =>
-                                    PhosphorIcon(PhosphorIcons.motorcycle(
-                                      PhosphorIconsStyle.fill,
-                                    )),
-                                  null => PhosphorIcon(PhosphorIcons.motorcycle(
-                                      PhosphorIconsStyle.fill,
-                                    )),
-                                },
-                                title: Text(
-                                  ride.status == RideStatus.pending
-                                      ? 'Waiting For Rider Response...'
-                                      : ride.status == RideStatus.accepted &&
-                                              rider.arrivalStatus !=
-                                                  ArrivalStatus.atMeetingPoint
-                                          ? '${ride.meetingPointAddress}'
-                                          : ride.status ==
-                                                      RideStatus.accepted &&
-                                                  rider.arrivalStatus ==
-                                                      ArrivalStatus
-                                                          .atMeetingPoint &&
-                                                  riders.any((rider) =>
-                                                      rider.arrivalStatus ==
-                                                      ArrivalStatus.enRoute)
-                                              ? 'Wait for Christian to arrive...'
-                                              : ride.status ==
-                                                      RideStatus.rejected
-                                                  ? 'Ride Request Rejected'
-                                                  : ride.status ==
-                                                          RideStatus.completed
-                                                      ? 'Ride Request Completed'
-                                                      : ride.status ==
-                                                              RideStatus
-                                                                  .canceled
-                                                          ? 'Ride Request Canceled'
-                                                          : ride.status ==
-                                                                  RideStatus
-                                                                      .rejectedWithResponse
-                                                              ? 'Ride Changes Requested'
-                                                              : 'Ride Request Unknown',
-                                  style:
-                                      Theme.of(context).textTheme.titleMedium,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                subtitle: ride.status == RideStatus.accepted &&
-                                        (rider.arrivalStatus ==
-                                                ArrivalStatus.stopped ||
-                                            rider.arrivalStatus ==
-                                                ArrivalStatus.enRoute)
-                                    ? Text.rich(
-                                        TextSpan(
-                                          text:
-                                              'It\'s time to head to the meeting point!',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall!
-                                              .copyWith(
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      )
-                                    : ride.status == RideStatus.accepted &&
-                                            (rider.arrivalStatus ==
-                                                ArrivalStatus.atMeetingPoint)
-                                        ? Text.rich(
-                                            TextSpan(
-                                              text:
-                                                  'We let them know you\'re here!',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodySmall!
-                                                  .copyWith(
-                                                    fontWeight: FontWeight.w600,
+                                      ? Text.rich(
+                                          TextSpan(
+                                            text:
+                                                'It\'s time to head to the meeting point!',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall!
+                                                .copyWith(
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        )
+                                      : ride.status == RideStatus.accepted
+                                          ? atMeetingPoint && waitingForRiders
+                                              ? Text.rich(
+                                                  TextSpan(
+                                                    text:
+                                                        'We let them know you\'re here!',
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .bodySmall!
+                                                        .copyWith(
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
                                                   ),
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          )
-                                        : null,
-                                trailing: ride.status == RideStatus.accepted &&
-                                        (rider.arrivalStatus ==
-                                                ArrivalStatus.enRoute ||
-                                            rider.arrivalStatus ==
-                                                ArrivalStatus.stopped)
-                                    ? IconButton.filledTonal(
-                                        onPressed: () {},
-                                        icon: PhosphorIcon(
-                                          switch (ride.status) {
-                                            RideStatus.pending =>
-                                              PhosphorIcons.clock(
-                                                PhosphorIconsStyle.fill,
-                                              ),
-                                            RideStatus.accepted => switch (
-                                                  rider.arrivalStatus) {
-                                                ArrivalStatus.stopped =>
-                                                  PhosphorIcons.navigationArrow(
-                                                    PhosphorIconsStyle.fill,
-                                                  ),
-                                                ArrivalStatus.enRoute =>
-                                                  PhosphorIcons.navigationArrow(
-                                                    PhosphorIconsStyle.fill,
-                                                  ),
-                                                ArrivalStatus.atMeetingPoint =>
-                                                  PhosphorIcons.navigationArrow(
-                                                    PhosphorIconsStyle.fill,
-                                                  ),
-                                                ArrivalStatus.atDestination =>
-                                                  PhosphorIcons.navigationArrow(
-                                                    PhosphorIconsStyle.fill,
-                                                  ),
-                                                null =>
-                                                  PhosphorIcons.navigationArrow(
-                                                    PhosphorIconsStyle.fill,
-                                                  ),
-                                              },
-                                            RideStatus.inProgress =>
-                                              PhosphorIcons.motorcycle(
-                                                PhosphorIconsStyle.fill,
-                                              ),
-                                            RideStatus.rejected =>
-                                              PhosphorIcons.motorcycle(
-                                                PhosphorIconsStyle.fill,
-                                              ),
-                                            RideStatus.rejectedWithResponse =>
-                                              PhosphorIcons.motorcycle(
-                                                PhosphorIconsStyle.fill,
-                                              ),
-                                            RideStatus.completed =>
-                                              PhosphorIcons.motorcycle(
-                                                PhosphorIconsStyle.fill,
-                                              ),
-                                            RideStatus.canceled =>
-                                              PhosphorIcons.motorcycle(
-                                                PhosphorIconsStyle.fill,
-                                              ),
-                                            null => PhosphorIcons.motorcycle(
-                                                PhosphorIconsStyle.fill,
-                                              ),
-                                          },
-                                        ),
-                                      )
-                                    : null,
-                              ),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                )
+                                              : atMeetingPoint &&
+                                                      allRidersAtMeetingPoint
+                                                  ? Text.rich(
+                                                      TextSpan(
+                                                          text:
+                                                              'Let\'s get this show on the road!',
+                                                          style:
+                                                              Theme.of(context)
+                                                                  .textTheme
+                                                                  .bodySmall!
+                                                                  .copyWith(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
+                                                                  )),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    )
+                                                  : null
+                                          : null,
+                                  trailing: ride.status ==
+                                              RideStatus.accepted &&
+                                          (enRoute || stopped)
+                                      ? IconButton.filledTonal(
+                                          onPressed: () {},
+                                          icon: PhosphorIcon(
+                                            switch (ride.status) {
+                                              RideStatus.pending =>
+                                                PhosphorIcons.clock(
+                                                  PhosphorIconsStyle.fill,
+                                                ),
+                                              RideStatus.accepted => switch (
+                                                    rider.arrivalStatus) {
+                                                  ArrivalStatus.stopped =>
+                                                    PhosphorIcons
+                                                        .navigationArrow(
+                                                      PhosphorIconsStyle.fill,
+                                                    ),
+                                                  ArrivalStatus.enRoute =>
+                                                    PhosphorIcons
+                                                        .navigationArrow(
+                                                      PhosphorIconsStyle.fill,
+                                                    ),
+                                                  ArrivalStatus
+                                                        .atMeetingPoint =>
+                                                    PhosphorIcons
+                                                        .navigationArrow(
+                                                      PhosphorIconsStyle.fill,
+                                                    ),
+                                                  ArrivalStatus.atDestination =>
+                                                    PhosphorIcons
+                                                        .navigationArrow(
+                                                      PhosphorIconsStyle.fill,
+                                                    ),
+                                                  null => PhosphorIcons
+                                                        .navigationArrow(
+                                                      PhosphorIconsStyle.fill,
+                                                    ),
+                                                },
+                                              RideStatus.inProgress =>
+                                                PhosphorIcons.motorcycle(
+                                                  PhosphorIconsStyle.fill,
+                                                ),
+                                              RideStatus.rejected =>
+                                                PhosphorIcons.motorcycle(
+                                                  PhosphorIconsStyle.fill,
+                                                ),
+                                              RideStatus.rejectedWithResponse =>
+                                                PhosphorIcons.motorcycle(
+                                                  PhosphorIconsStyle.fill,
+                                                ),
+                                              RideStatus.completed =>
+                                                PhosphorIcons.motorcycle(
+                                                  PhosphorIconsStyle.fill,
+                                                ),
+                                              RideStatus.canceled =>
+                                                PhosphorIcons.motorcycle(
+                                                  PhosphorIconsStyle.fill,
+                                                ),
+                                              null => PhosphorIcons.motorcycle(
+                                                  PhosphorIconsStyle.fill,
+                                                ),
+                                            },
+                                          ),
+                                        )
+                                      : null),
                             ),
                           ),
                           const SizedBox(height: 8.0),
 
                           // Get Directions Button
-                          if (ride.status == RideStatus.accepted &&
-                              rider.arrivalStatus == ArrivalStatus.enRoute)
-                            FilledButton.icon(
-                              onPressed: () {
-                                context.read<RideBloc>().add(
-                                    UpdateArrivalStatus(
-                                        ride: ride,
-                                        userId: context
-                                            .read<ProfileBloc>()
-                                            .state
-                                            .user!
-                                            .id!,
-                                        arrivalStatus:
-                                            ArrivalStatus.atMeetingPoint));
-                              },
-                              label: const Text('I\'m Here'),
-                              icon: PhosphorIcon(
-                                PhosphorIcons.checkCircle(
-                                    PhosphorIconsStyle.fill),
+                          if (ride.status == RideStatus.accepted && enRoute)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: FilledButton.icon(
+                                      onPressed: () {
+                                        context.read<RideBloc>().add(
+                                            UpdateArrivalStatus(
+                                                ride: ride,
+                                                userId: context
+                                                    .read<ProfileBloc>()
+                                                    .state
+                                                    .user!
+                                                    .id!,
+                                                arrivalStatus: ArrivalStatus
+                                                    .atMeetingPoint));
+                                      },
+                                      label: const Text('I\'m Here'),
+                                      icon: PhosphorIcon(
+                                        PhosphorIcons.checkCircle(
+                                            PhosphorIconsStyle.fill),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          if (atMeetingPoint && allRidersAtMeetingPoint)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: FilledButton.icon(
+                                      onPressed: () {},
+                                      label: const Text('Start Ride'),
+                                      icon: PhosphorIcon(
+                                        PhosphorIcons.motorcycle(
+                                            PhosphorIconsStyle.fill),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           Padding(

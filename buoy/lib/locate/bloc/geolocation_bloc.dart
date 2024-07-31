@@ -7,9 +7,13 @@ import 'package:buoy/locate/repository/background_location_repository.dart';
 import 'package:buoy/locate/repository/encryption_repository.dart';
 import 'package:buoy/locate/repository/location_realtime_repository.dart';
 import 'package:buoy/locate/repository/public_key_repository.dart';
+import 'package:buoy/shared/constants.dart';
+import 'package:compassx/compassx.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
+import 'package:flutter_compass_v2/flutter_compass_v2.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mapbox_search/mapbox_search.dart' hide Location;
 import 'package:meta/meta.dart';
@@ -29,6 +33,7 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
   final ActivityBloc _activityBloc;
   final List<bg.Location> _locationUpdates = [];
   final EncryptionRepository _encryptionRepository;
+  StreamSubscription? _compassSubscription;
   Timer? _timer;
   Timer? _locationDelayTimer;
 
@@ -55,6 +60,8 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
     Emitter<GeolocationState> emit,
   ) async {
     try {
+      emit(GeolocationLoading());
+
       /// Check for location permissions
       PermissionStatus locationWhenInUseStatus =
           await Permission.locationWhenInUse.request();
@@ -65,16 +72,42 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
             message: 'Location permission is required to use this app.'));
         return;
       }
-      emit(GeolocationLoading());
-
-      _backgroundLocationRepository
-          .onLocationChange((bg.Location updatedLocation) async {
-        print('[Location Updated] - $updatedLocation');
-        _handleLocationChange(updatedLocation);
-      });
 
       /// Initialize BackgroundGeolocation
       await _backgroundLocationRepository.initBackgroundGeolocation();
+
+      _backgroundLocationRepository
+          .onLocationChange((bg.Location updatedLocation) async {
+        add(UpdateGeoLocation(location: updatedLocation));
+        return;
+        if (state is GeolocationUpdating) {
+          return;
+        }
+        emit(GeolocationUpdating(bgLocation: updatedLocation));
+
+        print('[Location Updated] - $updatedLocation');
+        if (updatedLocation.coords.heading != -1.0) {
+          scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
+            content: Text(
+              'Location updated! Heading: ${updatedLocation.coords.heading},',
+            ),
+            backgroundColor: Colors.green,
+          ));
+        }
+        Location? location = await _handleLocationChange(updatedLocation);
+        if (location == null) {
+          scaffoldMessengerKey.currentState!.showSnackBar(const SnackBar(
+            content: Text(
+              'Failed to fetch location!',
+            ),
+            backgroundColor: Colors.red,
+          ));
+          emit(const GeolocationError(message: 'Failed to fetch location.'));
+          return;
+        }
+        emit(
+            GeolocationLoaded(bgLocation: updatedLocation, location: location));
+      });
 
       /// Initial location fetch
       bg.Location bgLocation = await _backgroundLocationRepository
@@ -153,9 +186,9 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
         print('Initial address: $address');
       }
 
-      _locationDelayTimer = Timer(const Duration(minutes: 2), () async {
-        await _locationRealtimeRepository.sendLocationUpdate(location);
-      });
+      // _locationDelayTimer = Timer(const Duration(minutes: 2), () async {
+      //   await _locationRealtimeRepository.sendLocationUpdate(location);
+      // });
 
       return location;
     } catch (e) {
@@ -177,6 +210,8 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
           prefs.getBool('motionTrackingEnabled') ?? false;
       bool batteryTrackingEnabled =
           prefs.getBool('batteryTrackingEnabled') ?? false;
+
+      print('activityTrackingEnabled: $activityTrackingEnabled');
 
       Location location = Location.fromBGLocation(event.location).copyWith(
           activity:
@@ -222,6 +257,14 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
         await _locationRealtimeRepository.sendLocationUpdate(location);
         emit(GeolocationLoaded(bgLocation: event.location, location: location));
       });
+
+      // await emit.forEach(CompassX.events ?? const Stream.empty(),
+      //     onData: (compassEvent) {
+      //   print('Compass Event: ${compassEvent.heading}');
+      //   location = location.copyWith(heading: compassEvent.heading);
+      //   return GeolocationLoaded(
+      //       bgLocation: event.location, location: location);
+      // });
 
       /// Listen for location changes
       _backgroundLocationRepository

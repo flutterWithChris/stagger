@@ -23,7 +23,7 @@ class RidersRepository {
           .gt('longitude', southwest.longitude)
           .lt('longitude', northeast.longitude);
 
-      print('Location Response: $locationResponse');
+      print('Location Response: ${locationResponse.length}');
 
       if (locationResponse.isEmpty) {
         return []; // No riders found in the bounds
