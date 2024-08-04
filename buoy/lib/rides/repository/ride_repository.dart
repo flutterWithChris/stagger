@@ -79,6 +79,45 @@ class RideRepository {
     }
   }
 
+  Stream<Ride?> getRideStream(String rideId) {
+    return ridesTable
+        .stream(primaryKey: ['id'])
+        .eq('id', rideId)
+        .map((data) => data.isNotEmpty ? Ride.fromMap(data.first) : null);
+  }
+
+  // Stream of rides created by the user
+  Stream<List<Ride>> getMyCreatedRidesStream(String userId) {
+    return client
+        .from('rides')
+        .stream(primaryKey: ['id'])
+        .eq('user_id', userId)
+        .map((data) {
+          return data.map((json) => Ride.fromJson(json)).toList();
+        });
+  }
+
+  // Stream of rides where the user is a participant
+  Stream<List<Ride>>? getParticipantRidesStream(String userId) {
+    client
+        .from('ride_participants')
+        .stream(primaryKey: ['id'])
+        .eq('user_id', userId)
+        .map((data) {
+          final rideIds =
+              data.map((json) => json['ride_id'].toString()).toList();
+          print('Ride Ids: $rideIds');
+          return client
+              .from('rides')
+              .stream(primaryKey: ['id'])
+              .inFilter('id', rideIds)
+              .map((ridesData) {
+                return ridesData.map((json) => Ride.fromJson(json)).toList();
+              });
+        });
+    return null;
+  }
+
   Future<List<Ride>?> getMyRides(String userId) async {
     try {
       List<Map<String, dynamic>> response =
