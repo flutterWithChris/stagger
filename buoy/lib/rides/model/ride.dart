@@ -1,3 +1,4 @@
+import 'package:buoy/rides/model/ride_participant.dart';
 import 'package:latlong2/latlong.dart';
 
 enum RideStatus {
@@ -23,6 +24,8 @@ class Ride {
   final List<double>? destination;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final String? userId;
+  final List<RideParticipant>? rideParticipants;
 
   Ride({
     this.id,
@@ -35,6 +38,8 @@ class Ride {
     this.destination,
     this.createdAt,
     this.updatedAt,
+    this.userId,
+    this.rideParticipants,
   });
 
   Ride copyWith({
@@ -48,6 +53,8 @@ class Ride {
     List<double>? destination,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? userId,
+    List<RideParticipant>? rideParticipants,
   }) {
     return Ride(
       id: id ?? this.id,
@@ -60,12 +67,14 @@ class Ride {
       destination: destination ?? this.destination,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      userId: userId ?? this.userId,
+      rideParticipants: rideParticipants ?? this.rideParticipants,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'status': status ?? RideStatus.pending.name.toString(),
+      'status': status?.name.toString() ?? RideStatus.pending.name.toString(),
       'meeting_point': meetingPoint,
       'meeting_point_name': meetingPointName,
       'meeting_point_address': meetingPointAddress,
@@ -90,6 +99,7 @@ class Ride {
           : List<double>.from(map['destination']),
       createdAt: DateTime.parse(map['created_at']),
       updatedAt: DateTime.parse(map['updated_at']),
+      userId: map['user_id'],
     );
   }
 

@@ -9,7 +9,9 @@ import 'package:buoy/rides/bloc/ride_bloc.dart';
 import 'package:buoy/rides/bloc/rides_bloc.dart';
 import 'package:buoy/rides/model/ride.dart';
 import 'package:buoy/rides/model/ride_participant.dart';
+import 'package:buoy/shared/constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collection/collection.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:easy_debounce/easy_throttle.dart';
 import 'package:flutter/material.dart';
@@ -272,22 +274,11 @@ class MainMap extends StatelessWidget {
                                                                         .coords
                                                                         .longitude));
                                                           },
-                                                          child:
-                                                              Transform.rotate(
-                                                            angle: state.location
-                                                                        ?.heading !=
-                                                                    null
-                                                                ? (state.location!
-                                                                        .heading! *
-                                                                    math.pi /
-                                                                    180)
-                                                                : 0.0,
-                                                            child: PhosphorIcon(
-                                                                PhosphorIcons
-                                                                    .motorcycle(
-                                                                        PhosphorIconsStyle
-                                                                            .fill)),
-                                                          ),
+                                                          child: PhosphorIcon(
+                                                              PhosphorIcons
+                                                                  .motorcycle(
+                                                                      PhosphorIconsStyle
+                                                                          .fill)),
                                                         ),
                                                       ],
                                                     ),
@@ -442,20 +433,18 @@ class MainMap extends StatelessWidget {
                                                               rider
                                                                   .currentLocation!
                                                                   .longitude!),
-                                                          child:
-                                                              Transform.rotate(
-                                                            angle: 193.01,
-                                                            child: PhosphorIcon(
-                                                                PhosphorIcons
-                                                                    .motorcycle(
-                                                                        PhosphorIconsStyle
-                                                                            .fill)),
-                                                          ),
+                                                          child: PhosphorIcon(
+                                                              PhosphorIcons
+                                                                  .motorcycle(
+                                                                      PhosphorIconsStyle
+                                                                          .fill)),
                                                         ),
-                                                      for (Ride ride
-                                                          in ridesState
-                                                                  .myRides ??
-                                                              [])
+                                                      for (Ride ride in ridesState
+                                                              .myRides
+                                                              ?.where((ride) =>
+                                                                  ride.meetingPoint !=
+                                                                  null) ??
+                                                          [])
                                                         Marker(
                                                           height: 36.0,
                                                           width: 36.0,
@@ -475,7 +464,8 @@ class MainMap extends StatelessWidget {
                                                                 builder:
                                                                     (context) {
                                                                   return RideDetailsSheet(
-                                                                    ride: ride,
+                                                                    rideId: ride
+                                                                        .id!,
                                                                   );
                                                                 },
                                                               );
@@ -598,27 +588,6 @@ class MainMap extends StatelessWidget {
                                                           alignment:
                                                               Alignment.center,
                                                           children: [
-                                                            CircleAvatar(
-                                                              radius: 30.0,
-                                                              backgroundColor:
-                                                                  Theme.of(
-                                                                          context)
-                                                                      .splashColor,
-                                                            )
-                                                                .animate(
-                                                                  onComplete: (controller) =>
-                                                                      controller
-                                                                          .repeat(),
-                                                                )
-                                                                .fadeIn(
-                                                                    duration:
-                                                                        800.ms)
-                                                                .scale(
-                                                                    duration: 1.618
-                                                                        .seconds)
-                                                                .fadeOut(
-                                                                    delay:
-                                                                        800.ms),
                                                             InkWell(
                                                               onTap: () async {
                                                                 await mapController?.animateTo(
@@ -637,16 +606,19 @@ class MainMap extends StatelessWidget {
                                                                 child: Transform
                                                                     .rotate(
                                                                   angle: 0,
-                                                                  //  state.location
-                                                                  //             ?.heading !=
+                                                                  // state.location?.heading !=
                                                                   //         null
                                                                   //     ? (state.location!.heading! * math.pi / 180) -
-                                                                  //             90
+                                                                  //         90
                                                                   //     : 0.0,
-                                                                  child: PhosphorIcon(
-                                                                      PhosphorIcons.motorcycle(
-                                                                          PhosphorIconsStyle
-                                                                              .fill)),
+                                                                  child:
+                                                                      PhosphorIcon(
+                                                                    PhosphorIcons
+                                                                        .motorcycle(
+                                                                      PhosphorIconsStyle
+                                                                          .fill,
+                                                                    ),
+                                                                  ),
                                                                 ),
                                                               ),
                                                             ),
@@ -897,342 +869,6 @@ class MainMap extends StatelessWidget {
                   ),
                 );
               }),
-              // LayoutBuilder(builder: (context, constraints) {
-              //   return ConstrainedBox(
-              //     constraints: BoxConstraints(
-              //       maxHeight: constraints.maxHeight * 0.5,
-              //       minHeight: 0,
-              //       minWidth: constraints.maxWidth,
-              //     ),
-              //     child: Padding(
-              //       padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
-              //       child: CustomScrollView(
-              //         clipBehavior: Clip.antiAlias,
-              //         reverse: true,
-              //         shrinkWrap: true,
-              //         slivers: [
-              //           SliverList(
-              //             delegate: SliverChildListDelegate(
-              //               [
-              //                 BlocBuilder<FriendsBloc, FriendsState>(
-              //                   builder: (context, state) {
-              //                     if (state is FriendsLoading) {
-              //                       return const Center(
-              //                         child: CircularProgressIndicator(),
-              //                       );
-              //                     }
-              //                     if (state is FriendsError) {
-              //                       return const Center(
-              //                         child: Text('Error'),
-              //                       );
-              //                     } else if (state is FriendsLoaded) {
-              //                       if (state.locations.isEmpty) {
-              //                         return const Center(
-              //                           child: Text('No Friends Online'),
-              //                         );
-              //                       }
-              //                       if (state.friends.isEmpty) {
-              //                         return const Chip(
-              //                             label: Text('No Friends Added'));
-              //                       }
-              //                       return Column(
-              //                         children: [
-              //                           ...state.friends.map((friend) {
-              //                             Location? location = state.locations
-              //                                 .singleWhereOrNull((element) =>
-              //                                     element.userId == friend.id);
-
-              //                             print(
-              //                                 'location matched: ${location?.toJson().toString()}');
-              //                             if (location == null) {
-              //                               return const SizedBox();
-              //                             }
-              //                             return FriendLocationCard(
-              //                               friend: friend,
-              //                               name: friend.name!,
-              //                               activity: location.activity,
-              //                               batteryLevel: location.batteryLevel,
-              //                               location: location,
-              //                               locationString:
-              //                                   '${location.city}, ${location.state}' ??
-              //                                       'Unknown Location',
-              //                               isOnline: true,
-              //                               profilePhotoUrl: friend.photoUrl,
-              //                               mapController: mapController!,
-              //                             );
-              //                           }),
-              //                         ],
-              //                       );
-              //                     }
-              //                     return const Center(
-              //                       child: Text('Something Went Wrong...'),
-              //                     );
-              //                   },
-              //                 ),
-              //               ]
-              //                   .animate(interval: 200.ms)
-              //                   .fadeIn(
-              //                     duration: 400.ms,
-              //                     curve: Curves.easeOutSine,
-              //                   )
-              //                   .slideY(
-              //                     duration: 800.ms,
-              //                     begin: 18.0,
-              //                     end: 0.0,
-              //                     curve: Curves.easeOutQuint,
-              //                   ),
-              //             ),
-              //           )
-              //         ],
-              //       ),
-              //     ),
-              //   );
-              // }),
-              Positioned(
-                top: 0,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SizedBox(
-                    height: 60,
-                    //  width: 200,
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24.0),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8.0, right: 16.0),
-                        child: Row(
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.only(right: 8.0),
-                              child: CircleAvatar(
-                                radius: 20.0,
-                                // foregroundImage: CachedNetworkImageProvider(
-                                //     'https://scontent-ord5-2.xx.fbcdn.net/v/t1.6435-9/193213907_4419559838077181_2959395753433319266_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=wOk65qwQtM4AX-u5oOI&_nc_ht=scontent-ord5-2.xx&oh=00_AfBfuDGJuqIyOTavFvz2JUa7KosApfemDsxTMOf86LbnUg&oe=647BE024'),
-                                child: Icon(
-                                  Icons.person_pin_circle_rounded,
-                                  color: Colors.white,
-                                  size: 30.0,
-                                  fill: 1.0,
-                                ),
-                              ),
-                            ),
-                            BlocBuilder<GeolocationBloc, GeolocationState>(
-                              builder: (context, geoLocationState) {
-                                if (geoLocationState is GeolocationLoading) {
-                                  return const Center(
-                                    child: CircularProgressIndicator(),
-                                  );
-                                }
-                                if (geoLocationState is GeolocationError) {
-                                  return const Center(
-                                    child: Text('Error Getting Location'),
-                                  );
-                                }
-                                if (geoLocationState is GeolocationLoaded) {
-                                  return BlocBuilder<ActivityBloc,
-                                      ActivityState>(
-                                    builder: (context, state) {
-                                      if (state is ActivityLoading) {
-                                        return Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 0.0, vertical: 6.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              if (geoLocationState
-                                                      .location.city !=
-                                                  null)
-                                                Text(
-                                                  geoLocationState
-                                                      .location.city!,
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .titleSmall,
-                                                ),
-                                              Wrap(
-                                                spacing: 2.0,
-                                                crossAxisAlignment:
-                                                    WrapCrossAlignment.center,
-                                                children: [
-                                                  const Icon(
-                                                    Icons.warning,
-                                                    size: 14.0,
-                                                  ),
-                                                  Text(
-                                                    'Error Detecting Motion',
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .bodySmall,
-                                                  )
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        );
-                                      }
-                                      if (state is ActivityError) {
-                                        return Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 0.0, vertical: 6.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              if (geoLocationState
-                                                      .location.city !=
-                                                  null)
-                                                Text(
-                                                  geoLocationState
-                                                      .location.city!,
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .titleSmall,
-                                                ),
-                                              Wrap(
-                                                spacing: 2.0,
-                                                crossAxisAlignment:
-                                                    WrapCrossAlignment.center,
-                                                children: [
-                                                  const Icon(
-                                                    Icons
-                                                        .directions_walk_rounded,
-                                                    size: 14.0,
-                                                  ),
-                                                  Text(
-                                                    'Walking',
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .bodySmall,
-                                                  )
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        );
-                                      }
-                                      if (state is ActivityLoaded) {
-                                        return Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 0.0, vertical: 10.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              if (geoLocationState
-                                                          .location.city !=
-                                                      null &&
-                                                  geoLocationState
-                                                          .location.state !=
-                                                      null)
-                                                Wrap(
-                                                  spacing: 6.0,
-                                                  crossAxisAlignment:
-                                                      WrapCrossAlignment.center,
-                                                  children: [
-                                                    const Icon(
-                                                      Icons.location_on,
-                                                      size: 12.0,
-                                                    ),
-                                                    Text(
-                                                      '${geoLocationState.location.city}, ${geoLocationState.location.state}',
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .bodySmall,
-                                                    ),
-                                                  ],
-                                                ),
-                                              Wrap(
-                                                spacing: 6.0,
-                                                crossAxisAlignment:
-                                                    WrapCrossAlignment.center,
-                                                children: [
-                                                  Icon(
-                                                    state.activity == 'still'
-                                                        ? Icons.pause_rounded
-                                                        : state.activity ==
-                                                                    'on_foot' ||
-                                                                state.activity ==
-                                                                    'walking'
-                                                            ? Icons
-                                                                .directions_walk_rounded
-                                                            : state.activity ==
-                                                                    'running'
-                                                                ? Icons
-                                                                    .directions_run_rounded
-                                                                : state.activity ==
-                                                                        'in_vehicle'
-                                                                    ? Icons
-                                                                        .drive_eta_rounded
-                                                                    : state.activity ==
-                                                                            'on_bicycle'
-                                                                        ? Icons
-                                                                            .directions_bike_rounded
-                                                                        : Icons
-                                                                            .error_rounded,
-                                                    size: 12.0,
-                                                  ),
-                                                  Text(
-                                                    state.activity == 'still'
-                                                        ? 'Stationary'
-                                                        : state.activity ==
-                                                                    'on_foot' ||
-                                                                state.activity ==
-                                                                    'walking'
-                                                            ? 'Walking'
-                                                            : state.activity ==
-                                                                    'running'
-                                                                ? 'Running'
-                                                                : state.activity ==
-                                                                        'in_vehicle'
-                                                                    ? 'Driving'
-                                                                    : state.activity ==
-                                                                            'on_bicycle'
-                                                                        ? 'Cycling'
-                                                                        : 'Unknown',
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .bodySmall,
-                                                  )
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        );
-                                      } else {
-                                        return const Center(
-                                          child:
-                                              Text('Something Went Wrong...'),
-                                        );
-                                      }
-                                    },
-                                  );
-                                } else {
-                                  return const Center(
-                                    child: Text('Something Went Wrong...'),
-                                  );
-                                }
-                              },
-                            )
-                          ],
-                        ),
-                      ),
-                    )
-                        .animate()
-                        .fadeIn(
-                          duration: 400.ms,
-                          curve: Curves.easeOutSine,
-                        )
-                        .slideY(
-                          duration: 600.ms,
-                          begin: -.0,
-                          end: 0.0,
-                          curve: Curves.easeOutSine,
-                        ),
-                  ),
-                ),
-              ),
             ],
           );
         }
@@ -1449,15 +1085,17 @@ class RideDetailsCard extends StatelessWidget {
             context: context,
             builder: (context) {
               return RideDetailsSheet(
-                ride: ride,
+                rideId: ride.id!,
               );
             },
           );
-          await mapController?.animateTo(
-            dest: LatLng(ride.meetingPoint![0], ride.meetingPoint![1]),
-            zoom: 12,
-            rotation: 0,
-          );
+          if (ride.meetingPoint != null) {
+            await mapController?.animateTo(
+              dest: LatLng(ride.meetingPoint![0], ride.meetingPoint![1]),
+              zoom: 12,
+              rotation: 0,
+            );
+          }
         },
         child: Column(
           children: [
@@ -1532,7 +1170,7 @@ class RideDetailsCard extends StatelessWidget {
                     context: context,
                     builder: (context) {
                       return RideDetailsSheet(
-                        ride: ride,
+                        rideId: ride.id!,
                       );
                     },
                   );
@@ -1561,7 +1199,7 @@ class RideRequestCard extends StatelessWidget {
             context: context,
             builder: (context) {
               return RideDetailsSheet(
-                ride: ride,
+                rideId: ride.id!,
               );
             },
           );
@@ -1823,12 +1461,12 @@ class ConfirmRideRequestSheet extends StatelessWidget {
 }
 
 class RideDetailsSheet extends StatelessWidget {
-  const RideDetailsSheet({
+  RideDetailsSheet({
     super.key,
-    required this.ride,
+    required this.rideId,
   });
 
-  final Ride ride;
+  String rideId;
 
   @override
   Widget build(BuildContext context) {
@@ -1858,18 +1496,22 @@ class RideDetailsSheet extends StatelessWidget {
                     child: Text('Error'),
                   );
                 } else if (state is RidesLoaded) {
-                  print(
-                      'User ID ${context.read<ProfileBloc>().state.user!.id}');
-                  print('State: ${state.allParticipants.map((e) => e.userId)}');
-                  RideParticipant rider = state.allParticipants.firstWhere(
+                  Ride ride = state.myRides
+                          .firstWhereOrNull((ride) => ride.id == rideId) ??
+                      state.receivedRides
+                          .firstWhere((ride) => ride.id == rideId);
+                  print('Ride Selected: $ride');
+
+                  print('All Participants: ${ride.rideParticipants}');
+                  RideParticipant rider = ride.rideParticipants!.firstWhere(
                       (rider) =>
                           rider.userId ==
                           Supabase.instance.client.auth.currentUser!.id);
                   print('Rider arrival status: ${rider.arrivalStatus}');
-                  List<RideParticipant> riders = state.allParticipants
+                  List<RideParticipant> riders = ride.rideParticipants!
                       .where((rider) =>
                           rider.id !=
-                          context.read<ProfileBloc>().state.user!.id)
+                          Supabase.instance.client.auth.currentUser!.id)
                       .toList();
                   bool allRidersAtMeetingPoint = rider.arrivalStatus ==
                           ArrivalStatus.atMeetingPoint &&
@@ -2491,20 +2133,71 @@ class RideDetailsSheet extends StatelessWidget {
                                 ],
                               ),
                             ),
-                          if (atMeetingPoint && allRidersAtMeetingPoint)
+                          if (atMeetingPoint &&
+                              allRidersAtMeetingPoint &&
+                              ride.status == RideStatus.accepted)
                             Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 16.0),
                               child: Row(
                                 children: [
                                   Expanded(
-                                    child: FilledButton.icon(
-                                      onPressed: () {},
-                                      label: const Text('Start Ride'),
-                                      icon: PhosphorIcon(
-                                        PhosphorIcons.motorcycle(
-                                            PhosphorIconsStyle.fill),
-                                      ),
+                                    child: BlocConsumer<RideBloc, RideState>(
+                                      listener: (context, state) {
+                                        if (state is RideError) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            getErrorSnackbar(
+                                                'Error starting ride!'),
+                                          );
+                                        }
+                                        if (state is RideUpdated) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(getSuccessSnackbar(
+                                                  'Ride Started!'));
+                                        }
+                                      },
+                                      builder: (context, state) {
+                                        if (state is RideLoading) {
+                                          return FilledButton.icon(
+                                            onPressed: () {},
+                                            label: Row(
+                                              children: [
+                                                LoadingAnimationWidget
+                                                    .prograssiveDots(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
+                                                  size: 16,
+                                                ),
+                                                const SizedBox(width: 8.0),
+                                                const Text('Starting Ride...'),
+                                              ],
+                                            ),
+                                            icon: PhosphorIcon(
+                                              PhosphorIcons.motorcycle(
+                                                  PhosphorIconsStyle.fill),
+                                            ),
+                                          );
+                                        }
+                                        return FilledButton.icon(
+                                          onPressed: () {
+                                            context
+                                                .read<RideBloc>()
+                                                .add(UpdateRide(
+                                                  ride.copyWith(
+                                                    status:
+                                                        RideStatus.inProgress,
+                                                  ),
+                                                ));
+                                          },
+                                          label: const Text('Start Ride'),
+                                          icon: PhosphorIcon(
+                                            PhosphorIcons.motorcycle(
+                                                PhosphorIconsStyle.fill),
+                                          ),
+                                        );
+                                      },
                                     ),
                                   ),
                                 ],

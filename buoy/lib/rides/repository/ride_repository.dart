@@ -1,13 +1,14 @@
 import 'package:buoy/rides/model/ride.dart';
 import 'package:buoy/rides/model/ride_participant.dart';
+import 'package:buoy/shared/constants.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 class RideRepository {
   sb.SupabaseClient client = sb.Supabase.instance.client;
-  SupabaseQueryBuilder ridesTable = sb.Supabase.instance.client.from('rides');
-  SupabaseQueryBuilder rideParticipantsTable =
+  sb.SupabaseQueryBuilder ridesTable =
+      sb.Supabase.instance.client.from('rides');
+  sb.SupabaseQueryBuilder rideParticipantsTable =
       sb.Supabase.instance.client.from('ride_participants');
 
   Future<Ride?> createRide(Ride ride) async {
@@ -51,9 +52,11 @@ class RideRepository {
     }
   }
 
-  Future<sb.PostgrestResponse> updateRide(Ride ride) async {
+  Future<Ride> updateRide(Ride ride) async {
     try {
-      return await ridesTable.upsert(ride.toJson());
+      final response =
+          await ridesTable.update(ride.toJson()).eq('id', ride.id!).select();
+      return Ride.fromMap(response.first);
     } catch (e) {
       rethrow;
     }
@@ -62,6 +65,15 @@ class RideRepository {
   Future<sb.PostgrestResponse> deleteRide(Ride ride) async {
     try {
       return await ridesTable.delete().eq('id', ride.id!);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Ride?> getRide(String rideId) async {
+    try {
+      final response = await ridesTable.select().eq('id', rideId).single();
+      return Ride.fromMap(response);
     } catch (e) {
       rethrow;
     }
@@ -78,6 +90,41 @@ class RideRepository {
     }
   }
 
+  // Stream of rides created by the user (where the user is the sender)
+  Stream<List<Ride>> getMyRidesStream(String userId) {
+    print('Getting my rides for user: $userId');
+    return ridesTable
+        .stream(primaryKey: ['id'])
+        .eq('user_id', userId) // Assuming there's a created_by field
+        .map((data) => data.map((e) => Ride.fromJson(e)).toList());
+  }
+
+  // Stream of rides where the user is a participant as a receiver
+  sb.SupabaseStreamBuilder getRideParticipantsStream(String userId) {
+    print('Getting received rides for user: $userId');
+
+    // Stream of participants where user is involved (either sender or receiver)
+    return rideParticipantsTable
+        .stream(primaryKey: ['id']).eq('user_id', userId);
+  }
+
+  // Stream of all participants in a ride
+  Future<List<RideParticipant>?>? getRideParticipants(String rideId) async {
+    try {
+      print('Getting ride participants for ride: $rideId');
+      var response = await rideParticipantsTable.select().eq('ride_id', rideId);
+
+      print('Ride Participants: $response');
+
+      return response.map((e) => RideParticipant.fromMap(e)).toList();
+    } catch (e) {
+      print(e);
+      showErrorSnackbar('Error loading ride participants');
+      rethrow;
+    }
+    return null;
+  }
+
   Stream<
       (
         List<Ride> myRides,
@@ -86,14 +133,12 @@ class RideRepository {
       )> getReceivedRides(String userId) {
     print('Getting received rides for user: $userId');
 
-    // Stream from ride_participants table for the user
-    final userRideParticipantsStream = Supabase.instance.client
+    final userRideParticipantsStream = sb.Supabase.instance.client
         .from('ride_participants')
         .stream(primaryKey: ['id']).eq('user_id', userId);
 
-    // Stream from rides table
     final ridesStream =
-        Supabase.instance.client.from('rides').stream(primaryKey: ['id']);
+        sb.Supabase.instance.client.from('rides').stream(primaryKey: ['id']);
 
     return CombineLatestStream.combine2(
       userRideParticipantsStream,
@@ -105,7 +150,6 @@ class RideRepository {
         print('User Participants: $userParticipants');
 
         if (userParticipants.isNotEmpty) {
-          // Extract ride IDs
           final receivedRideIds = userParticipants
               .where((p) => p['role'] == 'receiver')
               .map((p) => p['ride_id'])
@@ -116,7 +160,6 @@ class RideRepository {
               .map((p) => p['ride_id'])
               .toList();
 
-          // Fetch the corresponding rides
           if (receivedRideIds.isNotEmpty) {
             final receivedRidesData =
                 rides.where((ride) => receivedRideIds.contains(ride['id']));
@@ -130,15 +173,13 @@ class RideRepository {
             myCreatedRides = myRidesData.map((e) => Ride.fromJson(e)).toList();
           }
 
-          // Combine all relevant ride IDs
           final List<Object> allRelevantRideIds = [
             ...receivedRideIds,
             ...myRideIds
           ];
 
           if (allRelevantRideIds.isNotEmpty) {
-            // Stream from ride_participants table for relevant ride IDs
-            final allParticipantsStream = Supabase.instance.client
+            final allParticipantsStream = sb.Supabase.instance.client
                 .from('ride_participants')
                 .stream(primaryKey: ['id']).inFilter(
                     'ride_id', allRelevantRideIds);

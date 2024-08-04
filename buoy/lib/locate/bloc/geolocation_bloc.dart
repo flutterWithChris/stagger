@@ -258,13 +258,13 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
         emit(GeolocationLoaded(bgLocation: event.location, location: location));
       });
 
-      // await emit.forEach(CompassX.events ?? const Stream.empty(),
-      //     onData: (compassEvent) {
-      //   print('Compass Event: ${compassEvent.heading}');
-      //   location = location.copyWith(heading: compassEvent.heading);
-      //   return GeolocationLoaded(
-      //       bgLocation: event.location, location: location);
-      // });
+      await emit.forEach(CompassX.events ?? const Stream.empty(),
+          onData: (compassEvent) {
+        print('Compass Event: ${compassEvent.heading}');
+        location = location.copyWith(heading: compassEvent.heading);
+        return GeolocationLoaded(
+            bgLocation: event.location, location: location);
+      });
 
       /// Listen for location changes
       _backgroundLocationRepository

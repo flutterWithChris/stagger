@@ -131,15 +131,18 @@ class MyApp extends StatelessWidget {
                   friendRepository: context.read<FriendRepository>())
                 ..add(LoadFriends())),
           BlocProvider(
-            create: (context) => RideBloc(
-              mapboxSearchRepository: context.read<MapboxSearchRepository>(),
+            lazy: false,
+            create: (context) => RidesBloc(
+              authBloc: context.read<AuthBloc>(),
               rideRepository: context.read<RideRepository>(),
             ),
           ),
           BlocProvider(
-            create: (context) => RidesBloc(
+            create: (context) => RideBloc(
+              mapboxSearchRepository: context.read<MapboxSearchRepository>(),
               rideRepository: context.read<RideRepository>(),
-            )..add(LoadRides()),
+              ridesBloc: context.read<RidesBloc>(),
+            ),
           ),
           BlocProvider(
             create: (context) => RidersBloc(

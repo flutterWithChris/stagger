@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:buoy/locate/repository/mapbox_search_repository.dart';
+import 'package:buoy/rides/bloc/rides_bloc.dart';
 import 'package:buoy/rides/model/ride.dart';
+import 'package:buoy/rides/model/ride_participant.dart';
 import 'package:buoy/rides/repository/ride_repository.dart';
 import 'package:buoy/shared/constants.dart';
 import 'package:buoy/shared/models/user.dart';
@@ -14,11 +16,14 @@ part 'ride_state.dart';
 class RideBloc extends Bloc<RideEvent, RideState> {
   final MapboxSearchRepository _mapboxSearchRepository;
   final RideRepository _rideRepository;
+  final RidesBloc _ridesBloc;
   RideBloc({
     required MapboxSearchRepository mapboxSearchRepository,
     required RideRepository rideRepository,
+    required RidesBloc ridesBloc,
   })  : _mapboxSearchRepository = mapboxSearchRepository,
         _rideRepository = rideRepository,
+        _ridesBloc = ridesBloc,
         super(RideInitial()) {
     on<CreateRide>((event, emit) {
       emit(RideLoading());
@@ -65,11 +70,24 @@ class RideBloc extends Bloc<RideEvent, RideState> {
 
         print('Updating ride: ${event.ride}');
         emit(RideUpdated(event.ride));
+
         scaffoldMessengerKey.currentState!.showSnackBar(
           const SnackBar(
             content: Text('Arrival status updated'),
           ),
         );
+      } catch (e) {
+        print('Error updating ride: $e');
+        emit(RideError(e.toString(), ride: event.ride));
+      }
+    });
+    on<UpdateRide>((event, emit) async {
+      try {
+        emit(RideLoading());
+        await _rideRepository.updateRide(event.ride);
+
+        print('Updating ride: ${event.ride}');
+        emit(RideUpdated(event.ride));
       } catch (e) {
         print('Error updating ride: $e');
         emit(RideError(e.toString(), ride: event.ride));

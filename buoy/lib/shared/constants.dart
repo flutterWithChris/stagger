@@ -9,24 +9,58 @@ final supabase = Supabase.instance.client;
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
-extension ShowSnackBar on BuildContext {
-  void showSnackBar({
-    required String message,
-    Color backgroundColor = Colors.white,
-  }) {
-    ScaffoldMessenger.of(this).showSnackBar(SnackBar(
-      content: Text(message),
-      backgroundColor: backgroundColor,
-    ));
-  }
+// Show snackbar
+void showSnackbar(String message, {bool isError = false}) {
+  scaffoldMessengerKey.currentState!.showSnackBar(getSuccessSnackbar(message));
+}
 
-  void showErrorSnackBar({required String message}) {
-    showSnackBar(message: message, backgroundColor: Colors.red);
-  }
+void showErrorSnackbar(String message) {
+  scaffoldMessengerKey.currentState!.showSnackBar(getErrorSnackbar(message));
 }
 
 String generateRandomKey(int length) {
   final random = Random.secure();
   final values = List<int>.generate(length, (i) => random.nextInt(256));
   return base64UrlEncode(values);
+}
+
+// getSuccessSnackbar
+SnackBar getSuccessSnackbar(String message) {
+  return SnackBar(
+    content: Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        const Icon(Icons.check,
+            color: Colors.white, size: 20, semanticLabel: 'Success'),
+        const SizedBox(width: 10),
+        Text(
+          message,
+          style: const TextStyle(
+            color: Colors.white,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    ),
+    backgroundColor: Colors.green,
+  );
+}
+
+// getErrorSnackbar
+SnackBar getErrorSnackbar(String message) {
+  return SnackBar(
+    content: Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        const Icon(Icons.error, color: Colors.white, size: 20),
+        const SizedBox(width: 10),
+        Text(message,
+            style: const TextStyle(color: Colors.white),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis),
+      ],
+    ),
+    backgroundColor: Colors.red,
+  );
 }

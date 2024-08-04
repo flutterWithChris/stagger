@@ -27,13 +27,11 @@ final class RidesLoaded extends RidesState {
   final List<Ride> myRides;
   @override
   final List<Ride> receivedRides;
-  @override
-  final List<RideParticipant> allParticipants;
 
-  const RidesLoaded(this.myRides, this.receivedRides, this.allParticipants);
+  const RidesLoaded(this.myRides, this.receivedRides);
 
   @override
-  List<Object> get props => [myRides, receivedRides, allParticipants];
+  List<Object> get props => [myRides, receivedRides];
 }
 
 final class RidesError extends RidesState {
@@ -43,4 +41,16 @@ final class RidesError extends RidesState {
 
   @override
   List<Object> get props => [error];
+}
+
+final class FetchingRiders extends RidesState {
+  @override
+  final List<Ride> myRides;
+  @override
+  final List<Ride> receivedRides;
+
+  const FetchingRiders(this.myRides, this.receivedRides);
+
+  @override
+  List<Object> get props => [myRides, receivedRides];
 }
