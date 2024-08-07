@@ -10,6 +10,7 @@ import 'package:buoy/rides/bloc/ride_bloc.dart';
 import 'package:buoy/rides/bloc/rides_bloc.dart';
 import 'package:buoy/rides/model/ride.dart';
 import 'package:buoy/rides/model/ride_participant.dart';
+import 'package:buoy/rides/ride_privacy_sheet.dart';
 import 'package:buoy/shared/constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collection/collection.dart';
@@ -194,14 +195,19 @@ class _MainMapState extends State<MainMap> {
                                                   state.ride.meetingPoint ==
                                                       null) {
                                                 print('Creating Ride State...');
-                                                // Show bottom sheet to create ride
+                                                // Show public or private selection
                                                 showBottomSheet(
-                                                  context: context,
-                                                  // isScrollControlled: true,
-                                                  builder: (context) {
-                                                    return const SelectDestinationSheet();
-                                                  },
-                                                );
+                                                    context: context,
+                                                    builder: (context) =>
+                                                        const RidePrivacySheet());
+                                                // Show bottom sheet to create ride
+                                                // showBottomSheet(
+                                                //   context: context,
+                                                //   // isScrollControlled: true,
+                                                //   builder: (context) {
+                                                //     return const SelectDestinationSheet();
+                                                //   },
+                                                // );
                                               }
                                             },
                                             builder: (context, rideState) {
@@ -836,7 +842,11 @@ class _MainMapState extends State<MainMap> {
                                       return const Center(
                                         child: Text('Error'),
                                       );
-                                    } else if (state is RidesLoaded) {
+                                    }
+                                    if (state is RidesInitial) {
+                                      return const SizedBox();
+                                    }
+                                    if (state is RidesLoaded) {
                                       if (state.myRides.isEmpty &&
                                           state.receivedRides.isEmpty) {
                                         return const SizedBox();

@@ -90,3 +90,12 @@ class SelectRide extends RideEvent {
   @override
   List<Object> get props => [ride];
 }
+
+class FinishRide extends RideEvent {
+  final Ride ride;
+
+  const FinishRide(this.ride);
+
+  @override
+  List<Object> get props => [ride];
+}

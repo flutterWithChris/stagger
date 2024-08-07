@@ -93,6 +93,22 @@ class RideBloc extends Bloc<RideEvent, RideState> {
         emit(RideError(e.toString(), ride: event.ride));
       }
     });
+    on<FinishRide>((event, emit) async {
+      try {
+        emit(RideLoading());
+        Ride? completedRide = await _rideRepository.finishRide(event.ride);
+        if (completedRide == null) {
+          emit(const RideError('Error finishing ride'));
+          print('Error finishing ride');
+          return;
+        }
+        print('Finishing ride: ${event.ride}');
+        emit(RideCompleted(event.ride));
+      } catch (e) {
+        print('Error finishing ride: $e');
+        emit(RideError(e.toString(), ride: event.ride));
+      }
+    });
     on<SelectRide>((event, emit) async {
       emit(RideLoading());
       print('Selected ride: ${event.ride}');

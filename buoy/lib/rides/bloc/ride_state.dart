@@ -77,3 +77,13 @@ final class RideError extends RideState {
   @override
   List<Object?> get props => [error, ride];
 }
+
+final class RideCompleted extends RideState {
+  @override
+  final Ride ride;
+
+  const RideCompleted(this.ride);
+
+  @override
+  List<Object> get props => [ride];
+}

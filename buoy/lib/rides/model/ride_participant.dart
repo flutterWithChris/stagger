@@ -52,8 +52,6 @@ class RideParticipant {
       'name': name,
       'role': role,
       'arrival_status': arrivalStatus?.name,
-      'created_at': createdAt,
-      'updated_at': updatedAt,
     };
   }
 

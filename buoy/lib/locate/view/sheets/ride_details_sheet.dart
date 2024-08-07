@@ -27,7 +27,17 @@ class RideDetailsSheet extends StatelessWidget {
     return DraggableScrollableSheet(
         initialChildSize: 0.618,
         expand: false,
-        builder: (context, controller) => BlocBuilder<RidesBloc, RidesState>(
+        builder: (context, controller) => BlocConsumer<RidesBloc, RidesState>(
+              listener: (context, state) {
+                if (state is RideCompleted) {
+                  scaffoldMessengerKey.currentState!.showSnackBar(
+                    getSuccessSnackbar('Ride Completed!'),
+                  );
+                  if (context.mounted) {
+                    context.pop();
+                  }
+                }
+              },
               builder: (context, state) {
                 if (state is RidesLoading) {
                   return const Center(
@@ -197,7 +207,7 @@ class FinishRideButton extends StatelessWidget {
         ),
       ),
       onPressed: () {
-        context.read<RideBloc>().add(UpdateRide(
+        context.read<RideBloc>().add(FinishRide(
               context.read<RideBloc>().state.ride!.copyWith(
                     status: RideStatus.completed,
                   ),

@@ -265,4 +265,45 @@ class RideRepository {
       rethrow;
     }
   }
+
+  // Finish ride by moving the ride & pariticipants to the past_rides & past_ride_participants tables respectively and deleting them from the rides & ride_participants tables
+  // Update the ride status to 'completed'
+  Future<Ride?> finishRide(Ride ride) async {
+    try {
+      // Add the ride to the past_rides table
+      final pastRideResponse = await client
+          .from('past_rides')
+          .insert(ride.copyWith(status: RideStatus.completed).toJson())
+          .select();
+      // Check if the ride was successfully inserted
+      if (pastRideResponse.first.isNotEmpty) {
+        final insertedRide = pastRideResponse.first;
+        final rideId = insertedRide['id'];
+
+        // Update the ride status to 'completed'
+        await client
+            .from('rides')
+            .update({'status': RideStatus.completed.name}).eq('id', ride.id!);
+
+        // Insert the sender participants into the past_ride_participants table
+        for (RideParticipant rideParticipant in ride.rideParticipants!) {
+          await client
+              .from('past_ride_participants')
+              .insert(rideParticipant.toMap());
+        }
+
+        // Delete the ride from the rides table
+        await client.from('rides').delete().eq('id', ride.id!);
+
+        // Delete the participants from the ride_participants table
+        await client.from('ride_participants').delete().eq('ride_id', ride.id!);
+
+        return Ride.fromMap(pastRideResponse.first);
+      }
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+    return null;
+  }
 }
