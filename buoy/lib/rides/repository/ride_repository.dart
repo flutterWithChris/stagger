@@ -139,12 +139,23 @@ class RideRepository {
   }
 
   // Stream of rides where the user is a participant as a receiver
-  sb.SupabaseStreamBuilder getRideParticipantsStream(String userId) {
+  sb.SupabaseStreamBuilder getMyParticipantsStream(String userId) {
     print('Getting received rides for user: $userId');
 
     // Stream of participants where user is involved (either sender or receiver)
     return rideParticipantsTable
         .stream(primaryKey: ['id']).eq('user_id', userId);
+  }
+
+  Stream<List<RideParticipant>> getRideParticipantsStream(String rideId) {
+    final supabase = sb.Supabase.instance.client;
+
+    return supabase
+        .from('ride_participants')
+        .stream(primaryKey: ['id'])
+        .eq('ride_id', rideId)
+        .map((data) =>
+            data.map((item) => RideParticipant.fromMap(item)).toList());
   }
 
   // Stream of all participants in a ride

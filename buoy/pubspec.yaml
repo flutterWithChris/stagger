@@ -47,7 +47,10 @@ dependencies:
   permission_handler: ^11.3.1
   flutter_animate: ^4.1.1+1
   cached_network_image: ^3.2.3
-  flutter_map_animations: ^0.7.0
+  flutter_map_animations: 
+    git: 
+      url: https://github.com/flutterWithChris/flutter_map_animations.git
+      ref: fix-same-point-animation
   supabase_flutter: ^2.5.11
   flutter_gutter: ^1.0.2
   font_awesome_flutter: ^10.4.0
@@ -71,6 +74,7 @@ dependencies:
   flutter_compass_v2: ^1.0.3
   compassx: ^1.0.1
   easy_debounce: ^2.0.3
+  smooth_sheets: ^0.9.1
 
 dev_dependencies:
   flutter_test:

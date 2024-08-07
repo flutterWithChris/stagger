@@ -81,3 +81,12 @@ class UpdateArrivalStatus extends RideEvent {
   @override
   List<Object> get props => [ride, userId, arrivalStatus];
 }
+
+class SelectRide extends RideEvent {
+  final Ride ride;
+
+  const SelectRide(this.ride);
+
+  @override
+  List<Object> get props => [ride];
+}

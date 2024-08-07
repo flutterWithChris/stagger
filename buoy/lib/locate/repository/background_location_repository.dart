@@ -5,9 +5,9 @@ class BackgroundLocationRepository {
   /// Initialize BackgroundGeolocation
   Future<void> initBackgroundGeolocation() async {
     await bg.BackgroundGeolocation.ready(bg.Config(
-      desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
+      desiredAccuracy: bg.Config.DESIRED_ACCURACY_MEDIUM,
       stopOnTerminate: true,
-      debug: true,
+      debug: false,
       logLevel: bg.Config.LOG_LEVEL_VERBOSE,
     )).then((state) {
       if (!state.enabled) {
@@ -18,9 +18,7 @@ class BackgroundLocationRepository {
 
   /// Fetch current location
   Future<bg.Location> getCurrentLocation() async {
-    return await bg.BackgroundGeolocation.getCurrentPosition(
-   
-    );
+    return await bg.BackgroundGeolocation.getCurrentPosition();
   }
 
   /// Subscribe to motion change events

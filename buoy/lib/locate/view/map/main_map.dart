@@ -25,12 +25,13 @@ import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 import '../../../activity/bloc/activity_bloc.dart';
 import 'dart:math' as math;
 
-class MainMap extends StatelessWidget {
+class MainMap extends StatefulWidget {
   const MainMap({
     super.key,
     required this.mapController,
@@ -38,6 +39,11 @@ class MainMap extends StatelessWidget {
 
   final AnimatedMapController? mapController;
 
+  @override
+  State<MainMap> createState() => _MainMapState();
+}
+
+class _MainMapState extends State<MainMap> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<GeolocationBloc, GeolocationState>(
@@ -49,828 +55,839 @@ class MainMap extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
         if (state is GeolocationLoaded || state is GeolocationUpdating) {
-          return Stack(
-            alignment: Alignment.bottomCenter,
-            children: [
-              FlutterMap(
-                mapController: mapController!.mapController,
-                options: MapOptions(
-                  initialCenter: LatLng(
-                      state.bgLocation!.coords.latitude - 0.10,
-                      state.bgLocation!.coords.longitude),
-                  initialZoom: 10.0,
-                  maxZoom: 18.0,
-                  minZoom: 2.0,
-                  cameraConstraint: CameraConstraint.contain(
-                      bounds: LatLngBounds(const LatLng(-90.0, -180.0),
-                          const LatLng(90.0, 180.0))),
-                  interactionOptions: const InteractionOptions(
-                    flags: InteractiveFlag.pinchZoom |
-                        InteractiveFlag.drag |
-                        InteractiveFlag.doubleTapZoom |
-                        InteractiveFlag.flingAnimation,
-                  ),
-                  // interactiveFlags: InteractiveFlag.pinchZoom |
-                  //     InteractiveFlag.drag |
-                  //     InteractiveFlag.doubleTapZoom |
-                  //     InteractiveFlag.flingAnimation,
-                  onMapReady: () {
-                    context.read<RidersBloc>().add(LoadRiders(
-                        mapController!.mapController.camera.visibleBounds));
-                  },
-                  onMapEvent: (p0) {
-                    if (p0 is MapEventMove) {
-                      EasyDebounce.debounce(
-                          'rider-fetch-debounce', const Duration(seconds: 1),
-                          () {
-                        print('Fetching riders... ${DateTime.now()}');
-                        context.read<RidersBloc>().add(LoadRiders(
-                            mapController!.mapController.camera.visibleBounds));
-                      });
-                    }
-                    // context.read<RidersBloc>().add(LoadRiders(
-                    //     mapController!.mapController.camera.visibleBounds));
-                  },
-                  onTap: (tapPosition, point) {
-                    if (context.read<RideBloc>().state is CreatingRide) {
-                      context.read<RideBloc>().add(
-                            UpdateRideDraft(
-                              context.read<RideBloc>().state.ride!.copyWith(
-                                meetingPoint: [
-                                  point.latitude,
-                                  point.longitude,
-                                ],
+          return SafeArea(
+            child: Stack(
+              alignment: Alignment.bottomCenter,
+              children: [
+                FlutterMap(
+                  mapController: widget.mapController!.mapController,
+                  options: MapOptions(
+                    initialCenter: LatLng(
+                        state.bgLocation!.coords.latitude - 0.10,
+                        state.bgLocation!.coords.longitude),
+                    initialZoom: 10.0,
+                    maxZoom: 18.0,
+                    minZoom: 2.0,
+                    cameraConstraint: CameraConstraint.contain(
+                        bounds: LatLngBounds(const LatLng(-90.0, -180.0),
+                            const LatLng(90.0, 180.0))),
+                    interactionOptions: const InteractionOptions(
+                      flags: InteractiveFlag.pinchZoom |
+                          InteractiveFlag.drag |
+                          InteractiveFlag.doubleTapZoom |
+                          InteractiveFlag.flingAnimation,
+                    ),
+                    // interactiveFlags: InteractiveFlag.pinchZoom |
+                    //     InteractiveFlag.drag |
+                    //     InteractiveFlag.doubleTapZoom |
+                    //     InteractiveFlag.flingAnimation,
+                    onMapReady: () {
+                      context.read<RidersBloc>().add(LoadRiders(widget
+                          .mapController!.mapController.camera.visibleBounds));
+                    },
+                    onMapEvent: (p0) {
+                      if (p0 is MapEventMove) {
+                        EasyDebounce.debounce(
+                            'rider-fetch-debounce', const Duration(seconds: 1),
+                            () {
+                          print('Fetching riders... ${DateTime.now()}');
+                          context.read<RidersBloc>().add(LoadRiders(widget
+                              .mapController!
+                              .mapController
+                              .camera
+                              .visibleBounds));
+                        });
+                      }
+                      // context.read<RidersBloc>().add(LoadRiders(
+                      //     mapController!.mapController.camera.visibleBounds));
+                    },
+                    onTap: (tapPosition, point) {
+                      if (context.read<RideBloc>().state is CreatingRide) {
+                        context.read<RideBloc>().add(
+                              UpdateRideDraft(
+                                context.read<RideBloc>().state.ride!.copyWith(
+                                  meetingPoint: [
+                                    point.latitude,
+                                    point.longitude,
+                                  ],
+                                ),
                               ),
-                            ),
-                          );
-                    }
-                  },
-                ),
-                children: [
-                  TileLayer(
-                    urlTemplate:
-                        Theme.of(context).brightness == Brightness.light
-                            ? dotenv.get('MAPBOX_API_URL')
-                            : dotenv.get(
-                                'MAPBOX_API_DARK_URL',
-                              ),
-                    additionalOptions: {
-                      'accessToken': dotenv.get('MAPBOX_MAGNOLIA'),
-                      'id': 'mapbox/streets-v11',
+                            );
+                      }
                     },
                   ),
-                  BlocBuilder<FriendsBloc, FriendsState>(
-                    builder: (context, friendsState) {
-                      if (friendsState is FriendsLoading) {
-                        return const MarkerLayer(
-                          markers: [],
-                        );
-                      }
-                      if (friendsState is FriendsLoaded) {
-                        return BlocBuilder<ProfileBloc, ProfileState>(
-                          builder: (context, profileState) {
-                            if (profileState is ProfileLoading) {
-                              print('Profile Loading State...');
-                              return const MarkerLayer(
-                                markers: [],
-                              );
-                            }
-                            if (profileState is ProfileLoaded) {
-                              print('Profile: ${profileState.user.name}');
-                              return BlocBuilder<FriendsBloc, FriendsState>(
-                                builder: (context, friendsState) {
-                                  if (friendsState is FriendsLoading) {
-                                    print('Friends Loading State...');
-                                    return const MarkerLayer(
-                                      markers: [],
-                                    );
-                                  }
-                                  if (friendsState is FriendsError) {
-                                    return const MarkerLayer(
-                                      markers: [],
-                                    );
-                                  }
-                                  if (friendsState is FriendsLoaded) {
-                                    if (friendsState.friends.isEmpty ||
-                                        friendsState.locations.isEmpty) {
+                  children: [
+                    TileLayer(
+                      urlTemplate:
+                          Theme.of(context).brightness == Brightness.light
+                              ? dotenv.get('MAPBOX_API_URL')
+                              : dotenv.get(
+                                  'MAPBOX_API_DARK_URL',
+                                ),
+                      additionalOptions: {
+                        'accessToken': dotenv.get('MAPBOX_MAGNOLIA'),
+                        'id': 'mapbox/streets-v11',
+                      },
+                    ),
+                    BlocBuilder<FriendsBloc, FriendsState>(
+                      builder: (context, friendsState) {
+                        if (friendsState is FriendsLoading) {
+                          return const MarkerLayer(
+                            markers: [],
+                          );
+                        }
+                        if (friendsState is FriendsLoaded) {
+                          return BlocBuilder<ProfileBloc, ProfileState>(
+                            builder: (context, profileState) {
+                              if (profileState is ProfileLoading) {
+                                print('Profile Loading State...');
+                                return const MarkerLayer(
+                                  markers: [],
+                                );
+                              }
+                              if (profileState is ProfileLoaded) {
+                                print('Profile: ${profileState.user.name}');
+                                return BlocBuilder<FriendsBloc, FriendsState>(
+                                  builder: (context, friendsState) {
+                                    if (friendsState is FriendsLoading) {
+                                      print('Friends Loading State...');
                                       return const MarkerLayer(
                                         markers: [],
                                       );
                                     }
-                                    for (int i = 0;
-                                        i < friendsState.locations.length;
-                                        i++) {
-                                      print(
-                                          'showing location $i: ${friendsState.locations[i].latitude}');
+                                    if (friendsState is FriendsError) {
+                                      return const MarkerLayer(
+                                        markers: [],
+                                      );
                                     }
+                                    if (friendsState is FriendsLoaded) {
+                                      if (friendsState.friends.isEmpty ||
+                                          friendsState.locations.isEmpty) {
+                                        return const MarkerLayer(
+                                          markers: [],
+                                        );
+                                      }
+                                      for (int i = 0;
+                                          i < friendsState.locations.length;
+                                          i++) {
+                                        print(
+                                            'showing location $i: ${friendsState.locations[i].latitude}');
+                                      }
 
-                                    return BlocBuilder<RidesBloc, RidesState>(
-                                      builder: (context, ridesState) {
-                                        if (ridesState is RidesLoading) {
-                                          return const MarkerLayer(
-                                            markers: [],
-                                          );
-                                        }
-                                        if (ridesState is RidesError) {
-                                          return const MarkerLayer(
-                                            markers: [],
-                                          );
-                                        }
+                                      return BlocBuilder<RidesBloc, RidesState>(
+                                        builder: (context, ridesState) {
+                                          if (ridesState is RidesLoading) {
+                                            return const MarkerLayer(
+                                              markers: [],
+                                            );
+                                          }
+                                          if (ridesState is RidesError) {
+                                            return const MarkerLayer(
+                                              markers: [],
+                                            );
+                                          }
 
-                                        return BlocConsumer<RideBloc,
-                                            RideState>(
-                                          listener: (context, state) {
-                                            if (state is CreatingRide &&
-                                                state.ride.meetingPoint ==
-                                                    null) {
-                                              print('Creating Ride State...');
-                                              // Show bottom sheet to create ride
-                                              showBottomSheet(
-                                                context: context,
-                                                // isScrollControlled: true,
-                                                builder: (context) {
-                                                  return const SelectDestinationSheet();
-                                                },
-                                              );
-                                            }
-                                          },
-                                          builder: (context, rideState) {
-                                            if (rideState is CreatingRide &&
-                                                rideState.ride.meetingPoint !=
-                                                    null) {
-                                              return MarkerLayer(
-                                                markers: [
-                                                  /// User Location
-                                                  /// Destination Location
-                                                  Marker(
-                                                    point: LatLng(
-                                                        rideState.ride
-                                                            .meetingPoint![0],
-                                                        rideState.ride
-                                                            .meetingPoint![1]),
-                                                    child: PhosphorIcon(
-                                                            PhosphorIcons.mapPin(
-                                                                PhosphorIconsStyle
-                                                                    .fill))
-                                                        .animate(
-                                                          onComplete:
-                                                              (controller) =>
-                                                                  controller.repeat(
-                                                                      reverse:
-                                                                          true),
-                                                        )
-                                                        .scale(
-                                                            begin: const Offset(
-                                                                1.0, 1.0),
-                                                            end: const Offset(
-                                                                1.6, 1.6),
-                                                            duration:
-                                                                1.618.seconds),
-                                                  ),
-                                                  Marker(
-                                                    // anchorPos:
-                                                    //     AnchorPos.align(AnchorAlign.top),
-                                                    width: 32.0,
-                                                    height: 32.0,
-                                                    point: LatLng(
-                                                        state.bgLocation!.coords
-                                                            .latitude,
-                                                        state.bgLocation!.coords
-                                                            .longitude),
-                                                    child: Stack(
-                                                      clipBehavior: Clip.none,
-                                                      alignment:
-                                                          Alignment.center,
-                                                      children: [
-                                                        CircleAvatar(
-                                                          radius: 30.0,
-                                                          backgroundColor:
-                                                              Theme.of(context)
-                                                                  .splashColor,
-                                                        )
-                                                            .animate(
-                                                              onComplete:
-                                                                  (controller) =>
-                                                                      controller
-                                                                          .repeat(),
-                                                            )
-                                                            .fadeIn(
-                                                                duration:
-                                                                    800.ms)
-                                                            .scale(
-                                                                duration: 1.618
-                                                                    .seconds)
-                                                            .fadeOut(
-                                                                delay: 800.ms),
-                                                        InkWell(
-                                                          onTap: () async {
-                                                            await mapController?.animateTo(
-                                                                dest: LatLng(
-                                                                    state
-                                                                        .bgLocation!
-                                                                        .coords
-                                                                        .latitude,
-                                                                    state
-                                                                        .bgLocation!
-                                                                        .coords
-                                                                        .longitude));
-                                                          },
-                                                          child: PhosphorIcon(
-                                                              PhosphorIcons
-                                                                  .motorcycle(
-                                                                      PhosphorIconsStyle
-                                                                          .fill)),
-                                                        ),
-                                                      ],
+                                          return BlocConsumer<RideBloc,
+                                              RideState>(
+                                            listener: (context, state) {
+                                              if (state is CreatingRide &&
+                                                  state.ride.meetingPoint ==
+                                                      null) {
+                                                print('Creating Ride State...');
+                                                // Show bottom sheet to create ride
+                                                showBottomSheet(
+                                                  context: context,
+                                                  // isScrollControlled: true,
+                                                  builder: (context) {
+                                                    return const SelectDestinationSheet();
+                                                  },
+                                                );
+                                              }
+                                            },
+                                            builder: (context, rideState) {
+                                              if (rideState is CreatingRide &&
+                                                  rideState.ride.meetingPoint !=
+                                                      null) {
+                                                return MarkerLayer(
+                                                  markers: [
+                                                    /// User Location
+                                                    /// Destination Location
+                                                    Marker(
+                                                      point: LatLng(
+                                                          rideState.ride
+                                                              .meetingPoint![0],
+                                                          rideState.ride
+                                                              .meetingPoint![1]),
+                                                      child: PhosphorIcon(
+                                                              PhosphorIcons.mapPin(
+                                                                  PhosphorIconsStyle
+                                                                      .fill))
+                                                          .animate(
+                                                            onComplete:
+                                                                (controller) =>
+                                                                    controller.repeat(
+                                                                        reverse:
+                                                                            true),
+                                                          )
+                                                          .scale(
+                                                              begin:
+                                                                  const Offset(
+                                                                      1.0, 1.0),
+                                                              end: const Offset(
+                                                                  1.6, 1.6),
+                                                              duration: 1.618
+                                                                  .seconds),
                                                     ),
-                                                  ),
+                                                    Marker(
+                                                      // anchorPos:
+                                                      //     AnchorPos.align(AnchorAlign.top),
+                                                      width: 32.0,
+                                                      height: 32.0,
+                                                      point: LatLng(
+                                                          state.bgLocation!
+                                                              .coords.latitude,
+                                                          state
+                                                              .bgLocation!
+                                                              .coords
+                                                              .longitude),
+                                                      child: Stack(
+                                                        clipBehavior: Clip.none,
+                                                        alignment:
+                                                            Alignment.center,
+                                                        children: [
+                                                          CircleAvatar(
+                                                            radius: 30.0,
+                                                            backgroundColor:
+                                                                Theme.of(
+                                                                        context)
+                                                                    .splashColor,
+                                                          )
+                                                              .animate(
+                                                                onComplete:
+                                                                    (controller) =>
+                                                                        controller
+                                                                            .repeat(),
+                                                              )
+                                                              .fadeIn(
+                                                                  duration:
+                                                                      800.ms)
+                                                              .scale(
+                                                                  duration: 1.618
+                                                                      .seconds)
+                                                              .fadeOut(
+                                                                  delay:
+                                                                      800.ms),
+                                                          InkWell(
+                                                            onTap: () async {
+                                                              await widget.mapController?.animateTo(
+                                                                  dest: LatLng(
+                                                                      state
+                                                                          .bgLocation!
+                                                                          .coords
+                                                                          .latitude,
+                                                                      state
+                                                                          .bgLocation!
+                                                                          .coords
+                                                                          .longitude));
+                                                            },
+                                                            child: PhosphorIcon(
+                                                                PhosphorIcons
+                                                                    .motorcycle(
+                                                                        PhosphorIconsStyle
+                                                                            .fill)),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
 
-                                                  if (friendsState
-                                                          .friends.isNotEmpty &&
-                                                      friendsState
-                                                          .locations.isNotEmpty)
-                                                    for (Location location
-                                                        in friendsState
-                                                            .locations)
-                                                      Marker(
-                                                        width: 100.0,
-                                                        height: 100.0,
-                                                        point: LatLng(
-                                                            location.latitude!,
-                                                            location
-                                                                .longitude!),
-                                                        child: Stack(
-                                                          alignment:
-                                                              Alignment.center,
-                                                          children: [
-                                                            CircleAvatar(
-                                                              radius: 28.0,
-                                                              backgroundColor:
-                                                                  Theme.of(
-                                                                          context)
-                                                                      .splashColor,
-                                                            )
-                                                                .animate(
-                                                                  onComplete: (controller) =>
-                                                                      controller
-                                                                          .repeat(),
-                                                                )
-                                                                .fadeIn(
-                                                                    duration:
-                                                                        800.ms)
-                                                                .scale(
-                                                                    duration: 1.618
-                                                                        .seconds)
-                                                                .fadeOut(
-                                                                    delay:
-                                                                        800.ms),
-                                                            InkWell(
-                                                              onTap: () async {
-                                                                showBottomSheet(
-                                                                  context:
-                                                                      context,
-                                                                  //       isScrollControlled: true,
-                                                                  builder:
-                                                                      (context) {
-                                                                    return DraggableScrollableSheet(
-                                                                        expand:
-                                                                            false,
-                                                                        maxChildSize:
-                                                                            0.28,
-                                                                        initialChildSize:
-                                                                            0.28,
-                                                                        minChildSize:
-                                                                            0.13,
-                                                                        builder:
-                                                                            (context,
-                                                                                controller) {
-                                                                          return FriendDetailsSheet(
-                                                                              friendId: friendsState.friends[1].id!,
-                                                                              location: location,
-                                                                              scrollController: controller);
-                                                                        });
-                                                                  },
-                                                                );
-                                                                await mapController
-                                                                    ?.centerOnPoint(
-                                                                  LatLng(
-                                                                      location
-                                                                          .latitude!,
-                                                                      location
-                                                                          .longitude!),
-                                                                );
-                                                                // await mapController
-                                                                //     ?.centerOnPoint(
-                                                                //         LatLng(
-                                                                //           double.parse(
-                                                                //               location
-                                                                //                   .latitude),
-                                                                //           double.parse(
-                                                                //               location
-                                                                //                   .longitude),
-                                                                //         ),
-                                                                //         zoom: 14.0,
-                                                                //         curve: Curves
-                                                                //             .easeOutSine);
-                                                              },
-                                                              child:
-                                                                  CircleAvatar(
+                                                    if (friendsState.friends
+                                                            .isNotEmpty &&
+                                                        friendsState.locations
+                                                            .isNotEmpty)
+                                                      for (Location location
+                                                          in friendsState
+                                                              .locations)
+                                                        Marker(
+                                                          width: 100.0,
+                                                          height: 100.0,
+                                                          point: LatLng(
+                                                              location
+                                                                  .latitude!,
+                                                              location
+                                                                  .longitude!),
+                                                          child: Stack(
+                                                            alignment: Alignment
+                                                                .center,
+                                                            children: [
+                                                              CircleAvatar(
+                                                                radius: 28.0,
                                                                 backgroundColor:
-                                                                    Colors
-                                                                        .white,
-                                                                radius: 18.0,
+                                                                    Theme.of(
+                                                                            context)
+                                                                        .splashColor,
+                                                              )
+                                                                  .animate(
+                                                                    onComplete:
+                                                                        (controller) =>
+                                                                            controller.repeat(),
+                                                                  )
+                                                                  .fadeIn(
+                                                                      duration:
+                                                                          800
+                                                                              .ms)
+                                                                  .scale(
+                                                                      duration:
+                                                                          1.618
+                                                                              .seconds)
+                                                                  .fadeOut(
+                                                                      delay: 800
+                                                                          .ms),
+                                                              InkWell(
+                                                                onTap:
+                                                                    () async {
+                                                                  showBottomSheet(
+                                                                    context:
+                                                                        context,
+                                                                    //       isScrollControlled: true,
+                                                                    builder:
+                                                                        (context) {
+                                                                      return DraggableScrollableSheet(
+                                                                          expand:
+                                                                              false,
+                                                                          maxChildSize:
+                                                                              0.28,
+                                                                          initialChildSize:
+                                                                              0.28,
+                                                                          minChildSize:
+                                                                              0.13,
+                                                                          builder:
+                                                                              (context, controller) {
+                                                                            return FriendDetailsSheet(
+                                                                                friendId: friendsState.friends[1].id!,
+                                                                                location: location,
+                                                                                scrollController: controller);
+                                                                          });
+                                                                    },
+                                                                  );
+                                                                  await widget
+                                                                      .mapController
+                                                                      ?.centerOnPoint(
+                                                                    LatLng(
+                                                                        location
+                                                                            .latitude!,
+                                                                        location
+                                                                            .longitude!),
+                                                                  );
+                                                                  // await mapController
+                                                                  //     ?.centerOnPoint(
+                                                                  //         LatLng(
+                                                                  //           double.parse(
+                                                                  //               location
+                                                                  //                   .latitude),
+                                                                  //           double.parse(
+                                                                  //               location
+                                                                  //                   .longitude),
+                                                                  //         ),
+                                                                  //         zoom: 14.0,
+                                                                  //         curve: Curves
+                                                                  //             .easeOutSine);
+                                                                },
                                                                 child:
                                                                     CircleAvatar(
-                                                                  radius: 16.0,
-                                                                  // foregroundImage:
-                                                                  //     CachedNetworkImageProvider(
-                                                                  //   friendsState
-                                                                  //           .friends
-                                                                  //           .firstWhere((friend) =>
-                                                                  //               friend.id ==
-                                                                  //               location.userId)
-                                                                  //           .photoUrl ??
-                                                                  //       '',
-                                                                  // ),
-                                                                  child: friendsState.friends.firstWhere((friend) => friend.id == location.userId).photoUrl ==
-                                                                          null
-                                                                      ? Text(friendsState
-                                                                          .friends
-                                                                          .firstWhere((friend) =>
-                                                                              friend.id ==
-                                                                              location.userId)
-                                                                          .name!
-                                                                          .toUpperCase())
-                                                                      : null,
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  radius: 18.0,
+                                                                  child:
+                                                                      CircleAvatar(
+                                                                    radius:
+                                                                        16.0,
+                                                                    // foregroundImage:
+                                                                    //     CachedNetworkImageProvider(
+                                                                    //   friendsState
+                                                                    //           .friends
+                                                                    //           .firstWhere((friend) =>
+                                                                    //               friend.id ==
+                                                                    //               location.userId)
+                                                                    //           .photoUrl ??
+                                                                    //       '',
+                                                                    // ),
+                                                                    child: friendsState.friends.firstWhere((friend) => friend.id == location.userId).photoUrl ==
+                                                                            null
+                                                                        ? Text(friendsState
+                                                                            .friends
+                                                                            .firstWhere((friend) =>
+                                                                                friend.id ==
+                                                                                location.userId)
+                                                                            .name!
+                                                                            .toUpperCase())
+                                                                        : null,
+                                                                  ),
                                                                 ),
                                                               ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                  ],
+                                                );
+                                              }
+                                              return BlocBuilder<RidersBloc,
+                                                  RidersState>(
+                                                builder:
+                                                    (context, ridersState) {
+                                                  if (ridersState
+                                                      is RidersLoading) {
+                                                    return const MarkerLayer(
+                                                      markers: [],
+                                                    );
+                                                  }
+                                                  if (ridersState
+                                                      is RidersLoaded) {
+                                                    return MarkerLayer(
+                                                      markers: [
+                                                        for (Rider rider
+                                                            in ridersState
+                                                                .riders)
+                                                          Marker(
+                                                            point: LatLng(
+                                                                rider
+                                                                    .currentLocation!
+                                                                    .latitude!,
+                                                                rider
+                                                                    .currentLocation!
+                                                                    .longitude!),
+                                                            child: PhosphorIcon(
+                                                                PhosphorIcons
+                                                                    .motorcycle(
+                                                                        PhosphorIconsStyle
+                                                                            .fill)),
+                                                          ),
+                                                        for (Ride ride in ridesState
+                                                                .myRides
+                                                                ?.where((ride) =>
+                                                                    ride.meetingPoint !=
+                                                                    null) ??
+                                                            [])
+                                                          Marker(
+                                                            height: 36.0,
+                                                            width: 36.0,
+                                                            point: LatLng(
+                                                                ride.meetingPoint![
+                                                                    0],
+                                                                ride.meetingPoint![
+                                                                    1]),
+                                                            child: InkWell(
+                                                              onTap: () async {
+                                                                print(
+                                                                    'Tapped ride');
+
+                                                                showBottomSheet(
+                                                                  // barrierColor:
+                                                                  //     Colors
+                                                                  //         .black26,
+                                                                  // isScrollControlled:
+                                                                  //     true,
+                                                                  context:
+                                                                      context,
+                                                                  builder:
+                                                                      (context) {
+                                                                    return RideDetailsSheet(
+                                                                      rideId: ride
+                                                                          .id!,
+                                                                    );
+                                                                  },
+                                                                );
+
+                                                                await widget
+                                                                    .mapController
+                                                                    ?.animateTo(
+                                                                        dest: LatLng(
+                                                                            ride.meetingPoint![0],
+                                                                            ride.meetingPoint![1]));
+                                                              },
+                                                              child: Stack(
+                                                                alignment:
+                                                                    Alignment
+                                                                        .center,
+                                                                children: [
+                                                                  CircleAvatar(
+                                                                    radius:
+                                                                        200.0,
+                                                                    backgroundColor: Theme.of(
+                                                                            context)
+                                                                        .colorScheme
+                                                                        .primaryContainer,
+                                                                  )
+                                                                      .animate(
+                                                                        onComplete:
+                                                                            (controller) =>
+                                                                                controller.repeat(),
+                                                                      )
+                                                                      .fade(
+                                                                          begin:
+                                                                              0.0,
+                                                                          end:
+                                                                              0.6,
+                                                                          duration: 800
+                                                                              .ms)
+                                                                      .scale(
+                                                                          begin: const Offset(
+                                                                              1.0,
+                                                                              1.0),
+                                                                          end: const Offset(
+                                                                              1.6,
+                                                                              1.6),
+                                                                          duration: 1.618
+                                                                              .seconds)
+                                                                      .fadeOut(
+                                                                          delay:
+                                                                              800.ms),
+                                                                  CircleAvatar(
+                                                                    radius: 30,
+                                                                    child:
+                                                                        Padding(
+                                                                      padding: const EdgeInsets
+                                                                          .all(
+                                                                          2.0),
+                                                                      child:
+                                                                          PhosphorIcon(
+                                                                        switch (
+                                                                            ride.status) {
+                                                                          RideStatus.pending =>
+                                                                            PhosphorIcons.mapPin(PhosphorIconsStyle.fill),
+                                                                          RideStatus.accepted =>
+                                                                            PhosphorIcons.mapPinArea(PhosphorIconsStyle.fill),
+                                                                          RideStatus.rejected =>
+                                                                            PhosphorIcons.prohibit(PhosphorIconsStyle.fill),
+                                                                          RideStatus.rejectedWithResponse =>
+                                                                            PhosphorIcons.question(PhosphorIconsStyle.fill),
+                                                                          RideStatus.canceled =>
+                                                                            PhosphorIcons.prohibit(PhosphorIconsStyle.fill),
+                                                                          RideStatus.completed =>
+                                                                            PhosphorIcons.flagCheckered(PhosphorIconsStyle.fill),
+                                                                          RideStatus.inProgress =>
+                                                                            PhosphorIcons.mapPinArea(PhosphorIconsStyle.fill),
+                                                                          null =>
+                                                                            PhosphorIcons.mapPinArea(PhosphorIconsStyle.fill),
+                                                                        },
+                                                                        size:
+                                                                            20,
+                                                                      ),
+                                                                    ),
+                                                                  )
+                                                                ],
+                                                              ),
                                                             ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                ],
-                                              );
-                                            }
-                                            return BlocBuilder<RidersBloc,
-                                                RidersState>(
-                                              builder: (context, ridersState) {
-                                                if (ridersState
-                                                    is RidersLoading) {
-                                                  return const MarkerLayer(
-                                                    markers: [],
-                                                  );
-                                                }
-                                                if (ridersState
-                                                    is RidersLoaded) {
-                                                  return MarkerLayer(
-                                                    markers: [
-                                                      for (Rider rider
-                                                          in ridersState.riders)
-                                                        Marker(
-                                                          point: LatLng(
-                                                              rider
-                                                                  .currentLocation!
-                                                                  .latitude!,
-                                                              rider
-                                                                  .currentLocation!
-                                                                  .longitude!),
-                                                          child: PhosphorIcon(
-                                                              PhosphorIcons
-                                                                  .motorcycle(
-                                                                      PhosphorIconsStyle
-                                                                          .fill)),
-                                                        ),
-                                                      for (Ride ride in ridesState
-                                                              .myRides
-                                                              ?.where((ride) =>
-                                                                  ride.meetingPoint !=
-                                                                  null) ??
-                                                          [])
-                                                        Marker(
-                                                          height: 36.0,
-                                                          width: 36.0,
-                                                          point: LatLng(
-                                                              ride.meetingPoint![
-                                                                  0],
-                                                              ride.meetingPoint![
-                                                                  1]),
-                                                          child: InkWell(
-                                                            onTap: () async {
-                                                              print(
-                                                                  'Tapped ride');
+                                                          ),
 
-                                                              showBottomSheet(
-                                                                context:
-                                                                    context,
-                                                                builder:
-                                                                    (context) {
-                                                                  return RideDetailsSheet(
-                                                                    rideId: ride
-                                                                        .id!,
-                                                                  );
+                                                        /// User Location
+                                                        Marker(
+                                                          // anchorPos:
+                                                          //     AnchorPos.align(AnchorAlign.top),
+                                                          width: 32.0,
+                                                          height: 32.0,
+                                                          point: LatLng(
+                                                              state
+                                                                  .bgLocation!
+                                                                  .coords
+                                                                  .latitude,
+                                                              state
+                                                                  .bgLocation!
+                                                                  .coords
+                                                                  .longitude),
+                                                          child: Stack(
+                                                            clipBehavior:
+                                                                Clip.none,
+                                                            alignment: Alignment
+                                                                .center,
+                                                            children: [
+                                                              InkWell(
+                                                                onTap:
+                                                                    () async {
+                                                                  await widget.mapController?.animateTo(
+                                                                      dest: LatLng(
+                                                                          state
+                                                                              .bgLocation!
+                                                                              .coords
+                                                                              .latitude,
+                                                                          state
+                                                                              .bgLocation!
+                                                                              .coords
+                                                                              .longitude));
                                                                 },
-                                                              );
-
-                                                              await mapController?.animateTo(
-                                                                  dest: LatLng(
-                                                                      ride.meetingPoint![
-                                                                          0],
-                                                                      ride.meetingPoint![
-                                                                          1]));
-                                                            },
-                                                            child: Stack(
-                                                              alignment:
-                                                                  Alignment
-                                                                      .center,
-                                                              children: [
-                                                                CircleAvatar(
-                                                                  radius: 200.0,
-                                                                  backgroundColor: Theme.of(
-                                                                          context)
-                                                                      .colorScheme
-                                                                      .primaryContainer,
-                                                                )
-                                                                    .animate(
-                                                                      onComplete:
-                                                                          (controller) =>
-                                                                              controller.repeat(),
-                                                                    )
-                                                                    .fade(
-                                                                        begin:
-                                                                            0.0,
-                                                                        end:
-                                                                            0.6,
-                                                                        duration: 800
-                                                                            .ms)
-                                                                    .scale(
-                                                                        begin: const Offset(
-                                                                            1.0,
-                                                                            1.0),
-                                                                        end: const Offset(
-                                                                            1.6,
-                                                                            1.6),
-                                                                        duration:
-                                                                            1.618
-                                                                                .seconds)
-                                                                    .fadeOut(
-                                                                        delay: 800
-                                                                            .ms),
-                                                                CircleAvatar(
-                                                                  radius: 30,
-                                                                  child:
-                                                                      Padding(
-                                                                    padding:
-                                                                        const EdgeInsets
-                                                                            .all(
-                                                                            2.0),
+                                                                child: Transform
+                                                                    .flip(
+                                                                  child: Transform
+                                                                      .rotate(
+                                                                    angle: 0,
+                                                                    // state.location?.heading !=
+                                                                    //         null
+                                                                    //     ? (state.location!.heading! * math.pi / 180) -
+                                                                    //         90
+                                                                    //     : 0.0,
                                                                     child:
                                                                         PhosphorIcon(
-                                                                      switch (ride
-                                                                          .status) {
-                                                                        RideStatus
-                                                                              .pending =>
-                                                                          PhosphorIcons.mapPin(
-                                                                              PhosphorIconsStyle.fill),
-                                                                        RideStatus
-                                                                              .accepted =>
-                                                                          PhosphorIcons.mapPinArea(
-                                                                              PhosphorIconsStyle.fill),
-                                                                        RideStatus
-                                                                              .rejected =>
-                                                                          PhosphorIcons.prohibit(
-                                                                              PhosphorIconsStyle.fill),
-                                                                        RideStatus
-                                                                              .rejectedWithResponse =>
-                                                                          PhosphorIcons.question(
-                                                                              PhosphorIconsStyle.fill),
-                                                                        RideStatus
-                                                                              .canceled =>
-                                                                          PhosphorIcons.prohibit(
-                                                                              PhosphorIconsStyle.fill),
-                                                                        RideStatus
-                                                                              .completed =>
-                                                                          PhosphorIcons.flagCheckered(
-                                                                              PhosphorIconsStyle.fill),
-                                                                        RideStatus
-                                                                              .inProgress =>
-                                                                          PhosphorIcons.mapPinArea(
-                                                                              PhosphorIconsStyle.fill),
-                                                                        null =>
-                                                                          PhosphorIcons.mapPinArea(
-                                                                              PhosphorIconsStyle.fill),
-                                                                      },
-                                                                      size: 20,
+                                                                      PhosphorIcons
+                                                                          .motorcycle(
+                                                                        PhosphorIconsStyle
+                                                                            .fill,
+                                                                      ),
                                                                     ),
                                                                   ),
-                                                                )
-                                                              ],
-                                                            ),
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
                                                         ),
 
-                                                      /// User Location
-                                                      Marker(
-                                                        // anchorPos:
-                                                        //     AnchorPos.align(AnchorAlign.top),
-                                                        width: 32.0,
-                                                        height: 32.0,
-                                                        point: LatLng(
-                                                            state
-                                                                .bgLocation!
-                                                                .coords
-                                                                .latitude,
-                                                            state
-                                                                .bgLocation!
-                                                                .coords
-                                                                .longitude),
-                                                        child: Stack(
-                                                          clipBehavior:
-                                                              Clip.none,
-                                                          alignment:
-                                                              Alignment.center,
-                                                          children: [
-                                                            InkWell(
-                                                              onTap: () async {
-                                                                await mapController?.animateTo(
-                                                                    dest: LatLng(
-                                                                        state
-                                                                            .bgLocation!
-                                                                            .coords
-                                                                            .latitude,
-                                                                        state
-                                                                            .bgLocation!
-                                                                            .coords
-                                                                            .longitude));
-                                                              },
-                                                              child: Transform
-                                                                  .flip(
-                                                                child: Transform
-                                                                    .rotate(
-                                                                  angle: 0,
-                                                                  // state.location?.heading !=
-                                                                  //         null
-                                                                  //     ? (state.location!.heading! * math.pi / 180) -
-                                                                  //         90
-                                                                  //     : 0.0,
-                                                                  child:
-                                                                      PhosphorIcon(
-                                                                    PhosphorIcons
-                                                                        .motorcycle(
-                                                                      PhosphorIconsStyle
-                                                                          .fill,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-
-                                                      // if (friendsState.friends
-                                                      //         .isNotEmpty &&
-                                                      //     friendsState.locations
-                                                      //         .isNotEmpty)
-                                                      //   for (Location location
-                                                      //       in friendsState
-                                                      //           .locations)
-                                                      //     Marker(
-                                                      //       width: 100.0,
-                                                      //       height: 100.0,
-                                                      //       point: LatLng(
-                                                      //           location
-                                                      //               .latitude!,
-                                                      //           location
-                                                      //               .longitude!),
-                                                      //       child: Stack(
-                                                      //         alignment:
-                                                      //             Alignment
-                                                      //                 .center,
-                                                      //         children: [
-                                                      //           CircleAvatar(
-                                                      //             radius: 28.0,
-                                                      //             backgroundColor:
-                                                      //                 Theme.of(
-                                                      //                         context)
-                                                      //                     .splashColor,
-                                                      //           )
-                                                      //               .animate(
-                                                      //                 onComplete:
-                                                      //                     (controller) =>
-                                                      //                         controller.repeat(),
-                                                      //               )
-                                                      //               .fadeIn(
-                                                      //                   duration: 800
-                                                      //                       .ms)
-                                                      //               .scale(
-                                                      //                   duration:
-                                                      //                       1.618
-                                                      //                           .seconds)
-                                                      //               .fadeOut(
-                                                      //                   delay: 800
-                                                      //                       .ms),
-                                                      //           InkWell(
-                                                      //             onTap:
-                                                      //                 () async {
-                                                      //               showBottomSheet(
-                                                      //                 context:
-                                                      //                     context,
-                                                      //                 //       isScrollControlled: true,
-                                                      //                 builder:
-                                                      //                     (context) {
-                                                      //                   return DraggableScrollableSheet(
-                                                      //                       expand:
-                                                      //                           false,
-                                                      //                       maxChildSize:
-                                                      //                           0.28,
-                                                      //                       initialChildSize:
-                                                      //                           0.28,
-                                                      //                       minChildSize:
-                                                      //                           0.13,
-                                                      //                       builder:
-                                                      //                           (context, controller) {
-                                                      //                         return FriendDetailsSheet(friendId: friendsState.friends[1].id!, location: location, scrollController: controller);
-                                                      //                       });
-                                                      //                 },
-                                                      //               );
-                                                      //               await mapController
-                                                      //                   ?.centerOnPoint(
-                                                      //                 LatLng(
-                                                      //                     location
-                                                      //                         .latitude!,
-                                                      //                     location
-                                                      //                         .longitude!),
-                                                      //               );
-                                                      //               // await mapController
-                                                      //               //     ?.centerOnPoint(
-                                                      //               //         LatLng(
-                                                      //               //           double.parse(
-                                                      //               //               location
-                                                      //               //                   .latitude),
-                                                      //               //           double.parse(
-                                                      //               //               location
-                                                      //               //                   .longitude),
-                                                      //               //         ),
-                                                      //               //         zoom: 14.0,
-                                                      //               //         curve: Curves
-                                                      //               //             .easeOutSine);
-                                                      //             },
-                                                      //             child:
-                                                      //                 CircleAvatar(
-                                                      //               backgroundColor:
-                                                      //                   Colors
-                                                      //                       .white,
-                                                      //               radius:
-                                                      //                   18.0,
-                                                      //               child:
-                                                      //                   CircleAvatar(
-                                                      //                 radius:
-                                                      //                     16.0,
-                                                      //                 // foregroundImage:
-                                                      //                 //     CachedNetworkImageProvider(
-                                                      //                 //   friendsState.friends
-                                                      //                 //           .firstWhere((friend) =>
-                                                      //                 //               friend
-                                                      //                 //                   .id ==
-                                                      //                 //               location
-                                                      //                 //                   .userId)
-                                                      //                 //           .photoUrl ??
-                                                      //                 //       '',
-                                                      //                 // ),
-                                                      //                 child: friendsState.friends.firstWhere((friend) => friend.id == location.userId).photoUrl ==
-                                                      //                         null
-                                                      //                     ? Text(friendsState
-                                                      //                         .friends
-                                                      //                         .firstWhere((friend) => friend.id == location.userId)
-                                                      //                         .name!
-                                                      //                         .toUpperCase())
-                                                      //                     : null,
-                                                      //               ),
-                                                      //             ),
-                                                      //           ),
-                                                      //         ],
-                                                      //       ),
-                                                      //     ),
-                                                    ],
-                                                  );
-                                                } else {
-                                                  return const MarkerLayer(
-                                                    markers: [],
-                                                  );
-                                                }
-                                              },
-                                            );
-                                          },
-                                        );
-                                      },
-                                    );
-                                  }
-                                  return const Center(
-                                      child: Text('Something went wrong...'));
-                                },
-                              );
-                            } else {
-                              return const MarkerLayer(
-                                markers: [],
-                              );
-                            }
-                          },
-                        );
-                      }
-                      print('Location Data: ${friendsState.locations}');
-                      // Find matching ids in friend objects and location stream & print them
-                      for (Location location in friendsState.locations) {
-                        if (location.userId == friendsState.friends[1].id) {
-                          print('Matching id: ${location.userId}');
-                          print(
-                              '${friendsState.friends[1].name} photo: ${friendsState.friends[1].photoUrl}');
-                        }
-                      }
-                      // print(
-                      //     'Location: ${location.coords.latitude}, ${location.coords.longitude}');
-                      return const MarkerLayer(
-                        markers: [],
-                      );
-                    },
-                  )
-                ],
-              ),
-              LayoutBuilder(builder: (context, constraints) {
-                return ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: constraints.maxHeight * 0.5,
-                    minHeight: 0,
-                    minWidth: constraints.maxWidth,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
-                    child: CustomScrollView(
-                      clipBehavior: Clip.antiAlias,
-                      reverse: true,
-                      shrinkWrap: true,
-                      slivers: [
-                        SliverList(
-                          delegate: SliverChildListDelegate(
-                            [
-                              BlocBuilder<RidesBloc, RidesState>(
-                                builder: (context, state) {
-                                  if (state is RidesLoading) {
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  }
-                                  if (state is RidesError) {
-                                    return const Center(
-                                      child: Text('Error'),
-                                    );
-                                  } else if (state is RidesLoaded) {
-                                    if (state.myRides.isEmpty &&
-                                        state.receivedRides.isEmpty) {
-                                      return const SizedBox();
+                                                        // if (friendsState.friends
+                                                        //         .isNotEmpty &&
+                                                        //     friendsState.locations
+                                                        //         .isNotEmpty)
+                                                        //   for (Location location
+                                                        //       in friendsState
+                                                        //           .locations)
+                                                        //     Marker(
+                                                        //       width: 100.0,
+                                                        //       height: 100.0,
+                                                        //       point: LatLng(
+                                                        //           location
+                                                        //               .latitude!,
+                                                        //           location
+                                                        //               .longitude!),
+                                                        //       child: Stack(
+                                                        //         alignment:
+                                                        //             Alignment
+                                                        //                 .center,
+                                                        //         children: [
+                                                        //           CircleAvatar(
+                                                        //             radius: 28.0,
+                                                        //             backgroundColor:
+                                                        //                 Theme.of(
+                                                        //                         context)
+                                                        //                     .splashColor,
+                                                        //           )
+                                                        //               .animate(
+                                                        //                 onComplete:
+                                                        //                     (controller) =>
+                                                        //                         controller.repeat(),
+                                                        //               )
+                                                        //               .fadeIn(
+                                                        //                   duration: 800
+                                                        //                       .ms)
+                                                        //               .scale(
+                                                        //                   duration:
+                                                        //                       1.618
+                                                        //                           .seconds)
+                                                        //               .fadeOut(
+                                                        //                   delay: 800
+                                                        //                       .ms),
+                                                        //           InkWell(
+                                                        //             onTap:
+                                                        //                 () async {
+                                                        //               showBottomSheet(
+                                                        //                 context:
+                                                        //                     context,
+                                                        //                 //       isScrollControlled: true,
+                                                        //                 builder:
+                                                        //                     (context) {
+                                                        //                   return DraggableScrollableSheet(
+                                                        //                       expand:
+                                                        //                           false,
+                                                        //                       maxChildSize:
+                                                        //                           0.28,
+                                                        //                       initialChildSize:
+                                                        //                           0.28,
+                                                        //                       minChildSize:
+                                                        //                           0.13,
+                                                        //                       builder:
+                                                        //                           (context, controller) {
+                                                        //                         return FriendDetailsSheet(friendId: friendsState.friends[1].id!, location: location, scrollController: controller);
+                                                        //                       });
+                                                        //                 },
+                                                        //               );
+                                                        //               await mapController
+                                                        //                   ?.centerOnPoint(
+                                                        //                 LatLng(
+                                                        //                     location
+                                                        //                         .latitude!,
+                                                        //                     location
+                                                        //                         .longitude!),
+                                                        //               );
+                                                        //               // await mapController
+                                                        //               //     ?.centerOnPoint(
+                                                        //               //         LatLng(
+                                                        //               //           double.parse(
+                                                        //               //               location
+                                                        //               //                   .latitude),
+                                                        //               //           double.parse(
+                                                        //               //               location
+                                                        //               //                   .longitude),
+                                                        //               //         ),
+                                                        //               //         zoom: 14.0,
+                                                        //               //         curve: Curves
+                                                        //               //             .easeOutSine);
+                                                        //             },
+                                                        //             child:
+                                                        //                 CircleAvatar(
+                                                        //               backgroundColor:
+                                                        //                   Colors
+                                                        //                       .white,
+                                                        //               radius:
+                                                        //                   18.0,
+                                                        //               child:
+                                                        //                   CircleAvatar(
+                                                        //                 radius:
+                                                        //                     16.0,
+                                                        //                 // foregroundImage:
+                                                        //                 //     CachedNetworkImageProvider(
+                                                        //                 //   friendsState.friends
+                                                        //                 //           .firstWhere((friend) =>
+                                                        //                 //               friend
+                                                        //                 //                   .id ==
+                                                        //                 //               location
+                                                        //                 //                   .userId)
+                                                        //                 //           .photoUrl ??
+                                                        //                 //       '',
+                                                        //                 // ),
+                                                        //                 child: friendsState.friends.firstWhere((friend) => friend.id == location.userId).photoUrl ==
+                                                        //                         null
+                                                        //                     ? Text(friendsState
+                                                        //                         .friends
+                                                        //                         .firstWhere((friend) => friend.id == location.userId)
+                                                        //                         .name!
+                                                        //                         .toUpperCase())
+                                                        //                     : null,
+                                                        //               ),
+                                                        //             ),
+                                                        //           ),
+                                                        //         ],
+                                                        //       ),
+                                                        //     ),
+                                                      ],
+                                                    );
+                                                  } else {
+                                                    return const MarkerLayer(
+                                                      markers: [],
+                                                    );
+                                                  }
+                                                },
+                                              );
+                                            },
+                                          );
+                                        },
+                                      );
                                     }
-                                    print('My Rides: ${state.myRides}');
-                                    print(
-                                        'Received Rides: ${state.receivedRides}');
-                                    return Column(
-                                      children: [
-                                        ...state.myRides.map((ride) {
-                                          return RideDetailsCard(
-                                              ride: ride,
-                                              mapController: mapController!);
-                                        }),
-                                        ...state.receivedRides.map((ride) {
-                                          return RideRequestCard(
-                                              ride: ride,
-                                              mapController: mapController!);
-                                        }),
-                                      ],
-                                    );
-                                  }
-                                  return const Center(
-                                    child: Text('Something Went Wrong...'),
-                                  );
-                                },
-                              ),
-                            ]
-                                .animate(interval: 200.ms)
-                                .fadeIn(
-                                  duration: 400.ms,
-                                  curve: Curves.easeOutSine,
-                                )
-                                .slideY(
-                                  duration: 800.ms,
-                                  begin: 18.0,
-                                  end: 0.0,
-                                  curve: Curves.easeOutQuint,
-                                ),
-                          ),
-                        )
-                      ],
+                                    return const Center(
+                                        child: Text('Something went wrong...'));
+                                  },
+                                );
+                              } else {
+                                return const MarkerLayer(
+                                  markers: [],
+                                );
+                              }
+                            },
+                          );
+                        }
+                        print('Location Data: ${friendsState.locations}');
+                        // Find matching ids in friend objects and location stream & print them
+                        for (Location location in friendsState.locations) {
+                          if (location.userId == friendsState.friends[1].id) {
+                            print('Matching id: ${location.userId}');
+                            print(
+                                '${friendsState.friends[1].name} photo: ${friendsState.friends[1].photoUrl}');
+                          }
+                        }
+                        // print(
+                        //     'Location: ${location.coords.latitude}, ${location.coords.longitude}');
+                        return const MarkerLayer(
+                          markers: [],
+                        );
+                      },
+                    )
+                  ],
+                ),
+                LayoutBuilder(builder: (context, constraints) {
+                  return ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: constraints.maxHeight * 0.5,
+                      minHeight: 0,
+                      minWidth: constraints.maxWidth,
                     ),
-                  ),
-                );
-              }),
-            ],
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
+                      child: CustomScrollView(
+                        clipBehavior: Clip.antiAlias,
+                        reverse: true,
+                        shrinkWrap: true,
+                        slivers: [
+                          SliverList(
+                            delegate: SliverChildListDelegate(
+                              [
+                                BlocBuilder<RidesBloc, RidesState>(
+                                  builder: (context, state) {
+                                    if (state is RidesLoading) {
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    }
+                                    if (state is RidesError) {
+                                      return const Center(
+                                        child: Text('Error'),
+                                      );
+                                    } else if (state is RidesLoaded) {
+                                      if (state.myRides.isEmpty &&
+                                          state.receivedRides.isEmpty) {
+                                        return const SizedBox();
+                                      }
+                                      print('My Rides: ${state.myRides}');
+                                      print(
+                                          'Received Rides: ${state.receivedRides}');
+                                      return Column(
+                                        children: [
+                                          ...state.myRides.map((ride) {
+                                            return RideDetailsCard(
+                                              ride: ride,
+                                              mapController:
+                                                  widget.mapController!,
+                                            );
+                                          }),
+                                          ...state.receivedRides.map((ride) {
+                                            return RideRequestCard(
+                                                ride: ride,
+                                                mapController:
+                                                    widget.mapController!);
+                                          }),
+                                        ],
+                                      );
+                                    }
+                                    return const Center(
+                                      child: Text('Something Went Wrong...'),
+                                    );
+                                  },
+                                ),
+                              ]
+                                  .animate(interval: 200.ms)
+                                  .fadeIn(
+                                    duration: 400.ms,
+                                    curve: Curves.easeOutSine,
+                                  )
+                                  .slideY(
+                                    duration: 800.ms,
+                                    begin: 18.0,
+                                    end: 0.0,
+                                    curve: Curves.easeOutQuint,
+                                  ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
           );
         }
         if (state is GeolocationError) {
@@ -1036,8 +1053,12 @@ class SelectDestinationSheet extends StatelessWidget {
 class RideDetailsCard extends StatelessWidget {
   final Ride ride;
   final AnimatedMapController? mapController;
+  // final SheetController sheetController;
   const RideDetailsCard(
-      {required this.ride, required this.mapController, super.key});
+      {required this.ride,
+      required this.mapController,
+      // required this.sheetController,
+      super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -1082,19 +1103,35 @@ class RideDetailsCard extends StatelessWidget {
     return Card(
       child: InkWell(
         onTap: () async {
-          showBottomSheet(
-            context: context,
-            builder: (context) {
-              return RideDetailsSheet(
-                rideId: ride.id!,
-              );
-            },
-          );
+          context.read<RideBloc>().add(SelectRide(ride));
           if (ride.meetingPoint != null) {
+            print('Animating to ride meeting point...');
+
+            showBottomSheet(
+                context: context,
+                builder: (context) {
+                  return RideDetailsSheet(
+                    rideId: ride.id!,
+                  );
+                }).closed.then(
+              (value) async {
+                print('Sheet closed');
+                await mapController?.animateTo(
+                  dest: LatLng(ride.meetingPoint![0], ride.meetingPoint![1]),
+                  // zoom: 12,
+                  curve: Curves.easeOutSine,
+                  rotation: 0,
+                );
+                return value;
+              },
+            );
+
             await mapController?.animateTo(
               dest: LatLng(ride.meetingPoint![0], ride.meetingPoint![1]),
-              zoom: 12,
-              rotation: 0,
+              // zoom: 12,
+              curve: Curves.easeOutSine,
+              rotation: null,
+              offset: const Offset(0, -220.0),
             );
           }
         },
@@ -1198,6 +1235,7 @@ class RideRequestCard extends StatelessWidget {
         onTap: () async {
           showBottomSheet(
             context: context,
+            enableDrag: true,
             builder: (context) {
               return RideDetailsSheet(
                 rideId: ride.id!,
@@ -1206,7 +1244,7 @@ class RideRequestCard extends StatelessWidget {
           );
           await mapController?.animateTo(
             dest: LatLng(ride.meetingPoint![0], ride.meetingPoint![1]),
-            zoom: 12,
+            // zoom: 12,
             rotation: 0,
           );
         },

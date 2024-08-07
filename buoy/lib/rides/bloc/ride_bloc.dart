@@ -93,5 +93,10 @@ class RideBloc extends Bloc<RideEvent, RideState> {
         emit(RideError(e.toString(), ride: event.ride));
       }
     });
+    on<SelectRide>((event, emit) async {
+      emit(RideLoading());
+      print('Selected ride: ${event.ride}');
+      emit(RideLoaded(event.ride));
+    });
   }
 }

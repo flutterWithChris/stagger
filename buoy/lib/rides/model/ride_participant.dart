@@ -5,6 +5,7 @@ class RideParticipant {
   final String? id;
   final String? rideId;
   final String? userId;
+  final String? name;
   final String? role;
   final ArrivalStatus? arrivalStatus;
   final DateTime? createdAt;
@@ -14,6 +15,7 @@ class RideParticipant {
     this.id,
     this.rideId,
     this.userId,
+    this.name,
     this.role,
     this.arrivalStatus,
     this.createdAt,
@@ -24,6 +26,7 @@ class RideParticipant {
     String? id,
     String? rideId,
     String? userId,
+    String? name,
     String? role,
     ArrivalStatus? arrivalStatus,
     DateTime? createdAt,
@@ -33,6 +36,7 @@ class RideParticipant {
       id: id ?? this.id,
       rideId: rideId ?? this.rideId,
       userId: userId ?? this.userId,
+      name: name ?? this.name,
       role: role ?? this.role,
       arrivalStatus: arrivalStatus ?? this.arrivalStatus,
       createdAt: createdAt ?? this.createdAt,
@@ -45,6 +49,7 @@ class RideParticipant {
       'id': id,
       'ride_id': rideId,
       'user_id': userId,
+      'name': name,
       'role': role,
       'arrival_status': arrivalStatus?.name,
       'created_at': createdAt,
@@ -57,6 +62,7 @@ class RideParticipant {
       id: map['id'],
       rideId: map['ride_id'],
       userId: map['user_id'],
+      name: map['name'],
       role: map['role'],
       arrivalStatus: map['arrival_status'] != null
           ? ArrivalStatus.values
@@ -77,6 +83,7 @@ class RideParticipant {
         other.id == id &&
         other.rideId == rideId &&
         other.userId == userId &&
+        other.name == name &&
         other.role == role &&
         other.arrivalStatus == arrivalStatus &&
         other.createdAt == createdAt &&
