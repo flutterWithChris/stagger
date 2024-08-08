@@ -147,7 +147,54 @@ class _RidePrivacySheetState extends State<RidePrivacySheet> {
                                         borderRadius:
                                             BorderRadius.circular(16.0),
                                       ),
-                                      title: const Text('Invite Only'),
+                                      title: Row(
+                                        children: [
+                                          const Text('Invite Only'),
+                                          const Gutter(),
+                                          SizedBox(
+                                            height: 30,
+                                            child: FittedBox(
+                                              child: Chip(
+                                                  label: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      const Icon(
+                                                        Icons.star_rounded,
+                                                        size: 16.0,
+                                                      ),
+                                                      const GutterSmall(),
+                                                      Text(
+                                                        'Pro',
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .bodyMedium
+                                                            ?.copyWith(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 4.0),
+                                                  visualDensity:
+                                                      VisualDensity.compact,
+                                                  side: BorderSide.none,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            50.0),
+                                                  ),
+                                                  backgroundColor:
+                                                      Theme.of(context)
+                                                          .colorScheme
+                                                          .tertiaryContainer),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                       subtitle: const Text(
                                           'Only riders you invite can see & join your ride.'),
                                       leading: CircleAvatar(

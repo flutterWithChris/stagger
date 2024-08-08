@@ -75,6 +75,7 @@ dependencies:
   compassx: ^1.0.1
   easy_debounce: ^2.0.3
   smooth_sheets: ^0.9.1
+  avatar_glow: ^3.0.1
 
 dev_dependencies:
   flutter_test:

@@ -64,3 +64,21 @@ SnackBar getErrorSnackbar(String message) {
     backgroundColor: Colors.red,
   );
 }
+
+// Extension to convert enum to Title Case & Spaces at Capital Letters
+extension EnumToString on String {
+  String enumToString() {
+    return replaceAllMapped(RegExp(r'[A-Z]'), (match) => ' ${match.group(0)}')
+        .trim()
+        .toTitleCase();
+  }
+}
+
+// Title Case Extension
+extension TitleCase on String {
+  String toTitleCase() {
+    return split(' ')
+        .map((word) => word[0].toUpperCase() + word.substring(1))
+        .join(' ');
+  }
+}
