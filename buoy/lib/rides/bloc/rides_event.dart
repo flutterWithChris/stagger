@@ -4,16 +4,17 @@ sealed class RidesEvent extends Equatable {
   const RidesEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 class LoadRides extends RidesEvent {
-  final List<RideParticipant> rideParticipants;
+  final LatLngBounds? bounds;
+  final List<RideParticipant>? rideParticipants;
 
-  const LoadRides(this.rideParticipants);
+  const LoadRides({this.bounds, this.rideParticipants});
 
   @override
-  List<Object> get props => [rideParticipants];
+  List<Object?> get props => [bounds, rideParticipants];
 }
 
 class FetchRiders extends RidesEvent {

@@ -11,3 +11,5 @@ class UpdateGeoLocation extends GeolocationEvent {
     required this.location,
   });
 }
+
+class StopGeoLocation extends GeolocationEvent {}

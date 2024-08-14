@@ -88,6 +88,10 @@ class _MainMapState extends State<MainMap> {
                     onMapReady: () {
                       context.read<RidersBloc>().add(LoadRiders(widget
                           .mapController!.mapController.camera.visibleBounds));
+                      context.read<RidesBloc>().add(LoadRides(
+                            bounds: widget.mapController!.mapController.camera
+                                .visibleBounds,
+                          ));
                     },
                     onMapEvent: (p0) {
                       if (p0 is MapEventMove &&
@@ -209,7 +213,7 @@ class _MainMapState extends State<MainMap> {
                                                 //   context: context,
                                                 //   // isScrollControlled: true,
                                                 //   builder: (context) {
-                                                //     return const SelectDestinationSheet();
+                                                //     return const SelectMeetingPointSheet();
                                                 //   },
                                                 // );
                                               }
@@ -570,7 +574,13 @@ class _MainMapState extends State<MainMap> {
                                                             child: InkWell(
                                                               onTap: () async {
                                                                 print(
-                                                                    'Tapped ride');
+                                                                    'Tapped ride Marker');
+
+                                                                context
+                                                                    .read<
+                                                                        RideBloc>()
+                                                                    .add(LoadRideParticipants(
+                                                                        ride));
 
                                                                 showBottomSheet(
                                                                   // barrierColor:
@@ -587,14 +597,46 @@ class _MainMapState extends State<MainMap> {
                                                                           .id!,
                                                                     );
                                                                   },
+                                                                ).closed.then(
+                                                                  (value) {
+                                                                    widget
+                                                                        .mapController
+                                                                        ?.animateTo(
+                                                                      dest: LatLng(
+                                                                          ride.meetingPoint![
+                                                                              0],
+                                                                          ride.meetingPoint![
+                                                                              1]),
+                                                                      // zoom: 12,
+                                                                      curve: Curves
+                                                                          .easeOutSine,
+                                                                      rotation:
+                                                                          null,
+                                                                      offset:
+                                                                          const Offset(
+                                                                              0,
+                                                                              0),
+                                                                    );
+                                                                  },
                                                                 );
-
                                                                 await widget
                                                                     .mapController
                                                                     ?.animateTo(
-                                                                        dest: LatLng(
-                                                                            ride.meetingPoint![0],
-                                                                            ride.meetingPoint![1]));
+                                                                  dest: LatLng(
+                                                                      ride.meetingPoint![
+                                                                          0],
+                                                                      ride.meetingPoint![
+                                                                          1]),
+                                                                  // zoom: 12,
+                                                                  curve: Curves
+                                                                      .easeOutSine,
+                                                                  rotation:
+                                                                      null,
+                                                                  offset:
+                                                                      const Offset(
+                                                                          0,
+                                                                          -220.0),
+                                                                );
                                                               },
                                                               child: Stack(
                                                                 alignment:
@@ -872,8 +914,8 @@ class _MainMapState extends State<MainMap> {
   }
 }
 
-class SelectDestinationSheet extends StatelessWidget {
-  const SelectDestinationSheet({
+class SelectMeetingPointSheet extends StatelessWidget {
+  const SelectMeetingPointSheet({
     super.key,
   });
 
@@ -1073,7 +1115,8 @@ class RideDetailsCard extends StatelessWidget {
     return Card(
       child: InkWell(
         onTap: () async {
-          context.read<RideBloc>().add(SelectRide(ride));
+          context.read<RideBloc>().add(LoadRideParticipants(ride));
+          // context.read<RideBloc>().add(SelectRide(ride));
           if (ride.meetingPoint != null) {
             print('Animating to ride meeting point...');
 
@@ -1398,14 +1441,14 @@ class ConfirmRideRequestSheet extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8.0),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('Send a ride request to this rider?',
-                                style: Theme.of(context).textTheme.bodyMedium),
-                          ],
-                        ),
+                        // const SizedBox(height: 8.0),
+                        // Row(
+                        //   mainAxisAlignment: MainAxisAlignment.center,
+                        //   children: [
+                        //     Text('Send a ride request to this rider?',
+                        //         style: Theme.of(context).textTheme.bodyMedium),
+                        //   ],
+                        // ),
                         const SizedBox(height: 16.0),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -1432,7 +1475,10 @@ class ConfirmRideRequestSheet extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(24.0),
                                     ),
                                     title: Text(
-                                        'Meet at: ${context.read<RideBloc>().state.ride!.meetingPointAddress}'),
+                                      'Meet at: ${context.read<RideBloc>().state.ride!.meetingPointAddress}',
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                     leading:
                                         const Icon(Icons.location_on_rounded),
                                     onTap: () {
@@ -1456,7 +1502,7 @@ class ConfirmRideRequestSheet extends StatelessWidget {
                             context.read<RideBloc>().state.ride!));
                       },
                       icon: const Icon(Icons.check_rounded),
-                      label: const Text('Send Ride Request'),
+                      label: const Text('Create Ride'),
                     ),
                   ),
                 ],

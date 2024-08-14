@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:buoy/locate/repository/mapbox_search_repository.dart';
 import 'package:buoy/rides/bloc/rides_bloc.dart';
@@ -17,6 +19,7 @@ class RideBloc extends Bloc<RideEvent, RideState> {
   final MapboxSearchRepository _mapboxSearchRepository;
   final RideRepository _rideRepository;
   final RidesBloc _ridesBloc;
+  StreamSubscription? rideParticipantsSubscription;
   RideBloc({
     required MapboxSearchRepository mapboxSearchRepository,
     required RideRepository rideRepository,
@@ -33,7 +36,8 @@ class RideBloc extends Bloc<RideEvent, RideState> {
     });
     on<UpdateRideDraft>((event, emit) async {
       Ride ride = event.ride;
-      if (event.ride.meetingPoint != null) {
+      if (event.ride.meetingPoint != null &&
+          event.ride.meetingPointName == null) {
         var placeResult = await _mapboxSearchRepository.reverseGeocode(
           event.ride.meetingPoint![0],
           event.ride.meetingPoint![1],
@@ -49,6 +53,7 @@ class RideBloc extends Bloc<RideEvent, RideState> {
           );
         }
       }
+      print('Updating ride draft: $ride');
       emit(CreatingRide(ride));
     });
     on<SendRideRequest>((event, emit) async {
@@ -114,5 +119,31 @@ class RideBloc extends Bloc<RideEvent, RideState> {
       print('Selected ride: ${event.ride}');
       emit(RideLoaded(event.ride));
     });
+    on<LoadRideParticipants>((event, emit) async {
+      try {
+        emit(RideLoading());
+        print('Loading ride participants: ${event.ride}');
+        await emit
+            .forEach(_rideRepository.getRideParticipantsStream(event.ride.id!),
+                onData: (rideParticipants) {
+          if (rideParticipants.isEmpty) {
+            print('No ride participants found.');
+            return RideLoaded(event.ride);
+          }
+          print('Ride participants: $rideParticipants');
+          return RideLoaded(
+              event.ride.copyWith(rideParticipants: rideParticipants));
+        });
+      } catch (e) {
+        print('Error loading ride: $e');
+        emit(RideError(e.toString()));
+      }
+    });
+  }
+  @override
+  Future<void> close() {
+    // TODO: implement close
+    rideParticipantsSubscription?.cancel();
+    return super.close();
   }
 }

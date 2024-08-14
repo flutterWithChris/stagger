@@ -15,29 +15,33 @@ class RideRepository {
     print('Creating ride: $ride');
     try {
       // Insert the ride into the rides table
-      final rideResponse = await ridesTable.insert(ride.toJson()).select();
-
+      final rideResponse = await ridesTable.insert(ride.toSupabase()).select();
+      print('Ride Response: $rideResponse');
       // Check if the ride was successfully inserted
       if (rideResponse.first.isNotEmpty) {
         final insertedRide = rideResponse.first;
         final rideId = insertedRide['id'];
 
         // Insert the sender participants into the ride_participants table
-        for (String senderId in ride.senderIds!) {
-          await rideParticipantsTable.insert({
-            'ride_id': rideId,
-            'user_id': senderId,
-            'role': 'sender',
-          });
+        if (ride.senderIds != null) {
+          for (String senderId in ride.senderIds!) {
+            await rideParticipantsTable.insert({
+              'ride_id': rideId,
+              'user_id': senderId,
+              'role': 'sender',
+            });
+          }
         }
 
         // Insert the receiver participants into the ride_participants table
-        for (String receiverId in ride.receiverIds!) {
-          await rideParticipantsTable.insert({
-            'ride_id': rideId,
-            'user_id': receiverId,
-            'role': 'receiver',
-          });
+        if (ride.receiverIds != null) {
+          for (String receiverId in ride.receiverIds!) {
+            await rideParticipantsTable.insert({
+              'ride_id': rideId,
+              'user_id': receiverId,
+              'role': 'receiver',
+            });
+          }
         }
       } else {
         // Handle the error when the ride insert fails
@@ -139,12 +143,25 @@ class RideRepository {
   }
 
   // Stream of rides where the user is a participant as a receiver
-  sb.SupabaseStreamBuilder getMyParticipantsStream(String userId) {
+  Stream<List<RideParticipant>> getMyParticipantsStream(String userId) {
     print('Getting received rides for user: $userId');
 
-    // Stream of participants where user is involved (either sender or receiver)
     return rideParticipantsTable
-        .stream(primaryKey: ['id']).eq('user_id', userId);
+        .stream(primaryKey: ['id'])
+        .eq('user_id', userId)
+        .handleError((error) {
+          print('Error fetching participants: $error');
+          return []; // Return an empty list in case of error
+        })
+        .map((data) => data.isNotEmpty
+            ? data.map((data) => RideParticipant.fromMap(data)).toList()
+            : []); // Return empty list if no data
+  }
+
+  // Stream rides within bounds
+  Stream<List<Ride>> getRidesStream() {
+    return ridesTable.stream(primaryKey: ['id']).map(
+        (data) => data.map((e) => Ride.fromJson(e)).toList());
   }
 
   Stream<List<RideParticipant>> getRideParticipantsStream(String rideId) {
@@ -154,8 +171,14 @@ class RideRepository {
         .from('ride_participants')
         .stream(primaryKey: ['id'])
         .eq('ride_id', rideId)
-        .map((data) =>
-            data.map((item) => RideParticipant.fromMap(item)).toList());
+        .map((data) {
+          if (data.isNotEmpty) {
+            return data.map((item) => RideParticipant.fromMap(item)).toList();
+          } else {
+            print('No ride participants found.');
+            return <RideParticipant>[];
+          }
+        });
   }
 
   // Stream of all participants in a ride

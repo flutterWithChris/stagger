@@ -78,6 +78,7 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
 
       _backgroundLocationRepository
           .onLocationChange((bg.Location updatedLocation) async {
+        print('Location Updated: $updatedLocation');
         add(UpdateGeoLocation(location: updatedLocation));
         return;
         if (state is GeolocationUpdating) {
@@ -118,6 +119,7 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
           emit(const GeolocationError(message: 'Failed to fetch location.'));
           return bgLocation;
         }
+        print('Initial Location: $updatedLocation');
         emit(GeolocationLoaded(
             bgLocation: bgLocation, location: updatedLocation));
 

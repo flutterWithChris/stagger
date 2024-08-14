@@ -37,7 +37,7 @@ class Ride {
     this.senderIds,
     this.receiverIds,
     this.status,
-    this.privacy,
+    this.privacy = RidePrivacy.public,
     this.meetingPoint,
     this.meetingPointName,
     this.meetingPointAddress,
@@ -89,6 +89,19 @@ class Ride {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'status': status?.name.toString() ?? RideStatus.pending.name.toString(),
+      'privacy': privacy?.name.toString() ?? RidePrivacy.public.name.toString(),
+      'meeting_point': meetingPoint,
+      'meeting_point_name': meetingPointName,
+      'meeting_point_address': meetingPointAddress,
+      'destination': destination,
+      'destination_name': destinationName,
+      'destination_address': destinationAddress,
+    };
+  }
+
+  Map<String, dynamic> toSupabase() {
+    return {
       'status': status?.name.toString() ?? RideStatus.pending.name.toString(),
       'privacy': privacy?.name.toString() ?? RidePrivacy.public.name.toString(),
       'meeting_point': meetingPoint,

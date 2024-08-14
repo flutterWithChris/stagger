@@ -21,6 +21,7 @@ class _RidePrivacySheetState extends State<RidePrivacySheet> {
   Widget build(BuildContext context) {
     return BlocBuilder<RideBloc, RideState>(
       builder: (context, state) {
+        selectedPrivacy = state.ride!.privacy!;
         return DraggableScrollableSheet(
           expand: false,
           maxChildSize: 0.58,
@@ -105,11 +106,11 @@ class _RidePrivacySheetState extends State<RidePrivacySheet> {
                                                 PhosphorIcons.usersThree())),
                                         onTap: () {
                                           // Show search bar
-                                          setState(() {
-                                            selectedPrivacy =
-                                                RidePrivacy.public;
-                                            print('Tapped Public');
-                                          });
+                                          context.read<RideBloc>().add(
+                                              UpdateRideDraft(state.ride!
+                                                  .copyWith(
+                                                      privacy:
+                                                          RidePrivacy.public)));
                                         },
                                       ),
                                     ),
@@ -131,7 +132,9 @@ class _RidePrivacySheetState extends State<RidePrivacySheet> {
                                   elevation: 1.618,
                                   borderRadius: BorderRadius.circular(16.0),
                                   child: InkWell(
-                                    onTap: () {},
+                                    onTap: () {
+                                      print('Tapped Invite Only');
+                                    },
                                     child: ListTile(
                                       style: ListTileStyle.list,
                                       shape: RoundedRectangleBorder(
@@ -206,9 +209,11 @@ class _RidePrivacySheetState extends State<RidePrivacySheet> {
                                                 PhosphorIconsStyle.duotone)),
                                       ),
                                       onTap: () {
-                                        setState(() {
-                                          selectedPrivacy = RidePrivacy.private;
-                                        });
+                                        context.read<RideBloc>().add(
+                                            UpdateRideDraft(state.ride!
+                                                .copyWith(
+                                                    privacy:
+                                                        RidePrivacy.private)));
                                       },
                                     ),
                                   ),
@@ -229,7 +234,7 @@ class _RidePrivacySheetState extends State<RidePrivacySheet> {
                         showBottomSheet(
                             context: context,
                             builder: (context) =>
-                                const ConfirmRideRequestSheet());
+                                const SelectMeetingPointSheet());
                       },
                       icon: const Icon(Icons.check_rounded),
                       label: const Text('Set Privacy'),

@@ -9,6 +9,9 @@ class BackgroundLocationRepository {
       stopOnTerminate: true,
       debug: false,
       logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+      distanceFilter: 100.0,
+      disableElasticity: true,
+      stopTimeout: 3,
     )).then((state) {
       if (!state.enabled) {
         bg.BackgroundGeolocation.start();

@@ -27,7 +27,7 @@ class RideDetailsSheet extends StatelessWidget {
     return DraggableScrollableSheet(
         initialChildSize: 0.618,
         expand: false,
-        builder: (context, controller) => BlocConsumer<RidesBloc, RidesState>(
+        builder: (context, controller) => BlocConsumer<RideBloc, RideState>(
               listener: (context, state) {
                 if (state is RideCompleted) {
                   scaffoldMessengerKey.currentState!.showSnackBar(
@@ -39,20 +39,17 @@ class RideDetailsSheet extends StatelessWidget {
                 }
               },
               builder: (context, state) {
-                if (state is RidesLoading) {
+                if (state is RideLoading) {
                   return const Center(
                     child: CircularProgressIndicator(),
                   );
                 }
-                if (state is RidesError) {
+                if (state is RideError) {
                   return const Center(
                     child: Text('Error'),
                   );
-                } else if (state is RidesLoaded) {
-                  Ride ride = state.myRides
-                          .firstWhereOrNull((ride) => ride.id == rideId) ??
-                      state.receivedRides
-                          .firstWhere((ride) => ride.id == rideId);
+                } else if (state is RideLoaded) {
+                  Ride ride = state.ride;
 
                   print('All Participants: ${ride.rideParticipants}');
                   RideParticipant rider = ride.rideParticipants!.firstWhere(
