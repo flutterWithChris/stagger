@@ -1,5 +1,6 @@
 import 'package:buoy/core/system/bottom_nav_bar.dart';
 import 'package:buoy/core/system/main_sliver_app_bar.dart';
+import 'package:buoy/locate/bloc/geolocation_bloc.dart';
 import 'package:buoy/locate/view/map/main_map.dart';
 import 'package:buoy/profile/repository/bloc/profile_bloc.dart';
 import 'package:buoy/rides/bloc/ride_bloc.dart';
@@ -130,7 +131,21 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                           // const SizedBox(width: 8.0),
                           // const Text('Location:'),
                           const SizedBox(width: 8.0),
-                          Switch(value: true, onChanged: (value) {}),
+                          Switch(
+                              value: context.watch<GeolocationBloc>().state
+                                      is GeolocationStopped ==
+                                  false,
+                              onChanged: (value) {
+                                if (value == false) {
+                                  context
+                                      .read<GeolocationBloc>()
+                                      .add(StopGeoLocation());
+                                } else {
+                                  context
+                                      .read<GeolocationBloc>()
+                                      .add(LoadGeolocation());
+                                }
+                              }),
                         ],
                       ),
                     ),

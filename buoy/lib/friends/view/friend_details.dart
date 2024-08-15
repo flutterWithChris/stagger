@@ -58,7 +58,7 @@ class FriendDetailsPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            friend.name!,
+                            friend.firstName!,
                             style: Theme.of(context).textTheme.headlineSmall,
                           ),
                           const GutterSmall(),

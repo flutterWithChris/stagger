@@ -26,6 +26,7 @@ class RideRepository {
         if (ride.senderIds != null) {
           for (String senderId in ride.senderIds!) {
             await rideParticipantsTable.insert({
+              'id': senderId,
               'ride_id': rideId,
               'user_id': senderId,
               'role': 'sender',
@@ -37,6 +38,7 @@ class RideRepository {
         if (ride.receiverIds != null) {
           for (String receiverId in ride.receiverIds!) {
             await rideParticipantsTable.insert({
+              'id': receiverId,
               'ride_id': rideId,
               'user_id': receiverId,
               'role': 'receiver',
@@ -171,9 +173,29 @@ class RideRepository {
         .from('ride_participants')
         .stream(primaryKey: ['id'])
         .eq('ride_id', rideId)
-        .map((data) {
-          if (data.isNotEmpty) {
-            return data.map((item) => RideParticipant.fromMap(item)).toList();
+        .asyncMap((participants) async {
+          if (participants.isNotEmpty) {
+            // Fetch user data for each participant
+            final futures = participants.map((participant) async {
+              final userId =
+                  participant['user_id']; // Assuming user_id is the field
+              final userData = await supabase
+                  .from('users')
+                  .select('first_name, photo_url')
+                  .eq('id', userId)
+                  .single();
+
+              if (userData.isNotEmpty) {
+                // Add user data to participant
+                participant['first_name'] = userData['first_name'];
+                participant['photo_url'] = userData['photo_url'];
+              }
+
+              return RideParticipant.fromMap(participant);
+            }).toList();
+            print('Ride Participants: $futures');
+            // Wait for all user data to be fetched
+            return await Future.wait(futures);
           } else {
             print('No ride participants found.');
             return <RideParticipant>[];

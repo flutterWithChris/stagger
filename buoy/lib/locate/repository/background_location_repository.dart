@@ -58,4 +58,9 @@ class BackgroundLocationRepository {
   void onEnabledChange(Function(bool) callback) {
     bg.BackgroundGeolocation.onEnabledChange(callback);
   }
+
+  // Stop background geolocation
+  Future<void> stopBackgroundGeolocation() async {
+    await bg.BackgroundGeolocation.stop();
+  }
 }

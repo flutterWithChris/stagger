@@ -1,10 +1,11 @@
 part of 'riders_bloc.dart';
 
 sealed class RidersState extends Equatable {
-  const RidersState();
+  final List<Rider>? riders;
+  const RidersState({this.riders});
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [riders];
 }
 
 final class RidersInitial extends RidersState {}
@@ -12,6 +13,7 @@ final class RidersInitial extends RidersState {}
 final class RidersLoading extends RidersState {}
 
 final class RidersLoaded extends RidersState {
+  @override
   final List<Rider> riders;
 
   const RidersLoaded(this.riders);

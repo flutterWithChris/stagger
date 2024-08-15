@@ -55,3 +55,5 @@ class GeolocationDenied extends GeolocationState {
     required this.message,
   });
 }
+
+class GeolocationStopped extends GeolocationState {}

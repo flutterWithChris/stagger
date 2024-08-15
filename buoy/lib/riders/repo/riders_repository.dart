@@ -1,5 +1,6 @@
 import 'package:buoy/locate/model/location.dart';
 import 'package:buoy/riders/model/rider.dart';
+import 'package:buoy/rides/model/ride.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
@@ -54,6 +55,18 @@ class RidersRepository {
           ),
         );
       }).toList();
+    } catch (error) {
+      print(error);
+      rethrow;
+    }
+  }
+
+  Future<List<Rider>> fetchRiders(List<String> riderIds) async {
+    try {
+      print('Fetching riders: $riderIds');
+      final response =
+          await ridersTable.select().inFilter('id', riderIds).select();
+      return response.map((rider) => Rider.fromMap(rider)).toList();
     } catch (error) {
       print(error);
       rethrow;

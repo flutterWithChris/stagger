@@ -5,8 +5,10 @@ class RideParticipant {
   final String? id;
   final String? rideId;
   final String? userId;
-  final String? name;
+  final String? firstName;
+  final String? lastName;
   final String? role;
+  final String? photoUrl;
   final ArrivalStatus? arrivalStatus;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -15,8 +17,10 @@ class RideParticipant {
     this.id,
     this.rideId,
     this.userId,
-    this.name,
+    this.firstName,
+    this.lastName,
     this.role,
+    this.photoUrl,
     this.arrivalStatus,
     this.createdAt,
     this.updatedAt,
@@ -26,8 +30,10 @@ class RideParticipant {
     String? id,
     String? rideId,
     String? userId,
-    String? name,
+    String? firstName,
+    String? lastName,
     String? role,
+    String? photoUrl,
     ArrivalStatus? arrivalStatus,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -36,8 +42,10 @@ class RideParticipant {
       id: id ?? this.id,
       rideId: rideId ?? this.rideId,
       userId: userId ?? this.userId,
-      name: name ?? this.name,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
       role: role ?? this.role,
+      photoUrl: photoUrl ?? this.photoUrl,
       arrivalStatus: arrivalStatus ?? this.arrivalStatus,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -49,8 +57,10 @@ class RideParticipant {
       'id': id,
       'ride_id': rideId,
       'user_id': userId,
-      'name': name,
+      'first_name': firstName,
+      'last_name': lastName,
       'role': role,
+      'photo_url': photoUrl,
       'arrival_status': arrivalStatus?.name,
     };
   }
@@ -60,8 +70,10 @@ class RideParticipant {
       id: map['id'],
       rideId: map['ride_id'],
       userId: map['user_id'],
-      name: map['name'],
+      firstName: map['first_name'],
+      lastName: map['last_name'],
       role: map['role'],
+      photoUrl: map['photo_url'],
       arrivalStatus: map['arrival_status'] != null
           ? ArrivalStatus.values
               .firstWhereOrNull((e) => e.name == map['arrival_status'])
@@ -81,10 +93,30 @@ class RideParticipant {
         other.id == id &&
         other.rideId == rideId &&
         other.userId == userId &&
-        other.name == name &&
+        other.firstName == firstName &&
+        other.lastName == lastName &&
         other.role == role &&
         other.arrivalStatus == arrivalStatus &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode ^
+        rideId.hashCode ^
+        userId.hashCode ^
+        firstName.hashCode ^
+        lastName.hashCode ^
+        role.hashCode ^
+        arrivalStatus.hashCode ^
+        createdAt.hashCode ^
+        updatedAt.hashCode;
+  }
+
+  // toString() method
+  @override
+  String toString() {
+    return 'RideParticipant(id: $id, rideId: $rideId, userId: $userId, firstName: $firstName, lastName: $lastName, role: $role, photoUrl: $photoUrl, arrivalStatus: $arrivalStatus, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 }

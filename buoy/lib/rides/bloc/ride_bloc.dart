@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:buoy/locate/repository/mapbox_search_repository.dart';
+import 'package:buoy/riders/bloc/riders_bloc.dart';
 import 'package:buoy/rides/bloc/rides_bloc.dart';
 import 'package:buoy/rides/model/ride.dart';
 import 'package:buoy/rides/model/ride_participant.dart';
@@ -19,14 +20,17 @@ class RideBloc extends Bloc<RideEvent, RideState> {
   final MapboxSearchRepository _mapboxSearchRepository;
   final RideRepository _rideRepository;
   final RidesBloc _ridesBloc;
+  final RidersBloc _ridersBloc;
   StreamSubscription? rideParticipantsSubscription;
   RideBloc({
     required MapboxSearchRepository mapboxSearchRepository,
     required RideRepository rideRepository,
     required RidesBloc ridesBloc,
+    required RidersBloc ridersBloc,
   })  : _mapboxSearchRepository = mapboxSearchRepository,
         _rideRepository = rideRepository,
         _ridesBloc = ridesBloc,
+        _ridersBloc = ridersBloc,
         super(RideInitial()) {
     on<CreateRide>((event, emit) {
       emit(RideLoading());
@@ -130,7 +134,10 @@ class RideBloc extends Bloc<RideEvent, RideState> {
             print('No ride participants found.');
             return RideLoaded(event.ride);
           }
-          print('Ride participants: $rideParticipants');
+          print(
+              'Ride participants: ${rideParticipants.map((e) => e.toString())}');
+          List<String> riderIds = rideParticipants.map((e) => e.id!).toList();
+          _ridersBloc.add(LoadRiders(riderIds: riderIds));
           return RideLoaded(
               event.ride.copyWith(rideParticipants: rideParticipants));
         });

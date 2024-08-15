@@ -3,15 +3,16 @@ import 'dart:convert';
 class User {
   final String? id;
   final String? email;
-  final String? name;
+  final String? firstName;
+  final String? lastName;
   final String? photoUrl;
-  final List<String>? friendIds;
+
   User({
     this.id,
     this.email,
-    this.name,
+    this.firstName,
+    this.lastName,
     this.photoUrl,
-    this.friendIds,
   });
 
   // Create empty user
@@ -19,25 +20,24 @@ class User {
     return User(
       id: '',
       email: '',
-      name: '',
+      firstName: '',
       photoUrl: '',
-      friendIds: [],
     );
   }
 
   User copyWith({
     String? id,
     String? email,
-    String? name,
+    String? firstName,
+    String? lastName,
     String? photoUrl,
-    List<String>? friendIds,
   }) {
     return User(
       id: id ?? this.id,
       email: email ?? this.email,
-      name: name ?? this.name,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
       photoUrl: photoUrl ?? this.photoUrl,
-      friendIds: friendIds ?? this.friendIds,
     );
   }
 
@@ -45,9 +45,9 @@ class User {
     return {
       'id': id,
       'email': email,
-      'name': name,
+      'first_name': firstName,
+      'last_name': lastName,
       'photo_url': photoUrl,
-      'friend_ids': friendIds,
     };
   }
 
@@ -55,9 +55,9 @@ class User {
     return User(
       id: map['id'] ?? '',
       email: map['email'] ?? '',
-      name: map['name'] ?? '',
+      firstName: map['first_name'] ?? '',
+      lastName: map['last_name'] ?? '',
       photoUrl: map['photo_url'] ?? '',
-      friendIds: List<String>.from(map['friend_ids'] ?? []),
     );
   }
 

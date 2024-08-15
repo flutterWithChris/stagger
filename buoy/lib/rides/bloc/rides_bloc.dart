@@ -219,7 +219,6 @@ class RidesBloc extends Bloc<RidesEvent, RidesState> {
       emit(RidesLoading());
 
       // Fetch participants for all rides
-
       List<Ride> myRides = event.myRides;
       List<Ride> receivedRides = event.receivedRides;
       List<Ride> myRidesWithParticipants = [];
@@ -234,7 +233,8 @@ class RidesBloc extends Bloc<RidesEvent, RidesState> {
         }
         myRidesWithParticipants
             .add(ride.copyWith(rideParticipants: participants));
-      } // Fetch participants for received rides
+      }
+      // Fetch participants for received rides
       for (Ride ride in receivedRides) {
         List<RideParticipant>? participants =
             await _rideRepository.getRideParticipants(ride.id!);

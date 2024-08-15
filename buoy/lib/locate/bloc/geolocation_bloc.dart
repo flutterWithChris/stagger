@@ -53,6 +53,7 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
         super(GeolocationInitial()) {
     on<LoadGeolocation>(_onLoadGeolocation);
     on<UpdateGeoLocation>(_onUpdateGeoLocation);
+    on<StopGeoLocation>(_onStopGeoLocation);
   }
 
   void _onLoadGeolocation(
@@ -274,6 +275,20 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
         print('[location updated] - $location');
         add(UpdateGeoLocation(location: location));
       });
+    } catch (e) {
+      emit(GeolocationError(message: e.toString()));
+      return;
+    }
+  }
+
+  void _onStopGeoLocation(
+    StopGeoLocation event,
+    Emitter<GeolocationState> emit,
+  ) async {
+    try {
+      emit(GeolocationLoading());
+      await _backgroundLocationRepository.stopBackgroundGeolocation();
+      emit(GeolocationStopped());
     } catch (e) {
       emit(GeolocationError(message: e.toString()));
       return;

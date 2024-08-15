@@ -138,17 +138,18 @@ class MyApp extends StatelessWidget {
             ),
           ),
           BlocProvider(
+            create: (context) => RidersBloc(
+              ridersRepository: context.read<RidersRepository>(),
+            ),
+          ),
+          BlocProvider(
             create: (context) => RideBloc(
               mapboxSearchRepository: context.read<MapboxSearchRepository>(),
               rideRepository: context.read<RideRepository>(),
               ridesBloc: context.read<RidesBloc>(),
+              ridersBloc: context.read<RidersBloc>(),
             ),
           ),
-          BlocProvider(
-            create: (context) => RidersBloc(
-              ridersRepository: context.read<RidersRepository>(),
-            ),
-          )
         ],
         child: BlocBuilder<ThemeCubit, ThemeState>(
           builder: (context, state) {

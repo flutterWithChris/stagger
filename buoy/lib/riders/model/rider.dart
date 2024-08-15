@@ -22,6 +22,8 @@ enum LocationStatus { sharing, notSharing, notAvailable }
 
 class Rider extends User {
   final BikeType? bikeType;
+  final String? bike;
+
   final RidingStyle? ridingStyle;
   final List<RideType>? rideTypes;
   final Location? currentLocation;
@@ -29,9 +31,11 @@ class Rider extends User {
 
   Rider({
     super.id,
-    super.name,
+    super.firstName,
+    super.lastName,
     super.email,
     this.bikeType,
+    this.bike,
     this.ridingStyle,
     this.rideTypes,
     this.currentLocation,
@@ -43,9 +47,11 @@ class Rider extends User {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'name': name,
+      'first_name': firstName,
+      'last_name': lastName,
       'email': email,
       'bike_type': bikeType?.toString().split('.').last,
+      'bike': bike,
       'riding_style': ridingStyle?.toString().split('.').last,
       'ride_types':
           rideTypes?.map((e) => e.toString().split('.').last).toList(),
@@ -57,10 +63,12 @@ class Rider extends User {
   factory Rider.fromMap(Map<String, dynamic> map) {
     return Rider(
       id: map['id'] ?? '',
-      name: map['name'] ?? '',
+      firstName: map['first_name'] ?? '',
+      lastName: map['last_name'] ?? '',
       email: map['email'] ?? '',
       bikeType: BikeType.values.firstWhereOrNull(
           (e) => e.toString().split('.').last == map['bike_type']),
+      bike: map['bike'],
       ridingStyle: RidingStyle.values.firstWhereOrNull(
           (e) => e.toString().split('.').last == map['riding_style']),
       rideTypes: List<RideType>.from(map['ride_types']?.map((e) => RideType
@@ -76,11 +84,13 @@ class Rider extends User {
   @override
   Rider copyWith({
     String? id,
-    String? name,
+    String? firstName,
+    String? lastName,
     String? email,
     List<String>? friendIds,
     String? photoUrl,
     BikeType? bikeType,
+    String? bike,
     RidingStyle? ridingStyle,
     List<RideType>? rideTypes,
     Location? currentLocation,
@@ -88,13 +98,21 @@ class Rider extends User {
   }) {
     return Rider(
       id: id ?? this.id,
-      name: name ?? this.name,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
       email: email ?? this.email,
       bikeType: bikeType ?? this.bikeType,
+      bike: bike ?? this.bike,
       ridingStyle: ridingStyle ?? this.ridingStyle,
       rideTypes: rideTypes ?? this.rideTypes,
       currentLocation: currentLocation ?? this.currentLocation,
       locationStatus: locationStatus ?? this.locationStatus,
     );
+  }
+
+  // toString override
+  @override
+  toString() {
+    return 'Rider{id: $id, firstName: $firstName, lastName: $lastName, email: $email, bikeType: $bikeType, bike: $bike, ridingStyle: $ridingStyle, rideTypes: $rideTypes, currentLocation: $currentLocation, locationStatus: $locationStatus}';
   }
 }

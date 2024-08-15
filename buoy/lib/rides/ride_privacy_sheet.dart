@@ -1,6 +1,7 @@
 import 'package:buoy/locate/view/map/main_map.dart';
 import 'package:buoy/rides/bloc/ride_bloc.dart';
 import 'package:buoy/rides/model/ride.dart';
+import 'package:buoy/rides/view/sheets/select_meeting_point_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gutter/flutter_gutter.dart';

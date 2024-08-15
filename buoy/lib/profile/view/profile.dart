@@ -34,7 +34,7 @@ class Profile extends StatelessWidget {
                           ListTile(
                             leading: const CircleAvatar(
                                 child: Icon(Icons.person_pin_circle_rounded)),
-                            title: Text(state.user.name!),
+                            title: Text(state.user.firstName!),
                             subtitle: Text(state.user.email!),
                           ),
                           const Gutter(),
@@ -113,7 +113,7 @@ class Profile extends StatelessWidget {
                                                     children: [
                                                       Text(
                                                         state.friends[index]
-                                                            .name!,
+                                                            .firstName!,
                                                         style: Theme.of(context)
                                                             .textTheme
                                                             .titleMedium,

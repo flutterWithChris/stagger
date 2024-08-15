@@ -79,7 +79,7 @@ class FriendDetailsSheet extends StatelessWidget {
                                       Flexible(
                                         flex: 2,
                                         child: Text(
-                                          friend.name ?? 'Unknown',
+                                          friend.firstName ?? 'Unknown',
                                           maxLines: 2,
                                           style: Theme.of(context)
                                               .textTheme

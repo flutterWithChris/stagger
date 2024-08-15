@@ -3,7 +3,9 @@ import 'package:buoy/friends/bloc/friends_bloc.dart';
 import 'package:buoy/friends/view/friend_details_sheet.dart';
 import 'package:buoy/locate/bloc/geolocation_bloc.dart';
 import 'package:buoy/locate/model/location.dart';
+import 'package:buoy/locate/view/sheets/public_ride_details_sheet.dart';
 import 'package:buoy/locate/view/sheets/ride_details_sheet.dart';
+import 'package:buoy/locate/view/widgets/ride_details_card.dart';
 import 'package:buoy/profile/repository/bloc/profile_bloc.dart';
 import 'package:buoy/riders/bloc/riders_bloc.dart';
 import 'package:buoy/riders/model/rider.dart';
@@ -11,28 +13,18 @@ import 'package:buoy/riders/view/sheets/rider_details_sheet.dart';
 import 'package:buoy/rides/bloc/ride_bloc.dart';
 import 'package:buoy/rides/bloc/rides_bloc.dart';
 import 'package:buoy/rides/model/ride.dart';
-import 'package:buoy/rides/model/ride_participant.dart';
 import 'package:buoy/rides/ride_privacy_sheet.dart';
-import 'package:buoy/shared/constants.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:collection/collection.dart';
+import 'package:buoy/rides/view/widgets/ride_request_card.dart';
 import 'package:easy_debounce/easy_debounce.dart';
-import 'package:easy_debounce/easy_throttle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
-import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:smooth_sheets/smooth_sheets.dart';
-import 'package:supabase_auth_ui/supabase_auth_ui.dart';
-
-import '../../../activity/bloc/activity_bloc.dart';
-import 'dart:math' as math;
 
 class MainMap extends StatefulWidget {
   const MainMap({
@@ -55,6 +47,7 @@ class _MainMapState extends State<MainMap> {
         if (state is GeolocationLoaded || state is GeolocationUpdating) {}
       },
       builder: (context, state) {
+        print('Geolocation State: $state');
         if (state is GeolocationLoading) {
           return const Center(child: CircularProgressIndicator());
         }
@@ -86,8 +79,9 @@ class _MainMapState extends State<MainMap> {
                     //     InteractiveFlag.doubleTapZoom |
                     //     InteractiveFlag.flingAnimation,
                     onMapReady: () {
-                      context.read<RidersBloc>().add(LoadRiders(widget
-                          .mapController!.mapController.camera.visibleBounds));
+                      context.read<RidersBloc>().add(LoadRidersWithinBounds(
+                          widget.mapController!.mapController.camera
+                              .visibleBounds));
                       context.read<RidesBloc>().add(LoadRides(
                             bounds: widget.mapController!.mapController.camera
                                 .visibleBounds,
@@ -100,11 +94,9 @@ class _MainMapState extends State<MainMap> {
                             'rider-fetch-debounce', const Duration(seconds: 1),
                             () {
                           print('Fetching riders... ${DateTime.now()}');
-                          context.read<RidersBloc>().add(LoadRiders(widget
-                              .mapController!
-                              .mapController
-                              .camera
-                              .visibleBounds));
+                          context.read<RidersBloc>().add(LoadRidersWithinBounds(
+                              widget.mapController!.mapController.camera
+                                  .visibleBounds));
                         });
                       }
                       // context.read<RidersBloc>().add(LoadRiders(
@@ -140,6 +132,7 @@ class _MainMapState extends State<MainMap> {
                     ),
                     BlocBuilder<FriendsBloc, FriendsState>(
                       builder: (context, friendsState) {
+                        print('Friends State: $friendsState');
                         if (friendsState is FriendsLoading) {
                           return const MarkerLayer(
                             markers: [],
@@ -155,7 +148,8 @@ class _MainMapState extends State<MainMap> {
                                 );
                               }
                               if (profileState is ProfileLoaded) {
-                                print('Profile: ${profileState.user.name}');
+                                print(
+                                    'Profile: ${profileState.user.firstName}');
                                 return BlocBuilder<FriendsBloc, FriendsState>(
                                   builder: (context, friendsState) {
                                     if (friendsState is FriendsLoading) {
@@ -172,6 +166,8 @@ class _MainMapState extends State<MainMap> {
                                     if (friendsState is FriendsLoaded) {
                                       if (friendsState.friends.isEmpty ||
                                           friendsState.locations.isEmpty) {
+                                        print('Friends Empty...');
+
                                         return const MarkerLayer(
                                           markers: [],
                                         );
@@ -433,7 +429,7 @@ class _MainMapState extends State<MainMap> {
                                                                             .firstWhere((friend) =>
                                                                                 friend.id ==
                                                                                 location.userId)
-                                                                            .name!
+                                                                            .firstName!
                                                                             .toUpperCase())
                                                                         : null,
                                                                   ),
@@ -644,38 +640,6 @@ class _MainMapState extends State<MainMap> {
                                                                         .center,
                                                                 children: [
                                                                   CircleAvatar(
-                                                                    radius:
-                                                                        200.0,
-                                                                    backgroundColor: Theme.of(
-                                                                            context)
-                                                                        .colorScheme
-                                                                        .primaryContainer,
-                                                                  )
-                                                                      .animate(
-                                                                        onComplete:
-                                                                            (controller) =>
-                                                                                controller.repeat(),
-                                                                      )
-                                                                      .fade(
-                                                                          begin:
-                                                                              0.0,
-                                                                          end:
-                                                                              0.6,
-                                                                          duration: 800
-                                                                              .ms)
-                                                                      .scale(
-                                                                          begin: const Offset(
-                                                                              1.0,
-                                                                              1.0),
-                                                                          end: const Offset(
-                                                                              1.6,
-                                                                              1.6),
-                                                                          duration: 1.618
-                                                                              .seconds)
-                                                                      .fadeOut(
-                                                                          delay:
-                                                                              800.ms),
-                                                                  CircleAvatar(
                                                                     radius: 30,
                                                                     child:
                                                                         Padding(
@@ -688,12 +652,10 @@ class _MainMapState extends State<MainMap> {
                                                                             ride.status) {
                                                                           RideStatus.pending =>
                                                                             PhosphorIcons.mapPin(PhosphorIconsStyle.fill),
-                                                                          RideStatus.accepted =>
+                                                                          RideStatus.meetingUp =>
                                                                             PhosphorIcons.mapPinArea(PhosphorIconsStyle.fill),
                                                                           RideStatus.rejected =>
                                                                             PhosphorIcons.prohibit(PhosphorIconsStyle.fill),
-                                                                          RideStatus.rejectedWithResponse =>
-                                                                            PhosphorIcons.question(PhosphorIconsStyle.fill),
                                                                           RideStatus.canceled =>
                                                                             PhosphorIcons.prohibit(PhosphorIconsStyle.fill),
                                                                           RideStatus.completed =>
@@ -712,11 +674,153 @@ class _MainMapState extends State<MainMap> {
                                                               ),
                                                             ),
                                                           ),
+                                                        for (Ride ride in ridesState
+                                                                .receivedRides
+                                                                ?.where((ride) =>
+                                                                    ride.meetingPoint !=
+                                                                    null) ??
+                                                            [])
+                                                          Marker(
+                                                            height: 36.0,
+                                                            width: 36.0,
+                                                            point: LatLng(
+                                                                ride.meetingPoint![
+                                                                    0],
+                                                                ride.meetingPoint![
+                                                                    1]),
+                                                            child: InkWell(
+                                                              onTap: () async {
+                                                                print(
+                                                                    'Tapped ride Marker');
+
+                                                                context
+                                                                    .read<
+                                                                        RideBloc>()
+                                                                    .add(LoadRideParticipants(
+                                                                        ride));
+
+                                                                showBottomSheet(
+                                                                  // barrierColor:
+                                                                  //     Colors
+                                                                  //         .black26,
+                                                                  // isScrollControlled:
+                                                                  //     true,
+                                                                  context:
+                                                                      context,
+                                                                  builder:
+                                                                      (context) {
+                                                                    return PublicRideDetailsSheet(
+                                                                      rideId: ride
+                                                                          .id!,
+                                                                    );
+                                                                  },
+                                                                ).closed.then(
+                                                                  (value) {
+                                                                    widget
+                                                                        .mapController
+                                                                        ?.animateTo(
+                                                                      dest: LatLng(
+                                                                          ride.meetingPoint![
+                                                                              0],
+                                                                          ride.meetingPoint![
+                                                                              1]),
+                                                                      // zoom: 12,
+                                                                      curve: Curves
+                                                                          .easeOutSine,
+                                                                      rotation:
+                                                                          null,
+                                                                      offset:
+                                                                          const Offset(
+                                                                              0,
+                                                                              0),
+                                                                    );
+                                                                  },
+                                                                );
+                                                                await widget
+                                                                    .mapController
+                                                                    ?.animateTo(
+                                                                  dest: LatLng(
+                                                                      ride.meetingPoint![
+                                                                          0],
+                                                                      ride.meetingPoint![
+                                                                          1]),
+                                                                  // zoom: 12,
+                                                                  curve: Curves
+                                                                      .easeOutSine,
+                                                                  rotation:
+                                                                      null,
+                                                                  offset:
+                                                                      const Offset(
+                                                                          0,
+                                                                          -220.0),
+                                                                );
+                                                              },
+                                                              child: Stack(
+                                                                alignment:
+                                                                    Alignment
+                                                                        .center,
+                                                                children: [
+                                                                  Padding(
+                                                                    padding:
+                                                                        const EdgeInsets
+                                                                            .all(
+                                                                            2.0),
+                                                                    child: switch (
+                                                                        ride.status) {
+                                                                      RideStatus
+                                                                            .pending =>
+                                                                        Stack(
+                                                                          alignment:
+                                                                              Alignment.center,
+                                                                          children: [
+                                                                            AvatarGlow(
+                                                                              glowColor: Theme.of(context).colorScheme.primary,
+                                                                              curve: Curves.fastOutSlowIn,
+                                                                              glowRadiusFactor: 0.4,
+                                                                              child: CircleAvatar(
+                                                                                radius: 18,
+                                                                                child: PhosphorIcon(
+                                                                                  PhosphorIcons.star(
+                                                                                    PhosphorIconsStyle.fill,
+                                                                                  ),
+                                                                                  size: 16,
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      RideStatus
+                                                                            .meetingUp =>
+                                                                        PhosphorIcon(
+                                                                            PhosphorIcons.mapPinArea(PhosphorIconsStyle.fill)),
+                                                                      RideStatus
+                                                                            .rejected =>
+                                                                        PhosphorIcon(
+                                                                            PhosphorIcons.prohibit(PhosphorIconsStyle.fill)),
+                                                                      RideStatus
+                                                                            .canceled =>
+                                                                        PhosphorIcon(
+                                                                            PhosphorIcons.prohibit(PhosphorIconsStyle.fill)),
+                                                                      RideStatus
+                                                                            .completed =>
+                                                                        PhosphorIcon(
+                                                                            PhosphorIcons.flagCheckered(PhosphorIconsStyle.fill)),
+                                                                      RideStatus
+                                                                            .inProgress =>
+                                                                        PhosphorIcon(
+                                                                            PhosphorIcons.mapPinArea(PhosphorIconsStyle.fill)),
+                                                                      null =>
+                                                                        PhosphorIcon(
+                                                                            PhosphorIcons.mapPinArea(PhosphorIconsStyle.fill)),
+                                                                    },
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
 
                                                         /// User Location
                                                         Marker(
-                                                          // anchorPos:
-                                                          //     AnchorPos.align(AnchorAlign.top),
                                                           width: 32.0,
                                                           height: 32.0,
                                                           point: LatLng(
@@ -804,7 +908,7 @@ class _MainMapState extends State<MainMap> {
                           if (location.userId == friendsState.friends[1].id) {
                             print('Matching id: ${location.userId}');
                             print(
-                                '${friendsState.friends[1].name} photo: ${friendsState.friends[1].photoUrl}');
+                                '${friendsState.friends[1].firstName} photo: ${friendsState.friends[1].photoUrl}');
                           }
                         }
                         // print(
@@ -835,6 +939,7 @@ class _MainMapState extends State<MainMap> {
                               [
                                 BlocBuilder<RidesBloc, RidesState>(
                                   builder: (context, state) {
+                                    print('Rides State: $state');
                                     if (state is RidesLoading) {
                                       return const Center(
                                         child: CircularProgressIndicator(),
@@ -909,607 +1014,6 @@ class _MainMapState extends State<MainMap> {
         } else {
           return const Center(child: Text('Something Went Wrong...'));
         }
-      },
-    );
-  }
-}
-
-class SelectMeetingPointSheet extends StatelessWidget {
-  const SelectMeetingPointSheet({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<RideBloc, RideState>(
-      builder: (context, state) {
-        return DraggableScrollableSheet(
-          expand: false,
-          maxChildSize: 0.58,
-          initialChildSize: 0.33,
-          minChildSize: 0.13,
-          builder: (context, controller) {
-            return Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(24.0),
-                  topRight: Radius.circular(24.0),
-                ),
-              ),
-              child: Column(
-                children: [
-                  const SizedBox(
-                    height: 8.0,
-                  ),
-                  Container(
-                    height: 4.0,
-                    width: 48.0,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).dividerColor,
-                      borderRadius: BorderRadius.circular(2.0),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 8.0,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Select Meeting Point',
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8.0),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('Select a meeting point on the map',
-                                style: Theme.of(context).textTheme.bodyMedium),
-                          ],
-                        ),
-                        const SizedBox(height: 16.0),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  decoration: state.ride!.meetingPoint != null
-                                      ? BoxDecoration(
-                                          border: Border.all(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primary,
-                                            width: 2.0,
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(16.0),
-                                        )
-                                      : BoxDecoration(
-                                          border: Border.all(
-                                            color: Colors.red,
-                                            width: 2.0,
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(16.0),
-                                        ),
-                                  child: ListTile(
-                                    style: ListTileStyle.list,
-                                    shape: RoundedRectangleBorder(
-                                      side: const BorderSide(
-                                        color: Colors.red,
-                                        width: 2.0,
-                                      ),
-                                      borderRadius: BorderRadius.circular(24.0),
-                                    ),
-                                    title: state.ride!.meetingPoint != null
-                                        ? Text(
-                                            'Destination Set: ${state.ride!.meetingPointAddress ?? state.ride!.meetingPointName}',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium,
-                                          )
-                                        : const Text('Location Not Set'),
-                                    leading: state.ride!.meetingPoint != null
-                                        ? const Icon(Icons.location_on_rounded)
-                                        : const Icon(
-                                            Icons.location_off_rounded),
-                                    onTap: () {
-                                      // Show search bar
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 8.0),
-                  state.ride!.meetingPoint != null
-                      ? Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              context.pop();
-                              showBottomSheet(
-                                  context: context,
-                                  builder: (context) =>
-                                      const ConfirmRideRequestSheet());
-                            },
-                            icon: const Icon(Icons.check_rounded),
-                            label: const Text('Set Meeting Point'),
-                          ),
-                        )
-                      : const SizedBox(),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-}
-
-class RideDetailsCard extends StatelessWidget {
-  final Ride ride;
-  final AnimatedMapController? mapController;
-  // final SheetController sheetController;
-  const RideDetailsCard(
-      {required this.ride,
-      required this.mapController,
-      // required this.sheetController,
-      super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    String titleText = switch (ride.status) {
-      RideStatus.pending => 'Awaiting Rider Confirmation...',
-      RideStatus.accepted => 'Ride Accepted',
-      RideStatus.inProgress => 'Ride In Progress',
-      RideStatus.rejected => 'Ride Rejected',
-      RideStatus.rejectedWithResponse => 'Ride Rejected',
-      RideStatus.completed => 'Ride Completed',
-      RideStatus.canceled => 'Ride Cancelled',
-      null => 'Unknown Status',
-    };
-    Widget iconWidget = switch (ride.status) {
-      RideStatus.pending => LoadingAnimationWidget.prograssiveDots(
-          color: Theme.of(context).colorScheme.primary, size: 36),
-      RideStatus.accepted => PhosphorIcon(
-          PhosphorIcons.checkCircle(
-            PhosphorIconsStyle.fill,
-          ),
-          color: Colors.green[400],
-        ),
-      RideStatus.inProgress => PhosphorIcon(PhosphorIcons.motorcycle(
-          PhosphorIconsStyle.fill,
-        )),
-      RideStatus.rejected => PhosphorIcon(PhosphorIcons.motorcycle(
-          PhosphorIconsStyle.fill,
-        )),
-      RideStatus.rejectedWithResponse => PhosphorIcon(PhosphorIcons.motorcycle(
-          PhosphorIconsStyle.fill,
-        )),
-      RideStatus.completed => PhosphorIcon(PhosphorIcons.motorcycle(
-          PhosphorIconsStyle.fill,
-        )),
-      RideStatus.canceled => PhosphorIcon(PhosphorIcons.motorcycle(
-          PhosphorIconsStyle.fill,
-        )),
-      null => PhosphorIcon(PhosphorIcons.motorcycle(
-          PhosphorIconsStyle.fill,
-        )),
-    };
-    return Card(
-      child: InkWell(
-        onTap: () async {
-          context.read<RideBloc>().add(LoadRideParticipants(ride));
-          // context.read<RideBloc>().add(SelectRide(ride));
-          if (ride.meetingPoint != null) {
-            print('Animating to ride meeting point...');
-
-            showBottomSheet(
-                context: context,
-                builder: (context) {
-                  return RideDetailsSheet(
-                    rideId: ride.id!,
-                  );
-                }).closed.then(
-              (value) async {
-                print('Sheet closed');
-                await mapController?.animateTo(
-                  dest: LatLng(ride.meetingPoint![0], ride.meetingPoint![1]),
-                  // zoom: 12,
-                  curve: Curves.easeOutSine,
-                  rotation: 0,
-                );
-                return value;
-              },
-            );
-
-            await mapController?.animateTo(
-              dest: LatLng(ride.meetingPoint![0], ride.meetingPoint![1]),
-              // zoom: 12,
-              curve: Curves.easeOutSine,
-              rotation: null,
-              offset: const Offset(0, -220.0),
-            );
-          }
-        },
-        child: Column(
-          children: [
-            ListTile(
-              leading: iconWidget,
-              title: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    titleText,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleSmall
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(width: 8.0),
-                  if (ride.status == RideStatus.accepted)
-                    Row(
-                      children: [
-                        // Middle Dot
-                        Text(
-                          '•',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                        const SizedBox(width: 8.0),
-                        CircleAvatar(
-                          // backgroundColor: Colors.white,
-                          radius: 8,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(50.0),
-                            child: CachedNetworkImage(
-                              imageUrl:
-                                  'https://scontent-lga3-1.cdninstagram.com/v/t51.2885-19/239083158_1041850919887570_7755239183612531984_n.jpg?stp=dst-jpg_s150x150&_nc_ht=scontent-lga3-1.cdninstagram.com&_nc_cat=110&_nc_ohc=-G3T7pl73asQ7kNvgFjLgW4&gid=b72e8aa84d7940049d9af5a959b74669&edm=AEhyXUkBAAAA&ccb=7-5&oh=00_AYCKn1GYP_pojAwBKTvJi8eskcuyXoQoqgp7crpWFQdwXg&oe=66ADCC2B&_nc_sid=8f1549',
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8.0),
-                        Text(
-                          'Christian',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    )
-                ],
-              ),
-              subtitle: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  PhosphorIcon(PhosphorIcons.path(PhosphorIconsStyle.fill),
-                      size: 12, color: Theme.of(context).colorScheme.primary),
-                  const SizedBox(width: 6.0),
-                  Flexible(
-                      child: Text.rich(
-                    TextSpan(
-                      text: ride.meetingPointAddress,
-                      style: Theme.of(context).textTheme.bodySmall!,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  )),
-                ],
-              ),
-              trailing: IconButton.filledTonal(
-                icon: Icon(
-                  PhosphorIcons.navigationArrow(PhosphorIconsStyle.fill),
-                  size: 18,
-                ),
-                onPressed: () {
-                  showBottomSheet(
-                    context: context,
-                    builder: (context) {
-                      return RideDetailsSheet(
-                        rideId: ride.id!,
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class RideRequestCard extends StatelessWidget {
-  final Ride ride;
-  final AnimatedMapController? mapController;
-  const RideRequestCard(
-      {required this.ride, required this.mapController, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: InkWell(
-        onTap: () async {
-          showBottomSheet(
-            context: context,
-            enableDrag: true,
-            builder: (context) {
-              return RideDetailsSheet(
-                rideId: ride.id!,
-              );
-            },
-          );
-          await mapController?.animateTo(
-            dest: LatLng(ride.meetingPoint![0], ride.meetingPoint![1]),
-            // zoom: 12,
-            rotation: 0,
-          );
-        },
-        child: Column(
-          children: [
-            ListTile(
-              leading: Stack(
-                alignment: Alignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 18,
-                    child: PhosphorIcon(PhosphorIcons.motorcycle(
-                      PhosphorIconsStyle.fill,
-                    )),
-                  ),
-                  LoadingAnimationWidget.threeArchedCircle(
-                      color: Theme.of(context).colorScheme.primary, size: 36)
-                ],
-              ),
-              title: Text(
-                'Ride Request',
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-              subtitle: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Flexible(
-                      child: Text.rich(
-                    TextSpan(
-                      text: 'Meet at: ',
-                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                      children: [
-                        TextSpan(
-                          text: ride.meetingPointAddress,
-                          style: Theme.of(context).textTheme.bodySmall!,
-                        ),
-                      ],
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  )),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 16.0,
-                right: 16.0,
-                bottom: 16.0,
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: FilledButton.icon(
-                      style: FilledButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white),
-                      onPressed: () {
-                        showBottomSheet(
-                          context: context,
-                          builder: (context) => const ConfirmRideRequestSheet(),
-                        );
-                      },
-                      icon: PhosphorIcon(PhosphorIcons.prohibit()),
-                      label: const Text('Decline'),
-                    ),
-                  ),
-                  const SizedBox(width: 8.0),
-                  Expanded(
-                    child: FilledButton.icon(
-                      onPressed: () {
-                        showBottomSheet(
-                          context: context,
-                          builder: (context) => const ConfirmRideRequestSheet(),
-                        );
-                      },
-                      icon: const Icon(Icons.check_rounded),
-                      label: const Text('Accept'),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ConfirmRideRequestSheet extends StatelessWidget {
-  const ConfirmRideRequestSheet({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      expand: false,
-      maxChildSize: 0.58,
-      initialChildSize: 0.35,
-      minChildSize: 0.13,
-      builder: (context, controller) {
-        return BlocConsumer<RideBloc, RideState>(
-          listener: (context, state) {
-            if (state is RideError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Error sending ride request!'),
-                  duration: Duration(seconds: 3),
-                ),
-              );
-            }
-            if (state is RideRequestSent) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Ride Request Sent!'),
-                  duration: Duration(seconds: 3),
-                ),
-              );
-              context.pop();
-            }
-          },
-          builder: (context, state) {
-            if (state is RideLoading) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (state is RideError) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Center(
-                    child: Text('Error sending ride request!'),
-                  ),
-                  const SizedBox(height: 16.0),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      context.read<RideBloc>().add(SendRideRequest(
-                          context.read<RideBloc>().state.ride!));
-                    },
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: const Text('Retry'),
-                  ),
-                ],
-              );
-            }
-            return Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(24.0),
-                  topRight: Radius.circular(24.0),
-                ),
-              ),
-              child: Column(
-                children: [
-                  const SizedBox(
-                    height: 8.0,
-                  ),
-                  Container(
-                    height: 4.0,
-                    width: 48.0,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).dividerColor,
-                      borderRadius: BorderRadius.circular(2.0),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 8.0,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Confirm Details',
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                          ],
-                        ),
-                        // const SizedBox(height: 8.0),
-                        // Row(
-                        //   mainAxisAlignment: MainAxisAlignment.center,
-                        //   children: [
-                        //     Text('Send a ride request to this rider?',
-                        //         style: Theme.of(context).textTheme.bodyMedium),
-                        //   ],
-                        // ),
-                        const SizedBox(height: 16.0),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(16.0),
-                                  ),
-                                  child: ListTile(
-                                    style: ListTileStyle.list,
-                                    shape: RoundedRectangleBorder(
-                                      side: const BorderSide(
-                                        color: Colors.red,
-                                        width: 2.0,
-                                      ),
-                                      borderRadius: BorderRadius.circular(24.0),
-                                    ),
-                                    title: Text(
-                                      'Meet at: ${context.read<RideBloc>().state.ride!.meetingPointAddress}',
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    leading:
-                                        const Icon(Icons.location_on_rounded),
-                                    onTap: () {
-                                      // Show search bar
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 8.0),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        context.read<RideBloc>().add(SendRideRequest(
-                            context.read<RideBloc>().state.ride!));
-                      },
-                      icon: const Icon(Icons.check_rounded),
-                      label: const Text('Create Ride'),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
       },
     );
   }
