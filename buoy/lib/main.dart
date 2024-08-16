@@ -15,6 +15,7 @@ import 'package:buoy/locate/repository/public_key_repository.dart';
 import 'package:buoy/motion/bloc/motion_bloc.dart';
 import 'package:buoy/profile/repository/bloc/profile_bloc.dart';
 import 'package:buoy/profile/repository/user_repository.dart';
+import 'package:buoy/riders/bloc/rider_profile_bloc.dart';
 import 'package:buoy/riders/bloc/riders_bloc.dart';
 import 'package:buoy/riders/repo/riders_repository.dart';
 import 'package:buoy/rides/bloc/ride_bloc.dart';
@@ -141,6 +142,9 @@ class MyApp extends StatelessWidget {
             create: (context) => RidersBloc(
               ridersRepository: context.read<RidersRepository>(),
             ),
+          ),
+          BlocProvider(
+            create: (context) => RiderProfileBloc(),
           ),
           BlocProvider(
             create: (context) => RideBloc(

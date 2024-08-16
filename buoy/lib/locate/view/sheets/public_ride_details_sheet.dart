@@ -1,4 +1,5 @@
 import 'package:buoy/profile/repository/bloc/profile_bloc.dart';
+import 'package:buoy/riders/bloc/rider_profile_bloc.dart';
 import 'package:buoy/riders/bloc/riders_bloc.dart';
 import 'package:buoy/riders/model/rider.dart';
 import 'package:buoy/rides/bloc/ride_bloc.dart';
@@ -9,6 +10,7 @@ import 'package:buoy/shared/constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -209,7 +211,14 @@ class JoinRideButton extends StatelessWidget {
               PhosphorIcons.motorcycle(PhosphorIconsStyle.fill),
               size: 20,
             ),
-          ),
+          )
+              .animate(
+                onComplete: (controller) => controller.repeat(),
+              )
+              .shimmer(
+                  color: Theme.of(context).colorScheme.primary,
+                  duration: const Duration(seconds: 6),
+                  curve: Curves.easeInOut),
         ),
       ],
     );
@@ -321,12 +330,18 @@ class RideParticipantsList extends StatelessWidget {
                       ),
                       borderRadius: BorderRadius.circular(16.0),
                       onTap: () =>
-                          context.go('/profile/${rideParticipant.userId}'),
+                          context.push('/profile/${rideParticipant.userId}'),
                       child: ListTile(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16.0),
                         ),
-                        onTap: () {},
+                        onTap: () {
+                          context
+                              .read<RiderProfileBloc>()
+                              .add(LoadRiderProfile(rider: rider));
+                          context
+                              .push('/rider-profile/${rideParticipant.userId}');
+                        },
                         leading: CircleAvatar(
                           radius: 24.0,
                           // foregroundImage: rideParticipant.photoUrl != null
@@ -349,25 +364,21 @@ class RideParticipantsList extends StatelessWidget {
                         ),
                         title: Row(
                           children: [
+                            if (rider.id == ride.userId)
+                              const Padding(
+                                padding: EdgeInsets.only(right: 4.0),
+                                child: Icon(Icons.star,
+                                    size: 16, color: Colors.yellow),
+                              ),
                             Text(
                               rideParticipant.firstName ?? 'N/A',
-                              style: Theme.of(context).textTheme.titleMedium,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold),
                             ),
-                            const SizedBox(width: 8.0),
-                            if (rider.bike != null)
-                              Chip(
-                                visualDensity: VisualDensity.compact,
-                                avatar: PhosphorIcon(
-                                  PhosphorIcons.motorcycle(
-                                    PhosphorIconsStyle.fill,
-                                  ),
-                                  size: 16,
-                                ),
-                                label: Text(
-                                  rider.bike!,
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                              ),
+                            const SizedBox(width: 16.0),
+
                             const SizedBox(
                               width: 8.0,
                             ),
@@ -387,6 +398,21 @@ class RideParticipantsList extends StatelessWidget {
                             //   ),
                           ],
                         ),
+                        trailing: rider.bike != null
+                            ? Chip(
+                                visualDensity: VisualDensity.compact,
+                                avatar: PhosphorIcon(
+                                  PhosphorIcons.motorcycle(
+                                    PhosphorIconsStyle.fill,
+                                  ),
+                                  size: 16,
+                                ),
+                                label: Text(
+                                  rider.bike!,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              )
+                            : null,
                         subtitle: Row(
                           children: [
                             const Icon(Icons.share_location_rounded, size: 16),

@@ -34,19 +34,19 @@ class RidersBloc extends Bloc<RidersEvent, RidersState> {
     });
     on<LoadRiders>((event, emit) async {
       try {
-        List<Rider> riders = state.riders ?? [];
+        List<Rider> oldStateRiders = state.riders ?? [];
         print('LoadRiders');
         print('Rider IDs: ${event.riderIds}');
         List<String> missingRiderIds = [];
         missingRiderIds = event.riderIds.where((riderId) {
-          return riders.every((rider) => rider.id != riderId);
+          return oldStateRiders.every((rider) => rider.id != riderId);
         }).toList();
         emit(RidersLoading());
         if (missingRiderIds.isNotEmpty) {
           print('Missing Rider IDs: $missingRiderIds');
           await _ridersRepository.fetchRiders(missingRiderIds).then((riders) {
             print('riders: ${riders.map((rider) => rider.toString())}');
-            emit(RidersLoaded(riders));
+            emit(RidersLoaded([...oldStateRiders..addAll(riders)]));
           }).catchError((error) {
             print(error);
             emit(RidersError(error.toString()));

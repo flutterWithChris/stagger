@@ -4,6 +4,7 @@ import 'package:buoy/friends/view/friend_details.dart';
 import 'package:buoy/locate/model/location.dart';
 import 'package:buoy/locate/view/home.dart';
 import 'package:buoy/profile/view/profile.dart';
+import 'package:buoy/riders/profile/rider_profile_page.dart';
 import 'package:buoy/settings/view/settings_page.dart';
 import 'package:buoy/shared/models/user.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -56,6 +57,13 @@ GoRouter goRouter = GoRouter(
             friendId: id,
             location: state.extra as Location,
           );
-        })
+        }),
+    GoRoute(
+      path: '/rider-profile/:id',
+      builder: (context, state) {
+        final String id = state.pathParameters['id']!;
+        return const RiderProfilePage();
+      },
+    ),
   ],
 );

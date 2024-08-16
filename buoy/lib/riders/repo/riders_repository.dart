@@ -64,9 +64,33 @@ class RidersRepository {
   Future<List<Rider>> fetchRiders(List<String> riderIds) async {
     try {
       print('Fetching riders: $riderIds');
-      final response =
+      final ridersResponse =
           await ridersTable.select().inFilter('id', riderIds).select();
-      return response.map((rider) => Rider.fromMap(rider)).toList();
+      print('Response: $ridersResponse');
+
+      // Step 1: Fetch location updates within the bounds
+      final locationResponse =
+          await locationUpdatesTable.select().inFilter('user_id', riderIds);
+
+      print('Location Response: ${locationResponse.length}');
+
+      if (locationResponse.isEmpty) {
+        return []; // No riders found in the bounds
+      }
+      // Step 4: Map the results to Rider models and attach location
+      return ridersResponse.map((rider) {
+        final matchingLocation = locationResponse.firstWhere(
+          (location) => location['user_id'] == rider['id'],
+        );
+        return Rider.fromMap(rider).copyWith(
+          currentLocation: Location(
+            userId: rider['id'] as String,
+            latitude: matchingLocation['latitude'],
+            longitude: matchingLocation['longitude'],
+            timeStamp: 'Just now',
+          ),
+        );
+      }).toList();
     } catch (error) {
       print(error);
       rethrow;
