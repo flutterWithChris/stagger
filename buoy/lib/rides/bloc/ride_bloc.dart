@@ -5,13 +5,12 @@ import 'package:buoy/locate/repository/mapbox_search_repository.dart';
 import 'package:buoy/riders/bloc/riders_bloc.dart';
 import 'package:buoy/rides/bloc/rides_bloc.dart';
 import 'package:buoy/rides/model/ride.dart';
-import 'package:buoy/rides/model/ride_participant.dart';
 import 'package:buoy/rides/repository/ride_repository.dart';
 import 'package:buoy/shared/constants.dart';
-import 'package:buoy/shared/models/user.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_search/mapbox_search.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'ride_event.dart';
 part 'ride_state.dart';
@@ -90,6 +89,24 @@ class RideBloc extends Bloc<RideEvent, RideState> {
         emit(RideError(e.toString(), ride: event.ride));
       }
     });
+    on<JoinRide>((event, emit) async {
+      try {
+        emit(RideLoading());
+        Ride? updatedRide = await _rideRepository.joinRide(
+            event.ride, Supabase.instance.client.auth.currentUser!.id);
+        if (updatedRide == null) {
+          emit(const RideError('Error joining ride'));
+          print('Error joining ride');
+          return;
+        }
+        print('Joining ride: $updatedRide');
+        emit(JoinedRide(updatedRide));
+      } catch (e) {
+        print('Error accepting ride: $e');
+        emit(RideError(e.toString(), ride: event.ride));
+      }
+    });
+
     on<UpdateRide>((event, emit) async {
       try {
         emit(RideLoading());

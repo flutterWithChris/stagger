@@ -1,4 +1,3 @@
-import 'package:buoy/locate/view/map/main_map.dart';
 import 'package:buoy/locate/view/sheets/confirm_ride_request_sheet.dart';
 import 'package:buoy/locate/view/sheets/ride_details_sheet.dart';
 import 'package:buoy/rides/model/ride.dart';

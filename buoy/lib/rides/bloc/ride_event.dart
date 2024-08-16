@@ -52,6 +52,15 @@ class DeclineRide extends RideEvent {
   List<Object> get props => [ride];
 }
 
+class JoinRide extends RideEvent {
+  final Ride ride;
+
+  const JoinRide(this.ride);
+
+  @override
+  List<Object> get props => [ride];
+}
+
 class UpdateRide extends RideEvent {
   final Ride ride;
 

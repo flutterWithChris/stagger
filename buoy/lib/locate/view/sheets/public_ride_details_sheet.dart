@@ -3,7 +3,6 @@ import 'package:buoy/riders/bloc/rider_profile_bloc.dart';
 import 'package:buoy/riders/bloc/riders_bloc.dart';
 import 'package:buoy/riders/model/rider.dart';
 import 'package:buoy/rides/bloc/ride_bloc.dart';
-import 'package:buoy/rides/bloc/rides_bloc.dart';
 import 'package:buoy/rides/model/ride.dart';
 import 'package:buoy/rides/model/ride_participant.dart';
 import 'package:buoy/shared/constants.dart';
@@ -15,7 +14,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 class PublicRideDetailsSheet extends StatelessWidget {
@@ -55,7 +53,7 @@ class PublicRideDetailsSheet extends StatelessWidget {
                 } else if (state is RideLoaded) {
                   Ride ride = state.ride;
 
-                  print('All Participants: ${ride.rideParticipants}');
+                  print('All Participants: ${ride.rideParticipants?.length}');
                   RideParticipant? rideParticipant = ride.rideParticipants!
                       .firstWhereOrNull((rideParticipant) =>
                           rideParticipant.userId ==
@@ -202,15 +200,69 @@ class JoinRideButton extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: FilledButton.icon(
-            onPressed: () {
-              // context.read<RideBloc>().add(JoinRide(ride));
+          child: BlocConsumer<RideBloc, RideState>(
+            listener: (context, state) {
+              if (state is JoinedRide) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(getSuccessSnackbar('Joined Ride!'));
+              }
+              if (state is RideError) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(getErrorSnackbar('Error Joining Ride!'));
+              }
             },
-            label: const Text('Join Ride'),
-            icon: PhosphorIcon(
-              PhosphorIcons.motorcycle(PhosphorIconsStyle.fill),
-              size: 20,
-            ),
+            builder: (context, state) {
+              if (state is JoinedRide) {
+                return const SizedBox();
+              }
+              if (state is RideLoading) {
+                return FilledButton.icon(
+                  onPressed: () {},
+                  label: Row(
+                    children: [
+                      LoadingAnimationWidget.prograssiveDots(
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 8.0),
+                      const Text('Joining Ride...'),
+                    ],
+                  ),
+                  icon: PhosphorIcon(
+                    PhosphorIcons.motorcycle(PhosphorIconsStyle.fill),
+                  ),
+                );
+              }
+              if (state is RideError) {
+                return FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    side: const BorderSide(
+                      color: Colors.red,
+                      width: 2.0,
+                    ),
+                  ),
+                  onPressed: () {
+                    context.read<RideBloc>().add(JoinRide(ride));
+                  },
+                  label: const Text('Retry Joining'),
+                  icon: PhosphorIcon(
+                    PhosphorIcons.repeat(PhosphorIconsStyle.fill),
+                  ),
+                );
+              }
+              return FilledButton.icon(
+                onPressed: () {
+                  context.read<RideBloc>().add(JoinRide(ride));
+                },
+                label: const Text('Join Ride'),
+                icon: PhosphorIcon(
+                  PhosphorIcons.motorcycle(PhosphorIconsStyle.fill),
+                  size: 20,
+                ),
+              );
+            },
           )
               .animate(
                 onComplete: (controller) => controller.repeat(),
@@ -302,6 +354,7 @@ class RideParticipantsList extends StatelessWidget {
                 child: Text('Error'),
               );
             } else if (state is RidersLoaded) {
+              print('Riders going into list view: ${state.riders}');
               return ListView.builder(
                 shrinkWrap: true,
                 itemCount: ride.rideParticipants!.length,

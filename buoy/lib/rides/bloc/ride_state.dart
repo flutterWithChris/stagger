@@ -87,3 +87,43 @@ final class RideCompleted extends RideState {
   @override
   List<Object> get props => [ride];
 }
+
+final class RideCancelled extends RideState {
+  @override
+  final Ride ride;
+
+  const RideCancelled(this.ride);
+
+  @override
+  List<Object> get props => [ride];
+}
+
+final class RideDeclined extends RideState {
+  @override
+  final Ride ride;
+
+  const RideDeclined(this.ride);
+
+  @override
+  List<Object> get props => [ride];
+}
+
+final class RideAccepted extends RideState {
+  @override
+  final Ride ride;
+
+  const RideAccepted(this.ride);
+
+  @override
+  List<Object> get props => [ride];
+}
+
+final class JoinedRide extends RideState {
+  @override
+  final Ride ride;
+
+  const JoinedRide(this.ride);
+
+  @override
+  List<Object> get props => [ride];
+}

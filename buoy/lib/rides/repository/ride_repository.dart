@@ -351,4 +351,77 @@ class RideRepository {
     }
     return null;
   }
+
+  Future<Ride?> cancelRide(Ride ride) async {
+    try {
+      final response = await ridesTable
+          .update({'status': RideStatus.canceled.name})
+          .eq('id', ride.id!)
+          .select();
+      return Ride.fromMap(response.first);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Ride?> updateRideStatus(Ride ride, RideStatus status) async {
+    try {
+      final response = await ridesTable
+          .update({'status': status.name})
+          .eq('id', ride.id!)
+          .select();
+      return Ride.fromMap(response.first);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Accept ride request
+  Future<Ride?> acceptRideRequest(Ride ride, String userId) async {
+    try {
+      final response = await rideParticipantsTable
+          .update({
+            'arrival_status': ArrivalStatus.stopped.name,
+            'participation_status': ParticipationStatus.accepted.name
+          })
+          .eq('ride_id', ride.id!)
+          .eq('user_id', userId)
+          .select();
+      return Ride.fromMap(response.first);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Decline ride request
+  Future<Ride?> declineRideRequest(Ride ride, String userId) async {
+    try {
+      final response = await rideParticipantsTable
+          .update({'participation_status': ParticipationStatus.rejected.name})
+          .eq('ride_id', ride.id!)
+          .eq('user_id', userId)
+          .select();
+      return Ride.fromMap(response.first);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Join Ride
+  Future<Ride?> joinRide(Ride ride, String userId) async {
+    try {
+      final response = await rideParticipantsTable.insert(RideParticipant(
+        id: userId,
+        rideId: ride.id,
+        userId: userId,
+        role: 'receiver',
+        arrivalStatus: ArrivalStatus.stopped,
+        participationStatus: ParticipationStatus.accepted,
+      ).toMap());
+
+      return Ride.fromMap(response.first);
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

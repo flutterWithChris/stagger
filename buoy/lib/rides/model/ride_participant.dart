@@ -1,6 +1,8 @@
 import 'package:buoy/rides/model/ride.dart';
 import 'package:collection/collection.dart';
 
+enum ParticipationStatus { pending, accepted, rejected, host }
+
 class RideParticipant {
   final String? id;
   final String? rideId;
@@ -10,6 +12,7 @@ class RideParticipant {
   final String? role;
   final String? photoUrl;
   final ArrivalStatus? arrivalStatus;
+  final ParticipationStatus? participationStatus;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -22,6 +25,7 @@ class RideParticipant {
     this.role,
     this.photoUrl,
     this.arrivalStatus,
+    this.participationStatus,
     this.createdAt,
     this.updatedAt,
   });
@@ -35,6 +39,7 @@ class RideParticipant {
     String? role,
     String? photoUrl,
     ArrivalStatus? arrivalStatus,
+    ParticipationStatus? participationStatus,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -47,6 +52,7 @@ class RideParticipant {
       role: role ?? this.role,
       photoUrl: photoUrl ?? this.photoUrl,
       arrivalStatus: arrivalStatus ?? this.arrivalStatus,
+      participationStatus: participationStatus ?? this.participationStatus,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -57,11 +63,9 @@ class RideParticipant {
       'id': id,
       'ride_id': rideId,
       'user_id': userId,
-      'first_name': firstName,
-      'last_name': lastName,
       'role': role,
-      'photo_url': photoUrl,
       'arrival_status': arrivalStatus?.name,
+      'participation_status': participationStatus?.name,
     };
   }
 
@@ -77,6 +81,10 @@ class RideParticipant {
       arrivalStatus: map['arrival_status'] != null
           ? ArrivalStatus.values
               .firstWhereOrNull((e) => e.name == map['arrival_status'])
+          : null,
+      participationStatus: map['participation_status'] != null
+          ? ParticipationStatus.values
+              .firstWhereOrNull((e) => e.name == map['participation_status'])
           : null,
       createdAt:
           map['created_at'] != null ? DateTime.parse(map['created_at']) : null,
@@ -97,6 +105,7 @@ class RideParticipant {
         other.lastName == lastName &&
         other.role == role &&
         other.arrivalStatus == arrivalStatus &&
+        other.participationStatus == participationStatus &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;
   }
@@ -110,6 +119,7 @@ class RideParticipant {
         lastName.hashCode ^
         role.hashCode ^
         arrivalStatus.hashCode ^
+        participationStatus.hashCode ^
         createdAt.hashCode ^
         updatedAt.hashCode;
   }
