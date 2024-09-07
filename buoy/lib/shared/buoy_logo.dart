@@ -5,8 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 class BuoyLogo extends StatefulWidget {
   final double? size;
+  final bool? iconOnly;
 
-  const BuoyLogo({this.size, super.key});
+  const BuoyLogo({this.size, this.iconOnly, super.key});
 
   @override
   State<BuoyLogo> createState() => _BuoyLogoState();
@@ -48,13 +49,14 @@ class _BuoyLogoState extends State<BuoyLogo> {
                 curve: Curves.easeInOut,
               ),
         ),
-        const Gutter(),
-        Text(
-          'Stagger',
-          style: Theme.of(context).textTheme.displayMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              fontFamily: GoogleFonts.inter().fontFamily),
-        ),
+        if (widget.iconOnly == false) const Gutter(),
+        if (widget.iconOnly == false)
+          Text(
+            'Stagger',
+            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                fontFamily: GoogleFonts.inter().fontFamily),
+          ),
       ],
     );
   }

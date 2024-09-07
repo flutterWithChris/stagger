@@ -1,28 +1,29 @@
-import 'package:buoy/activity/bloc/activity_bloc.dart';
-import 'package:buoy/auth/bloc/auth_bloc.dart';
-import 'package:buoy/auth/cubit/login_cubit.dart';
-import 'package:buoy/auth/cubit/signup_cubit.dart';
-import 'package:buoy/auth/repository/auth_repository.dart';
-import 'package:buoy/core/router/router.dart';
-import 'package:buoy/friends/bloc/friends_bloc.dart';
-import 'package:buoy/friends/repository/friend_repository.dart';
-import 'package:buoy/locate/bloc/geolocation_bloc.dart';
-import 'package:buoy/locate/repository/background_location_repository.dart';
-import 'package:buoy/locate/repository/encryption_repository.dart';
-import 'package:buoy/locate/repository/location_realtime_repository.dart';
-import 'package:buoy/locate/repository/mapbox_search_repository.dart';
-import 'package:buoy/locate/repository/public_key_repository.dart';
-import 'package:buoy/motion/bloc/motion_bloc.dart';
-import 'package:buoy/profile/repository/bloc/profile_bloc.dart';
-import 'package:buoy/profile/repository/user_repository.dart';
-import 'package:buoy/riders/bloc/rider_profile_bloc.dart';
-import 'package:buoy/riders/bloc/riders_bloc.dart';
-import 'package:buoy/riders/repo/riders_repository.dart';
-import 'package:buoy/rides/bloc/ride_bloc.dart';
-import 'package:buoy/rides/bloc/rides_bloc.dart';
-import 'package:buoy/rides/repository/ride_repository.dart';
-import 'package:buoy/shared/constants.dart';
-import 'package:buoy/shared/theme/theme_cubit.dart';
+import 'package:buoy/features/activity/bloc/activity_bloc.dart';
+import 'package:buoy/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:buoy/features/auth/presentation/cubit/login_cubit.dart';
+import 'package:buoy/features/auth/presentation/cubit/signup_cubit.dart';
+import 'package:buoy/features/auth/data/repository/auth_repository_impl.dart';
+import 'package:buoy/config/router/router.dart';
+import 'package:buoy/features/friends/bloc/friends_bloc.dart';
+import 'package:buoy/features/friends/repository/friend_repository.dart';
+import 'package:buoy/features/locate/bloc/geolocation_bloc.dart';
+import 'package:buoy/features/locate/repository/background_location_repository.dart';
+import 'package:buoy/features/locate/repository/encryption_repository.dart';
+import 'package:buoy/features/locate/repository/location_realtime_repository.dart';
+import 'package:buoy/features/locate/repository/mapbox_search_repository.dart';
+import 'package:buoy/features/locate/repository/public_key_repository.dart';
+import 'package:buoy/features/motion/bloc/motion_bloc.dart';
+import 'package:buoy/features/onboarding/presentation/bloc/onboarding_bloc.dart';
+import 'package:buoy/features/profile/repository/bloc/profile_bloc.dart';
+import 'package:buoy/features/profile/repository/user_repository.dart';
+import 'package:buoy/features/riders/bloc/rider_profile_bloc.dart';
+import 'package:buoy/features/riders/bloc/riders_bloc.dart';
+import 'package:buoy/features/riders/repo/riders_repository.dart';
+import 'package:buoy/features/rides/bloc/ride_bloc.dart';
+import 'package:buoy/features/rides/bloc/rides_bloc.dart';
+import 'package:buoy/features/rides/repository/ride_repository.dart';
+import 'package:buoy/core/constants.dart';
+import 'package:buoy/config/theme/theme_cubit.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -55,7 +56,7 @@ class MyApp extends StatelessWidget {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider(
-          create: (context) => AuthRepository(),
+          create: (context) => AuthRepositoryImpl(),
         ),
         RepositoryProvider(
           create: (context) => UserRepository(),
@@ -93,14 +94,14 @@ class MyApp extends StatelessWidget {
                   )),
           BlocProvider(
               create: (context) => AuthBloc(
-                  authRepository: context.read<AuthRepository>(),
+                  authRepository: context.read<AuthRepositoryImpl>(),
                   profileBloc: context.read<ProfileBloc>())),
           BlocProvider(
-              create: (context) =>
-                  SignupCubit(authRepository: context.read<AuthRepository>())),
+              create: (context) => SignupCubit(
+                  authRepository: context.read<AuthRepositoryImpl>())),
           BlocProvider(
-              create: (context) =>
-                  LoginCubit(authRepository: context.read<AuthRepository>())),
+              create: (context) => LoginCubit(
+                  authRepository: context.read<AuthRepositoryImpl>())),
           BlocProvider(
             create: (context) => ThemeCubit()..loadTheme(),
           ),
@@ -154,6 +155,11 @@ class MyApp extends StatelessWidget {
               ridersBloc: context.read<RidersBloc>(),
             ),
           ),
+          BlocProvider(
+            create: (context) => OnboardingBloc(
+                userRepository: context.read<UserRepository>(),
+                ridersRepository: context.read<RidersRepository>()),
+          )
         ],
         child: BlocBuilder<ThemeCubit, ThemeState>(
           builder: (context, state) {

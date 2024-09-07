@@ -1,4 +1,4 @@
-import 'package:buoy/locate/view/dialogs/add_friend_dialog.dart';
+import 'package:buoy/features/locate/view/dialogs/add_friend_dialog.dart';
 import 'package:flutter/material.dart';
 
 class MainSliverAppBar extends StatelessWidget {
