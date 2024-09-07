@@ -54,3 +54,7 @@ class InvalidInputFailure extends Failure {
 class InvalidCredentialsFailure extends Failure {
   InvalidCredentialsFailure(super.message);
 }
+
+class SubscriptionFailure extends Failure {
+  SubscriptionFailure(super.message);
+}

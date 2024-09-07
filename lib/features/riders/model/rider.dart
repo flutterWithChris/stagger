@@ -16,7 +16,7 @@ enum BikeType {
 
 enum RidingStyle { cruiser, balanced, fast }
 
-enum RideType { any, offRoad, touring, downtown, track }
+enum RideType { offRoad, backroads, touring, rally, adventure, downtown, track }
 
 enum LocationStatus { sharing, notSharing, notAvailable }
 
@@ -29,6 +29,7 @@ enum RideDestination {
   bars,
   breweries,
   parks,
+  campgrounds,
   iceCream,
   tracks,
   wineries,
@@ -43,7 +44,6 @@ class Rider extends User {
   final RidingStyle? ridingStyle;
   final List<RideType>? rideTypes;
   final List<RideDestination>? rideDestinations;
-
   final GearLevel? gearLevel;
   final int? yearsRiding;
   final Location? currentLocation;
