@@ -11,11 +11,26 @@ class SignupCubit extends Cubit<SignupState> {
       : _authRepository = authRepository,
         super(SignupState.initial());
 
-  void signupWithGoogle() => _onSignupWithGoogle();
+  void signUpWithGoogle() => _onSignUpWithGoogle();
+  void signUpWithApple() => _onSignUpWithApple();
 
-  void _onSignupWithGoogle() async {
+  void _onSignUpWithGoogle() async {
     emit(SignupState.submitting());
     await _authRepository.signInWithGoogle();
+    _authRepository.authStateChanges.listen((state) {
+      if (state.session?.user == null) {
+        print('User is null');
+        emit(SignupState.failure());
+      } else {
+        print('Signup success');
+        emit(SignupState.success(state.session!.user));
+      }
+    });
+  }
+
+  void _onSignUpWithApple() async {
+    emit(SignupState.submitting());
+    await _authRepository.signInWithApple();
     _authRepository.authStateChanges.listen((state) {
       if (state.session?.user == null) {
         print('User is null');

@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:buoy/core/constants.dart';
 import 'package:buoy/features/auth/presentation/cubit/signup_cubit.dart';
 import 'package:buoy/features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import 'package:buoy/shared/buoy_logo.dart';
@@ -65,7 +68,17 @@ class _SignupState extends State<Signup> {
               //     onSuccess: (p0) {},
               //   ),
               // ),
-              BlocBuilder<SignupCubit, SignupState>(
+              BlocConsumer<SignupCubit, SignupState>(
+                listener: (context, state) {
+                  if (state.status == SignupStatus.success) {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(getSuccessSnackbar('Signup success!'));
+                    context
+                        .read<OnboardingBloc>()
+                        .add(StartOnboarding(user: state.user!));
+                    context.read<OnboardingBloc>().add(const MoveForward());
+                  }
+                },
                 builder: (context, state) {
                   if (state.status == SignupStatus.submitting) {
                     return FilledButton(
@@ -76,7 +89,9 @@ class _SignupState extends State<Signup> {
                     return FilledButton.icon(
                         icon: const Icon(Icons.error),
                         onPressed: () {
-                          context.read<SignupCubit>().signupWithGoogle();
+                          Platform.isIOS
+                              ? context.read<SignupCubit>().signUpWithApple()
+                              : context.read<SignupCubit>().signUpWithGoogle();
                         },
                         label: const Text(
                           'Error! Retry.',
@@ -97,13 +112,23 @@ class _SignupState extends State<Signup> {
                         Expanded(
                           child: FilledButton.icon(
                               onPressed: () {
-                                context.read<SignupCubit>().signupWithGoogle();
+                                Platform.isIOS
+                                    ? context
+                                        .read<SignupCubit>()
+                                        .signUpWithApple()
+                                    : context
+                                        .read<SignupCubit>()
+                                        .signUpWithGoogle();
                               },
-                              icon: const Icon(
-                                FontAwesomeIcons.google,
+                              icon: Icon(
+                                Platform.isIOS
+                                    ? FontAwesomeIcons.apple
+                                    : FontAwesomeIcons.google,
                                 size: 20.0,
                               ),
-                              label: const Text('Continue with Google')),
+                              label: Text(Platform.isIOS
+                                  ? 'Continue with Apple'
+                                  : 'Continue with Google')),
                         ),
                       ],
                     ),
@@ -122,7 +147,7 @@ class _SignupState extends State<Signup> {
                     return FilledButton.icon(
                         icon: const Icon(Icons.error),
                         onPressed: () {
-                          context.read<SignupCubit>().signupWithGoogle();
+                          context.read<SignupCubit>().signUpWithGoogle();
                         },
                         label: const Text(
                           'Error! Retry.',
@@ -133,7 +158,7 @@ class _SignupState extends State<Signup> {
                         icon: const Icon(Icons.check),
                         onPressed: () {},
                         label: const Text(
-                          'Success!',
+                          'Signup Success!',
                         ));
                   }
                   return Padding(
@@ -148,7 +173,7 @@ class _SignupState extends State<Signup> {
                                   foregroundColor:
                                       WidgetStatePropertyAll(Colors.white)),
                               onPressed: () {
-                                context.read<SignupCubit>().signupWithGoogle();
+                                context.read<SignupCubit>().signUpWithGoogle();
                               },
                               icon: const Icon(
                                 FontAwesomeIcons.facebook,
@@ -174,7 +199,7 @@ class _SignupState extends State<Signup> {
                     return FilledButton.icon(
                         icon: const Icon(Icons.error),
                         onPressed: () {
-                          context.read<SignupCubit>().signupWithGoogle();
+                          context.read<SignupCubit>().signUpWithGoogle();
                         },
                         label: const Text(
                           'Error! Retry.',
@@ -202,7 +227,7 @@ class _SignupState extends State<Signup> {
                                   foregroundColor: const WidgetStatePropertyAll(
                                       Colors.white)),
                               onPressed: () {
-                                context.read<SignupCubit>().signupWithGoogle();
+                                context.read<SignupCubit>().signUpWithGoogle();
                               },
                               icon: const Icon(
                                 Icons.email_rounded,

@@ -8,6 +8,8 @@ import 'dart:async' as _i5;
 import 'package:buoy/core/errors/failure.dart' as _i7;
 import 'package:buoy/features/subscription/data/data_sources/subscription_data_source.dart'
     as _i4;
+import 'package:buoy/features/subscription/domain/usecases/get_customer_info_usecase.dart'
+    as _i10;
 import 'package:buoy/features/subscription/domain/usecases/init_subscriptions_usecase.dart'
     as _i6;
 import 'package:buoy/features/subscription/domain/usecases/show_paywall_usecase.dart'
@@ -215,4 +217,32 @@ class MockShowPaywallUsecase extends _i1.Mock
             )),
           ) as _i5
               .Future<_i3.Either<_i7.SubscriptionFailure, _i9.PaywallResult>>);
+}
+
+/// A class which mocks [GetCustomerInfoUsecase].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockGetCustomerInfoUsecase extends _i1.Mock
+    implements _i10.GetCustomerInfoUsecase {
+  MockGetCustomerInfoUsecase() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i5.Future<_i3.Either<_i7.SubscriptionFailure, _i2.CustomerInfo>> execute() =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #execute,
+          [],
+        ),
+        returnValue: _i5.Future<
+                _i3.Either<_i7.SubscriptionFailure, _i2.CustomerInfo>>.value(
+            _FakeEither_3<_i7.SubscriptionFailure, _i2.CustomerInfo>(
+          this,
+          Invocation.method(
+            #execute,
+            [],
+          ),
+        )),
+      ) as _i5.Future<_i3.Either<_i7.SubscriptionFailure, _i2.CustomerInfo>>);
 }

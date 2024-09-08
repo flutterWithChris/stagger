@@ -16,10 +16,7 @@ class RidersRepository {
 
   Future<void> createRider(Rider rider) async {
     try {
-      final response = await ridersTable.insert(rider.toMap());
-      if (response.error != null) {
-        throw response.error!;
-      }
+      await ridersTable.insert(rider.toMap());
     } catch (error) {
       print(error);
       rethrow;

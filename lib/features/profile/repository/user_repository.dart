@@ -7,19 +7,14 @@ class UserRepository {
   final sb.SupabaseClient _client = sb.Supabase.instance.client;
 
   /// Create a new user
-  Future<Either<Failure, User>> createUser(
-      {String? id, String? email, String? name, String? photoUrl}) async {
+  Future<Either<Failure, User>> createUser({required User user}) async {
     try {
-      final response = await _client.from('users').insert({
-        'id': id,
-        'email': email,
-        'name': name,
-        'photoUrl': photoUrl,
-        'friendIds': [],
-      }).select();
+      final response =
+          await _client.from('users').insert(user.toMap()).select();
 
       return Right(User.fromMap(response.first));
     } catch (e) {
+      print(e);
       return Left(DatabaseFailure('Failed to create user'));
       print(e);
     }

@@ -70,9 +70,6 @@ class Rider extends User {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'first_name': firstName,
-      'last_name': lastName,
-      'email': email,
       'bike_type': bikeType?.toString().split('.').last,
       'bike': bike,
       'riding_style': ridingStyle?.toString().split('.').last,

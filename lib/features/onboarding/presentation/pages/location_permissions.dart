@@ -8,6 +8,7 @@ import 'package:flutter_gutter/flutter_gutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LocationPermissionsPage extends StatefulWidget {
   const LocationPermissionsPage({super.key});
@@ -39,12 +40,14 @@ class _LocationPermissionsPageState extends State<LocationPermissionsPage> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<SubscriptionBloc, SubscriptionState>(
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state is SubscriptionError) {
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text(state.message)));
         } else if (state is SubscriptionLoaded) {
           print('Subscription loaded');
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setBool('onboardingComplete', true);
           context.go('/');
           print('Attempting to navigate to /');
         }

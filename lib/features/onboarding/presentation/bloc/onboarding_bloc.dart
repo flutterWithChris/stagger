@@ -26,14 +26,20 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     on<StartOnboarding>((event, emit) async {
       emit(OnboardingLoading());
       try {
+        print('Starting onboarding with user: ${event.user}');
         final response = await _userRepository.createUser(
+            user: User(
           id: event.user.id,
           email: event.user.email!,
-        );
-        response.fold((l) => emit(OnboardingError(message: l.message)), (user) {
+        ));
+        response.fold((l) {
+          print(l.message);
+          emit(OnboardingError(message: l.message));
+        }, (user) {
           add(CreateRider(user: user));
         });
       } catch (e) {
+        print(e);
         emit(OnboardingError(message: e.toString()));
       }
     });
@@ -44,9 +50,11 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
         await _ridersRepository.createRider(
           rider,
         );
+        print('Rider created');
         emit(OnboardingLoaded(
             isOnboardingComplete: true, user: event.user, rider: rider));
       } catch (e) {
+        print(e);
         emit(OnboardingError(message: e.toString()));
       }
     });

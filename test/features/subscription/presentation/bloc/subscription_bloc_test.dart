@@ -11,13 +11,15 @@ void main() {
   group('SubscriptionBloc', () {
     late MockInitSubscriptionsUsecase mockInitSubscriptionsUsecase;
     late MockShowPaywallUsecase mockShowPaywallUsecase;
+    late MockGetCustomerInfoUsecase mockGetCustomerInfoUsecase;
     late SubscriptionBloc subscriptionBloc;
 
     setUp(() {
       mockInitSubscriptionsUsecase = MockInitSubscriptionsUsecase();
       mockShowPaywallUsecase = MockShowPaywallUsecase();
-      subscriptionBloc = SubscriptionBloc(
-          mockInitSubscriptionsUsecase, mockShowPaywallUsecase);
+      mockGetCustomerInfoUsecase = MockGetCustomerInfoUsecase();
+      subscriptionBloc = SubscriptionBloc(mockInitSubscriptionsUsecase,
+          mockShowPaywallUsecase, mockGetCustomerInfoUsecase);
     });
     test('Initially emits SubscriptionLoading', () {
       expect(subscriptionBloc.state, SubscriptionLoading());

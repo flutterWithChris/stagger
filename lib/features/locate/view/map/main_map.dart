@@ -164,14 +164,14 @@ class _MainMapState extends State<MainMap> {
                                       );
                                     }
                                     if (friendsState is FriendsLoaded) {
-                                      if (friendsState.friends.isEmpty ||
-                                          friendsState.locations.isEmpty) {
-                                        print('Friends Empty...');
+                                      // if (friendsState.friends.isEmpty ||
+                                      //     friendsState.locations.isEmpty) {
+                                      //   print('Friends Empty...');
 
-                                        return const MarkerLayer(
-                                          markers: [],
-                                        );
-                                      }
+                                      //   return const MarkerLayer(
+                                      //     markers: [],
+                                      //   );
+                                      // }
                                       for (int i = 0;
                                           i < friendsState.locations.length;
                                           i++) {

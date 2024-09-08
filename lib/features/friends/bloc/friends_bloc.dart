@@ -46,15 +46,16 @@ class FriendsBloc extends Bloc<FriendsEvent, FriendsState> {
 
     /// Subscribe to friends location updates.
     // Create a list of streams for each friend's location updates
-    final locationUpdatesListStream =
-        await _subscribeToFriendsLocationUpdates(friendObjects);
-    _locationUpdatesSubscription =
-        locationUpdatesListStream.listen((locations) {
-      print('Locations updated: $locations');
-      if (locations.isNotEmpty) {
-        add(UpdateFriends(friendObjects, locations));
-      }
-    });
+    // final locationUpdatesListStream =
+    //     await _subscribeToFriendsLocationUpdates(friendObjects);
+    // _locationUpdatesSubscription =
+    //     locationUpdatesListStream.listen((locations) {
+    //   print('Locations updated: $locations');
+    //   if (locations.isNotEmpty) {
+    //     add(UpdateFriends(friendObjects, locations));
+    //   }
+    // });
+    emit(FriendsLoaded(friendObjects, const []));
   }
 
   void _onUpdateFriends(UpdateFriends event, Emitter<FriendsState> emit) async {
