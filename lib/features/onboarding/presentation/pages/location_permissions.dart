@@ -1,4 +1,6 @@
+import 'package:buoy/features/subscription/presentation/bloc/subscription_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gutter/flutter_gutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -104,6 +106,29 @@ class LocationPermissionsPage extends StatelessWidget {
                       ),
                     );
                   }),
+              const Gutter(),
+              Row(
+                children: [
+                  Expanded(
+                    child: BlocConsumer<SubscriptionBloc, SubscriptionState>(
+                      listener: (context, state) {
+                        if (state is SubscriptionError) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(state.message)));
+                        }
+                      },
+                      builder: (context, state) {
+                        return FilledButton(
+                          onPressed: () async {
+                            context.read<SubscriptionBloc>().add(ShowPaywall());
+                          },
+                          child: const Text('Continue'),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),

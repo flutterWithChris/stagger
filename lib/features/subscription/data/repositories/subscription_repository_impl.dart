@@ -34,8 +34,13 @@ class SubscriptionRepositoryImpl extends SubscriptionRepository {
   @override
   Future<Either<SubscriptionFailure, bool>> initialize({String? userId}) async {
     try {
-      await subscriptionDataSource.initialize(userId);
-      return const Right(true);
+      final result = await subscriptionDataSource.initialize(userId: userId);
+
+      if (result == true) {
+        return Right(result);
+      } else {
+        return Left(SubscriptionFailure('Failed to initialize subscription'));
+      }
     } catch (e) {
       return Left(SubscriptionFailure('Failed to initialize subscription'));
     }

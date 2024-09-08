@@ -3,12 +3,19 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i4;
+import 'dart:async' as _i5;
 
+import 'package:buoy/core/errors/failure.dart' as _i7;
 import 'package:buoy/features/subscription/data/data_sources/subscription_data_source.dart'
-    as _i3;
+    as _i4;
+import 'package:buoy/features/subscription/domain/usecases/init_subscriptions_usecase.dart'
+    as _i6;
+import 'package:buoy/features/subscription/domain/usecases/show_paywall_usecase.dart'
+    as _i8;
+import 'package:dartz/dartz.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:purchases_flutter/purchases_flutter.dart' as _i2;
+import 'package:purchases_ui_flutter/purchases_ui_flutter.dart' as _i9;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -53,54 +60,64 @@ class _FakeOfferings_2 extends _i1.SmartFake implements _i2.Offerings {
         );
 }
 
+class _FakeEither_3<L, R> extends _i1.SmartFake implements _i3.Either<L, R> {
+  _FakeEither_3(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
 /// A class which mocks [SubscriptionDataSource].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockSubscriptionDataSource extends _i1.Mock
-    implements _i3.SubscriptionDataSource {
+    implements _i4.SubscriptionDataSource {
   MockSubscriptionDataSource() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<void> initialize(String? userId) => (super.noSuchMethod(
+  _i5.Future<bool> initialize({String? userId}) => (super.noSuchMethod(
         Invocation.method(
           #initialize,
-          [userId],
+          [],
+          {#userId: userId},
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<bool>.value(false),
+      ) as _i5.Future<bool>);
 
   @override
-  _i4.Future<_i2.LogInResult> logIn(String? userId) => (super.noSuchMethod(
+  _i5.Future<_i2.LogInResult> logIn(String? userId) => (super.noSuchMethod(
         Invocation.method(
           #logIn,
           [userId],
         ),
-        returnValue: _i4.Future<_i2.LogInResult>.value(_FakeLogInResult_0(
+        returnValue: _i5.Future<_i2.LogInResult>.value(_FakeLogInResult_0(
           this,
           Invocation.method(
             #logIn,
             [userId],
           ),
         )),
-      ) as _i4.Future<_i2.LogInResult>);
+      ) as _i5.Future<_i2.LogInResult>);
 
   @override
-  _i4.Future<_i2.CustomerInfo> logOut() => (super.noSuchMethod(
+  _i5.Future<_i2.CustomerInfo> logOut() => (super.noSuchMethod(
         Invocation.method(
           #logOut,
           [],
         ),
-        returnValue: _i4.Future<_i2.CustomerInfo>.value(_FakeCustomerInfo_1(
+        returnValue: _i5.Future<_i2.CustomerInfo>.value(_FakeCustomerInfo_1(
           this,
           Invocation.method(
             #logOut,
             [],
           ),
         )),
-      ) as _i4.Future<_i2.CustomerInfo>);
+      ) as _i5.Future<_i2.CustomerInfo>);
 
   @override
   void setCustomerInfoUpdateListener() => super.noSuchMethod(
@@ -112,32 +129,90 @@ class MockSubscriptionDataSource extends _i1.Mock
       );
 
   @override
-  _i4.Future<_i2.CustomerInfo> getCustomerInfo() => (super.noSuchMethod(
+  _i5.Future<_i2.CustomerInfo> getCustomerInfo() => (super.noSuchMethod(
         Invocation.method(
           #getCustomerInfo,
           [],
         ),
-        returnValue: _i4.Future<_i2.CustomerInfo>.value(_FakeCustomerInfo_1(
+        returnValue: _i5.Future<_i2.CustomerInfo>.value(_FakeCustomerInfo_1(
           this,
           Invocation.method(
             #getCustomerInfo,
             [],
           ),
         )),
-      ) as _i4.Future<_i2.CustomerInfo>);
+      ) as _i5.Future<_i2.CustomerInfo>);
 
   @override
-  _i4.Future<_i2.Offerings> getOfferings() => (super.noSuchMethod(
+  _i5.Future<_i2.Offerings> getOfferings() => (super.noSuchMethod(
         Invocation.method(
           #getOfferings,
           [],
         ),
-        returnValue: _i4.Future<_i2.Offerings>.value(_FakeOfferings_2(
+        returnValue: _i5.Future<_i2.Offerings>.value(_FakeOfferings_2(
           this,
           Invocation.method(
             #getOfferings,
             [],
           ),
         )),
-      ) as _i4.Future<_i2.Offerings>);
+      ) as _i5.Future<_i2.Offerings>);
+}
+
+/// A class which mocks [InitSubscriptionsUsecase].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockInitSubscriptionsUsecase extends _i1.Mock
+    implements _i6.InitSubscriptionsUsecase {
+  MockInitSubscriptionsUsecase() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i5.Future<_i3.Either<_i7.SubscriptionFailure, bool>> execute() =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #execute,
+          [],
+        ),
+        returnValue:
+            _i5.Future<_i3.Either<_i7.SubscriptionFailure, bool>>.value(
+                _FakeEither_3<_i7.SubscriptionFailure, bool>(
+          this,
+          Invocation.method(
+            #execute,
+            [],
+          ),
+        )),
+      ) as _i5.Future<_i3.Either<_i7.SubscriptionFailure, bool>>);
+}
+
+/// A class which mocks [ShowPaywallUsecase].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockShowPaywallUsecase extends _i1.Mock
+    implements _i8.ShowPaywallUsecase {
+  MockShowPaywallUsecase() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i5.Future<_i3.Either<_i7.SubscriptionFailure, _i9.PaywallResult>>
+      execute() => (super.noSuchMethod(
+            Invocation.method(
+              #execute,
+              [],
+            ),
+            returnValue: _i5.Future<
+                    _i3
+                    .Either<_i7.SubscriptionFailure, _i9.PaywallResult>>.value(
+                _FakeEither_3<_i7.SubscriptionFailure, _i9.PaywallResult>(
+              this,
+              Invocation.method(
+                #execute,
+                [],
+              ),
+            )),
+          ) as _i5
+              .Future<_i3.Either<_i7.SubscriptionFailure, _i9.PaywallResult>>);
 }

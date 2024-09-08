@@ -34,8 +34,8 @@ void main() {
     test('should initialize the subscription', () async {
       // arrange
       const userId = '123';
-      when(mockSubscriptionDataSource.initialize(userId))
-          .thenAnswer((_) async => const Right(true));
+      when(mockSubscriptionDataSource.initialize(userId: userId))
+          .thenAnswer((_) async => true);
 
       // act
       final result = await subscriptionRepository.initialize(userId: userId);
@@ -45,8 +45,8 @@ void main() {
 
     test('should fail to initialize the subscription', () async {
       const userId = '123';
-      when(mockSubscriptionDataSource.initialize(userId)).thenThrow((_) async =>
-          PlatformException(
+      when(mockSubscriptionDataSource.initialize(userId: userId)).thenThrow(
+          (_) async => PlatformException(
               code: 'error', message: 'Failed to initialize subscription'));
 
       // act

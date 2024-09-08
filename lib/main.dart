@@ -24,6 +24,9 @@ import 'package:buoy/features/rides/bloc/rides_bloc.dart';
 import 'package:buoy/features/rides/repository/ride_repository.dart';
 import 'package:buoy/core/constants.dart';
 import 'package:buoy/config/theme/theme_cubit.dart';
+import 'package:buoy/features/subscription/data/repositories/subscription_repository_impl.dart';
+import 'package:buoy/features/subscription/presentation/bloc/subscription_bloc.dart';
+import 'package:buoy/injection_container.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,17 +36,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
+  setupLocator();
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
   await Supabase.initialize(
       url: dotenv.get('SUPABASE_URL'),
       anonKey: dotenv.get('SUPABASE_PUBLIC_KEY'));
-  FlutterSecureStorage storage = const FlutterSecureStorage();
-  String? magnolia = await storage.read(key: 'magnolia');
-  if (magnolia == null) {
-    magnolia = generateRandomKey(32);
-    await storage.write(key: 'magnolia', value: magnolia);
-  }
+
   runApp(const MyApp());
 }
 
@@ -84,7 +83,7 @@ class MyApp extends StatelessWidget {
         ),
         RepositoryProvider(
           create: (context) => RidersRepository(),
-        )
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -159,6 +158,10 @@ class MyApp extends StatelessWidget {
             create: (context) => OnboardingBloc(
                 userRepository: context.read<UserRepository>(),
                 ridersRepository: context.read<RidersRepository>()),
+          ),
+          BlocProvider(
+            create: (context) => locator<SubscriptionBloc>()
+              ..add(const InitializeSubscription()),
           )
         ],
         child: BlocBuilder<ThemeCubit, ThemeState>(
@@ -169,7 +172,7 @@ class MyApp extends StatelessWidget {
               routeInformationParser: goRouter.routeInformationParser,
               routerDelegate: goRouter.routerDelegate,
               routeInformationProvider: goRouter.routeInformationProvider,
-              title: 'Buoy',
+              title: 'Stagger',
               theme: FlexThemeData.light(
                 scheme: FlexScheme.flutterDash,
                 surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,

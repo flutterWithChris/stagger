@@ -10,12 +10,12 @@ sealed class SubscriptionState extends Equatable {
 final class SubscriptionInitial extends SubscriptionState {}
 
 final class SubscriptionLoaded extends SubscriptionState {
-  final Offerings? offerings;
+  final PaywallResult paywallResult;
 
-  const SubscriptionLoaded(this.offerings);
+  const SubscriptionLoaded(this.paywallResult);
 
   @override
-  List<Object?> get props => [offerings];
+  List<Object?> get props => [paywallResult];
 }
 
 final class SubscriptionError extends SubscriptionState {

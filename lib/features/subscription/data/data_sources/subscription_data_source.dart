@@ -3,23 +3,44 @@ import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
-class SubscriptionDataSource {
-  Future<void> initialize(String? userId) async {
-    PurchasesConfiguration configuration;
-    if (Platform.isAndroid) {
-      configuration = PurchasesConfiguration(
-        dotenv.env['REVCAT_ANDROID_API_KEY']!,
-      );
-    } else {
-      configuration = PurchasesConfiguration(
-        dotenv.env['REVCAT_IOS_API_KEY']!,
-      );
+abstract class SubscriptionDataSource {
+  Future<bool> initialize({String? userId});
+  Future<LogInResult> logIn(String userId);
+  Future<CustomerInfo> logOut();
+  void setCustomerInfoUpdateListener();
+  Future<CustomerInfo> getCustomerInfo();
+  Future<Offerings> getOfferings();
+}
+
+class SubscriptionDataSourceImpl extends SubscriptionDataSource {
+  @override
+  Future<bool> initialize({String? userId}) async {
+    try {
+      PurchasesConfiguration configuration;
+      if (Platform.isAndroid) {
+        configuration = PurchasesConfiguration(
+          dotenv.env['REVCAT_ANDROID_API_KEY']!,
+        );
+      } else {
+        configuration = PurchasesConfiguration(
+          dotenv.env['REVCAT_IOS_API_KEY']!,
+        );
+      }
+      await Purchases.configure(configuration..appUserID ??= userId).then(
+          (value) {
+        print('Purchases configured');
+      }, onError: (error) {
+        throw Exception('Error configuring purchases');
+      });
+
+      return true;
+    } catch (e) {
+      print('Error caught in data source');
+      throw Exception('Error initializing subscription');
     }
-    userId != null
-        ? await Purchases.configure(configuration..appUserID = userId)
-        : await Purchases.configure(configuration);
   }
 
+  @override
   Future<LogInResult> logIn(String userId) async {
     try {
       return await Purchases.logIn(userId);
@@ -28,6 +49,7 @@ class SubscriptionDataSource {
     }
   }
 
+  @override
   Future<CustomerInfo> logOut() async {
     try {
       return await Purchases.logOut();
@@ -36,12 +58,14 @@ class SubscriptionDataSource {
     }
   }
 
+  @override
   void setCustomerInfoUpdateListener() {
     Purchases.addCustomerInfoUpdateListener((purchaserInfo) {
       print('Purchaser info updated');
     });
   }
 
+  @override
   Future<CustomerInfo> getCustomerInfo() async {
     try {
       return await Purchases.getCustomerInfo();
@@ -50,6 +74,7 @@ class SubscriptionDataSource {
     }
   }
 
+  @override
   Future<Offerings> getOfferings() async {
     try {
       return await Purchases.getOfferings();
