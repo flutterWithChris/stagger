@@ -31,3 +31,19 @@ final class UpdateRider extends OnboardingEvent {
 
   const UpdateRider({required this.user, required this.rider});
 }
+
+final class SetCanMoveForward extends OnboardingEvent {
+  final bool canMoveForward;
+
+  const SetCanMoveForward(this.canMoveForward);
+}
+
+final class SetCanMoveForwardCallback extends OnboardingEvent {
+  final Function() callback;
+
+  const SetCanMoveForwardCallback(this.callback);
+}
+
+final class MoveForward extends OnboardingEvent {
+  const MoveForward();
+}

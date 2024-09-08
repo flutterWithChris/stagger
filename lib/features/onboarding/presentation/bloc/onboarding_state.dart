@@ -37,3 +37,23 @@ final class OnboardingError extends OnboardingState {
   @override
   List<Object> get props => [message];
 }
+
+final class UserUpdated extends OnboardingState {
+  @override
+  final User user;
+
+  const UserUpdated({required this.user});
+
+  @override
+  List<Object> get props => [user];
+}
+
+final class RiderUpdated extends OnboardingState {
+  @override
+  final Rider rider;
+
+  const RiderUpdated({required this.rider});
+
+  @override
+  List<Object> get props => [rider];
+}

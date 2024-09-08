@@ -28,3 +28,12 @@ class LogIn extends SubscriptionEvent {
 class LogOut extends SubscriptionEvent {}
 
 class ShowPaywall extends SubscriptionEvent {}
+
+class HandlePaywallResult extends SubscriptionEvent {
+  final PaywallResult paywallResult;
+
+  const HandlePaywallResult(this.paywallResult);
+
+  @override
+  List<Object> get props => [paywallResult];
+}

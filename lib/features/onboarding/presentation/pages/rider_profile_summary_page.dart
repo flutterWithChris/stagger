@@ -1,10 +1,24 @@
+import 'package:buoy/features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import 'package:buoy/shared/buoy_logo.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gutter/flutter_gutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class RiderProfileSummaryPage extends StatelessWidget {
+class RiderProfileSummaryPage extends StatefulWidget {
   const RiderProfileSummaryPage({super.key});
+
+  @override
+  State<RiderProfileSummaryPage> createState() =>
+      _RiderProfileSummaryPageState();
+}
+
+class _RiderProfileSummaryPageState extends State<RiderProfileSummaryPage> {
+  @override
+  void initState() {
+    context.read<OnboardingBloc>().add(const SetCanMoveForward(true));
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

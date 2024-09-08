@@ -18,15 +18,40 @@ class RideTypesPage extends StatefulWidget {
 class _RideTypesPageState extends State<RideTypesPage> {
   final List<RideType> _selectedRideTypes = [];
   @override
+  void initState() {
+    // TODO: implement initState
+
+    context.read<OnboardingBloc>().add(SetCanMoveForwardCallback(() {
+      if (_selectedRideTypes.isNotEmpty) {
+        context.read<OnboardingBloc>().add(UpdateRider(
+            rider: context
+                .read<OnboardingBloc>()
+                .state
+                .rider!
+                .copyWith(rideTypes: _selectedRideTypes),
+            user: context.read<OnboardingBloc>().state.user!));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(getErrorSnackbar(
+            'Please select at least one ride type to continue.'));
+      }
+    }));
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              flex: 3,
-              child: Column(
+    return BlocListener<OnboardingBloc, OnboardingState>(
+      listener: (context, state) {
+        if (state is RiderUpdated) {
+          context.read<OnboardingBloc>().add(const MoveForward());
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -84,48 +109,8 @@ class _RideTypesPageState extends State<RideTypesPage> {
                   )
                 ],
               ),
-            ),
-            Expanded(
-                child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0, vertical: 16.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                          child: BlocBuilder<OnboardingBloc, OnboardingState>(
-                        builder: (context, state) {
-                          if (state is OnboardingLoading) {
-                            return const CircularProgressIndicator();
-                          }
-                          if (state is OnboardingError) {
-                            return Text(state.message);
-                          }
-                          if (state is OnboardingLoaded) {
-                            return FilledButton(
-                                onPressed: () {
-                                  context.read<OnboardingBloc>().add(
-                                      UpdateRider(
-                                          rider: state.rider.copyWith(
-                                              rideTypes: _selectedRideTypes),
-                                          user: state.user));
-                                },
-                                child: const Text('Continue'));
-                          } else {
-                            return const Center(
-                              child: Text('Something Went Wrong...'),
-                            );
-                          }
-                        },
-                      )),
-                    ],
-                  ),
-                )
-              ],
-            ))
-          ],
+            ],
+          ),
         ),
       ),
     );

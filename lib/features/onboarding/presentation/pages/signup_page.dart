@@ -1,4 +1,5 @@
 import 'package:buoy/features/auth/presentation/cubit/signup_cubit.dart';
+import 'package:buoy/features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import 'package:buoy/shared/buoy_logo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

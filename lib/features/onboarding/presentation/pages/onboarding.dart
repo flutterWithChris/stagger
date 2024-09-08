@@ -1,3 +1,4 @@
+import 'package:buoy/features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import 'package:buoy/features/onboarding/presentation/pages/battery_info_page.dart';
 import 'package:buoy/features/onboarding/presentation/pages/bike_type_page.dart';
 import 'package:buoy/features/onboarding/presentation/pages/destinations_page.dart';
@@ -10,6 +11,7 @@ import 'package:buoy/features/onboarding/presentation/pages/rider_profile_summar
 import 'package:buoy/features/onboarding/presentation/pages/riding_experience_page.dart';
 import 'package:buoy/features/onboarding/presentation/pages/signup_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import 'add_friends_page.dart';
@@ -22,11 +24,12 @@ class Onboarding extends StatefulWidget {
 }
 
 class _OnboardingState extends State<Onboarding> {
-  PageController pageController = PageController();
+  late PageController pageController;
   int currentPage = 0;
   bool onFirstPage = true;
   @override
   void initState() {
+    pageController = context.read<OnboardingBloc>().pageController;
     // TODO: implement initState
     pageController.addListener(() {
       setState(() {
@@ -42,64 +45,71 @@ class _OnboardingState extends State<Onboarding> {
       bottomNavigationBar: Container(
           height: 60,
           color: Theme.of(context).navigationBarTheme.backgroundColor,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              AnimatedOpacity(
-                duration: const Duration(milliseconds: 400),
-                opacity: (pageController.hasClients &&
-                            pageController.page != null &&
-                            pageController.page != 0 &&
-                            pageController.page! > 1) ==
-                        false
-                    ? 0.0
-                    : 1.0,
-                child: TextButton(
-                  onPressed: () {
-                    pageController.previousPage(
-                        duration: const Duration(milliseconds: 400),
-                        curve: Curves.easeInOut);
-                  },
-                  child: Text(
-                    'Back',
-                    style: Theme.of(context).textTheme.bodyLarge,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                AnimatedOpacity(
+                  duration: const Duration(milliseconds: 400),
+                  opacity: (pageController.hasClients &&
+                              pageController.page != null &&
+                              pageController.page != 0 &&
+                              pageController.page! > 1) ==
+                          false
+                      ? 0.0
+                      : 1.0,
+                  child: TextButton(
+                    onPressed: () {
+                      pageController.previousPage(
+                          duration: const Duration(milliseconds: 400),
+                          curve: Curves.easeInOut);
+                    },
+                    child: Text(
+                      'Back',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
                   ),
                 ),
-              ),
-              SmoothPageIndicator(
-                controller: pageController,
-                count: 3,
-                effect: WormEffect(
-                  dotColor: Theme.of(context).colorScheme.secondaryContainer,
-                  activeDotColor: Theme.of(context).colorScheme.secondary,
-                  dotHeight: 10,
-                  dotWidth: 10,
-                  //  expansionFactor: 2,
-                  spacing: 5,
-                ),
-              ),
-              AnimatedOpacity(
-                duration: const Duration(milliseconds: 400),
-                opacity: (pageController.hasClients &&
-                            pageController.page != null &&
-                            pageController.page != 0 &&
-                            pageController.page != 2) ==
-                        false
-                    ? 0.0
-                    : 1.0,
-                child: TextButton(
-                  onPressed: () {
-                    pageController.nextPage(
-                        duration: const Duration(milliseconds: 400),
-                        curve: Curves.easeInOut);
-                  },
-                  child: Text(
-                    'Next',
-                    style: Theme.of(context).textTheme.bodyLarge,
+                // SmoothPageIndicator(
+                //   controller: pageController,
+                //   count: 11,
+                //   effect: WormEffect(
+                //     dotColor: Theme.of(context).colorScheme.secondaryContainer,
+                //     activeDotColor: Theme.of(context).colorScheme.secondary,
+                //     dotHeight: 10,
+                //     dotWidth: 10,
+                //     //  expansionFactor: 2,
+                //     spacing: 5,
+                //   ),
+                // ),
+                AnimatedOpacity(
+                  duration: const Duration(milliseconds: 400),
+                  opacity: (pageController.hasClients &&
+                              pageController.page != null &&
+                              pageController.page != 0 &&
+                              pageController.page! > 0) ==
+                          false
+                      ? 0.0
+                      : 1.0,
+                  child: FilledButton.tonal(
+                    onPressed: () {
+                      context.read<OnboardingBloc>().canMoveForward == false
+                          ? context
+                              .read<OnboardingBloc>()
+                              .checkCanMoveForward!()
+                          : pageController.nextPage(
+                              duration: const Duration(milliseconds: 400),
+                              curve: Curves.easeInOut);
+                    },
+                    child: Text(
+                      'Next',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           )),
       body: Stack(
         children: [
@@ -128,7 +138,6 @@ class _OnboardingState extends State<Onboarding> {
               const RideTypesPage(),
               const DestinationsPage(),
               const LocationPermissionsPage(),
-              const AddFriendsPage(),
             ],
           ),
         ],

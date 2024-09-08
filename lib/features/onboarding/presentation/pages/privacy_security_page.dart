@@ -1,12 +1,26 @@
+import 'package:buoy/features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gutter/flutter_gutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class PrivacySecurityPage extends StatelessWidget {
+class PrivacySecurityPage extends StatefulWidget {
   const PrivacySecurityPage({super.key});
+
+  @override
+  State<PrivacySecurityPage> createState() => _PrivacySecurityPageState();
+}
+
+class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    context.read<OnboardingBloc>().add(const SetCanMoveForward(true));
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
