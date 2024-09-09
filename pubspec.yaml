@@ -80,6 +80,7 @@ dependencies:
   purchases_flutter: ^8.1.0
   purchases_ui_flutter: ^8.1.0
   get_it: ^7.7.0
+  awesome_notifications: ^0.9.3+1
 
 dev_dependencies:
   flutter_test:

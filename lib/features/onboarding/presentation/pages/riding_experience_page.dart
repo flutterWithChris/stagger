@@ -90,6 +90,8 @@ class _RidingExperiencePageState extends State<RidingExperiencePage> {
                         ),
                         const Gutter(),
                         TextFormField(
+                          keyboardType: TextInputType.numberWithOptions(signed: true),
+                          textInputAction: TextInputAction.done,
                           enabled: !newRider,
                           controller: _yearsRidingController,
                           validator: (value) => value!.isEmpty

@@ -46,6 +46,7 @@ class BackgroundLocationRepository {
       distanceFilter: 100.0,
       disableElasticity: true,
       stopTimeout: 3,
+      showsBackgroundLocationIndicator: true
     )).then((state) {
       if (!state.enabled) {
         bg.BackgroundGeolocation.start();

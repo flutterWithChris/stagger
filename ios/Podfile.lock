@@ -1,0 +1,176 @@
+PODS:
+  - app_links (0.0.2):
+    - Flutter
+  - AppAuth (1.7.5):
+    - AppAuth/Core (= 1.7.5)
+    - AppAuth/ExternalUserAgent (= 1.7.5)
+  - AppAuth/Core (1.7.5)
+  - AppAuth/ExternalUserAgent (1.7.5):
+    - AppAuth/Core
+  - awesome_notifications (0.9.3):
+    - Flutter
+    - IosAwnCore (~> 0.9.3)
+  - background_fetch (1.3.6):
+    - Flutter
+  - CocoaLumberjack (3.8.5):
+    - CocoaLumberjack/Core (= 3.8.5)
+  - CocoaLumberjack/Core (3.8.5)
+  - compassx (0.0.1):
+    - Flutter
+  - Flutter (1.0.0)
+  - flutter_background_geolocation (4.16.0):
+    - CocoaLumberjack (~> 3.8.5)
+    - Flutter
+  - flutter_compass_v2 (0.0.1):
+    - Flutter
+  - flutter_secure_storage (6.0.0):
+    - Flutter
+  - google_sign_in_ios (0.0.1):
+    - AppAuth (>= 1.7.4)
+    - Flutter
+    - FlutterMacOS
+    - GoogleSignIn (~> 7.1)
+    - GTMSessionFetcher (>= 3.4.0)
+  - GoogleSignIn (7.1.0):
+    - AppAuth (< 2.0, >= 1.7.3)
+    - GTMAppAuth (< 5.0, >= 4.1.1)
+    - GTMSessionFetcher/Core (~> 3.3)
+  - GTMAppAuth (4.1.1):
+    - AppAuth/Core (~> 1.7)
+    - GTMSessionFetcher/Core (< 4.0, >= 3.3)
+  - GTMSessionFetcher (3.5.0):
+    - GTMSessionFetcher/Full (= 3.5.0)
+  - GTMSessionFetcher/Core (3.5.0)
+  - GTMSessionFetcher/Full (3.5.0):
+    - GTMSessionFetcher/Core
+  - IosAwnCore (0.9.3)
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - permission_handler_apple (9.3.0):
+    - Flutter
+  - purchases_flutter (8.1.0):
+    - Flutter
+    - PurchasesHybridCommon (= 13.1.0)
+  - purchases_ui_flutter (8.1.0):
+    - Flutter
+    - PurchasesHybridCommonUI (= 13.1.0)
+  - PurchasesHybridCommon (13.1.0):
+    - RevenueCat (= 5.3.0)
+  - PurchasesHybridCommonUI (13.1.0):
+    - PurchasesHybridCommon (= 13.1.0)
+    - RevenueCatUI (= 5.3.0)
+  - RevenueCat (5.3.0)
+  - RevenueCatUI (5.3.0):
+    - RevenueCat (= 5.3.0)
+  - shared_preferences_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - sign_in_with_apple (0.0.1):
+    - Flutter
+  - sqflite (0.0.3):
+    - Flutter
+    - FlutterMacOS
+  - url_launcher_ios (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - app_links (from `.symlinks/plugins/app_links/ios`)
+  - awesome_notifications (from `.symlinks/plugins/awesome_notifications/ios`)
+  - background_fetch (from `.symlinks/plugins/background_fetch/ios`)
+  - compassx (from `.symlinks/plugins/compassx/ios`)
+  - Flutter (from `Flutter`)
+  - flutter_background_geolocation (from `.symlinks/plugins/flutter_background_geolocation/ios`)
+  - flutter_compass_v2 (from `.symlinks/plugins/flutter_compass_v2/ios`)
+  - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
+  - google_sign_in_ios (from `.symlinks/plugins/google_sign_in_ios/darwin`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
+  - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
+  - purchases_flutter (from `.symlinks/plugins/purchases_flutter/ios`)
+  - purchases_ui_flutter (from `.symlinks/plugins/purchases_ui_flutter/ios`)
+  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
+  - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
+  - sqflite (from `.symlinks/plugins/sqflite/darwin`)
+  - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
+
+SPEC REPOS:
+  trunk:
+    - AppAuth
+    - CocoaLumberjack
+    - GoogleSignIn
+    - GTMAppAuth
+    - GTMSessionFetcher
+    - IosAwnCore
+    - PurchasesHybridCommon
+    - PurchasesHybridCommonUI
+    - RevenueCat
+    - RevenueCatUI
+
+EXTERNAL SOURCES:
+  app_links:
+    :path: ".symlinks/plugins/app_links/ios"
+  awesome_notifications:
+    :path: ".symlinks/plugins/awesome_notifications/ios"
+  background_fetch:
+    :path: ".symlinks/plugins/background_fetch/ios"
+  compassx:
+    :path: ".symlinks/plugins/compassx/ios"
+  Flutter:
+    :path: Flutter
+  flutter_background_geolocation:
+    :path: ".symlinks/plugins/flutter_background_geolocation/ios"
+  flutter_compass_v2:
+    :path: ".symlinks/plugins/flutter_compass_v2/ios"
+  flutter_secure_storage:
+    :path: ".symlinks/plugins/flutter_secure_storage/ios"
+  google_sign_in_ios:
+    :path: ".symlinks/plugins/google_sign_in_ios/darwin"
+  path_provider_foundation:
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
+  permission_handler_apple:
+    :path: ".symlinks/plugins/permission_handler_apple/ios"
+  purchases_flutter:
+    :path: ".symlinks/plugins/purchases_flutter/ios"
+  purchases_ui_flutter:
+    :path: ".symlinks/plugins/purchases_ui_flutter/ios"
+  shared_preferences_foundation:
+    :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
+  sign_in_with_apple:
+    :path: ".symlinks/plugins/sign_in_with_apple/ios"
+  sqflite:
+    :path: ".symlinks/plugins/sqflite/darwin"
+  url_launcher_ios:
+    :path: ".symlinks/plugins/url_launcher_ios/ios"
+
+SPEC CHECKSUMS:
+  app_links: e7a6750a915a9e161c58d91bc610e8cd1d4d0ad0
+  AppAuth: 501c04eda8a8d11f179dbe8637b7a91bb7e5d2fa
+  awesome_notifications: 66d28ab7174ca2823b04d275cb043e0a4a3eb9cf
+  background_fetch: 3d21b8b9fdf41b6439fae9cd840d3740126b9f7e
+  CocoaLumberjack: 6a459bc897d6d80bd1b8c78482ec7ad05dffc3f0
+  compassx: 6abaa865a6241ed744ad53aec8d9241c6719ec60
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  flutter_background_geolocation: bdff621611f4cb0e060ce10dc9678f05cf3d8d31
+  flutter_compass_v2: f7704b078814b705e76ae2bd48fe48ae6cd067df
+  flutter_secure_storage: d33dac7ae2ea08509be337e775f6b59f1ff45f12
+  google_sign_in_ios: 07375bfbf2620bc93a602c0e27160d6afc6ead38
+  GoogleSignIn: d4281ab6cf21542b1cfaff85c191f230b399d2db
+  GTMAppAuth: f69bd07d68cd3b766125f7e072c45d7340dea0de
+  GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
+  IosAwnCore: b8601fbb37f7b3560f31b84ebf55a72f65812e05
+  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
+  permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
+  purchases_flutter: 81d2654605bb5c9f7d777f8b51e4c949ffea83cd
+  purchases_ui_flutter: b3e3e14be57de60c5f80c776ad3d4d87a5a5a6da
+  PurchasesHybridCommon: 04828bd308b446146db7976c35b54d62f3659a9b
+  PurchasesHybridCommonUI: c8e6cc8eb4257b11f8db50230c43c3a60c63a80a
+  RevenueCat: 4ad1d1c656f4d66bbfde7c83a4669fa1c1cb6527
+  RevenueCatUI: 3a003b4cd1ac7ebda5b059a008fecb1918c1cb81
+  shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
+  sign_in_with_apple: f3bf75217ea4c2c8b91823f225d70230119b8440
+  sqflite: 673a0e54cc04b7d6dba8d24fb8095b31c3a99eec
+  url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
+
+PODFILE CHECKSUM: 79542096f988cb4ff1344d3e0b50c5a3d505f16c
+
+COCOAPODS: 1.15.2

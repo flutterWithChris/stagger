@@ -72,6 +72,7 @@ class _BikeTypePageState extends State<BikeTypePage> {
                         controller: _bikeModelController,
                         validator: (value) =>
                             value!.isEmpty ? 'Please enter a bike model' : null,
+                        textCapitalization: TextCapitalization.words,
                         decoration: InputDecoration(
                           labelText: 'Bike Model',
                           hintText: 'Honda CB500X, Yamaha R1, etc.',

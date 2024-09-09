@@ -174,9 +174,14 @@ class _LocationPermissionsPageState extends State<LocationPermissionsPage> {
                             if (granted != null && granted.contains(false)) {
                               return FilledButton(
                                 onPressed: () async {
-                                  await Permission.location.request();
-                                  await Permission.locationAlways.request();
-                                  setState(() {});
+                                  print('Requestin location permission');
+                                  await Permission.location.request().then((_) {
+                                    print('Location permission requested');
+                                  });
+                                  await Permission.locationAlways.request().then(
+                                    (value){ setState(() {});}
+                                  );
+                                 
                                 },
                                 child:
                                     const Text('Enable Location Permissions'),

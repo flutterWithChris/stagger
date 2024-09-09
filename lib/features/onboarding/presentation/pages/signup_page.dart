@@ -111,6 +111,11 @@ class _SignupState extends State<Signup> {
                       children: [
                         Expanded(
                           child: FilledButton.icon(
+                              style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.black),
+                              
+                                  foregroundColor: 
+                                  Theme.of(context).brightness == Brightness.dark ? WidgetStatePropertyAll(Colors.white) :
+                                  null),
                               onPressed: () {
                                 Platform.isIOS
                                     ? context
