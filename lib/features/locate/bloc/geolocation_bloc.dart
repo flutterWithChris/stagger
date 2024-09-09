@@ -19,6 +19,7 @@ import 'package:mapbox_search/mapbox_search.dart' hide Location;
 import 'package:meta/meta.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 import '../repository/mapbox_search_repository.dart';
 
@@ -290,6 +291,8 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
   ) async {
     try {
       emit(GeolocationLoading());
+      await _locationRealtimeRepository
+          .deleteLocationUpdate(Supabase.instance.client.auth.currentUser!.id);
       await _backgroundLocationRepository.stopBackgroundGeolocation();
       emit(GeolocationStopped());
     } catch (e) {

@@ -1,9 +1,43 @@
+import 'package:buoy/core/constants.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
+import 'package:supabase/supabase.dart';
+import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 class BackgroundLocationRepository {
+  final SupabaseClient supabase = Supabase.instance.client;
+
   /// Initialize BackgroundGeolocation
   Future<void> initBackgroundGeolocation() async {
+    final channel = supabase.channel('riders',
+        opts: RealtimeChannelConfig(
+          key: supabase.auth.currentUser!.id,
+        ));
+
+    channel.onPresenceSync((payload) {
+      print('Synced presence state: ${channel.presenceState()}');
+    }).onPresenceJoin((payload) {
+      print('Newly joined presences $payload');
+    }).onPresenceLeave((payload) async {
+      try {
+        await supabase
+            .from('location_updates')
+            .delete()
+            .eq('user_id', Supabase.instance.client.auth.currentUser!.id);
+
+        await bg.BackgroundGeolocation.stop();
+        print('Newly left presences: $payload');
+      } catch (e) {
+        print('Error leaving presence: $e');
+      }
+    }).subscribe((status, error) async {
+      if (status == RealtimeSubscribeStatus.subscribed) {
+        await channel.track({'online_at': DateTime.now().toIso8601String()});
+      }
+      if (status == RealtimeSubscribeStatus.closed) {
+        print('Channel closed');
+      }
+    });
     await bg.BackgroundGeolocation.ready(bg.Config(
       desiredAccuracy: bg.Config.DESIRED_ACCURACY_MEDIUM,
       stopOnTerminate: true,
@@ -52,6 +86,10 @@ class BackgroundLocationRepository {
   /// Subscribe to power save change events
   void onPowerSaveChange(Function(bool) callback) {
     bg.BackgroundGeolocation.onPowerSaveChange(callback);
+  }
+
+  void onHeartbeat(Function(bg.HeartbeatEvent) callback) {
+    bg.BackgroundGeolocation.onHeartbeat(callback);
   }
 
   /// Subscribe to enabled change events

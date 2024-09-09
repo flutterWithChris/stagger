@@ -33,4 +33,22 @@ class LocationRealtimeRepository {
       rethrow;
     }
   }
+
+  Future<void> deleteLocationUpdate(String userId) async {
+    try {
+      print('-Deleted location update-');
+      await _supabase.from('location_updates').delete().eq('user_id', userId);
+    } catch (e) {
+      print('Error deleting location: $e');
+      scaffoldMessengerKey.currentState!.showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Error deleting location!',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      rethrow;
+    }
+  }
 }
