@@ -29,6 +29,7 @@ class PublicRideDetailsSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
         initialChildSize: 0.618,
+        maxChildSize: 0.9,
         expand: false,
         builder: (context, controller) => BlocConsumer<RideBloc, RideState>(
               listener: (context, state) {
@@ -91,21 +92,26 @@ class PublicRideDetailsSheet extends StatelessWidget {
                   bool stopped =
                       rideParticipant?.arrivalStatus == ArrivalStatus.stopped;
 
-                  return Column(
+                  return ListView(
                     //  /   physics: const NeverScrollableScrollPhysics(),
-                    // controller: controller,
-                    mainAxisSize: MainAxisSize.min,
+                    controller: controller,
+                    // mainAxisSize: MainAxisSize.min,
                     children: [
                       const SizedBox(
                         height: 8.0,
                       ),
-                      Container(
-                        height: 4.0,
-                        width: 48.0,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).dividerColor,
-                          borderRadius: BorderRadius.circular(2.0),
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            height: 4.0,
+                            width: 48.0,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).dividerColor,
+                              borderRadius: BorderRadius.circular(2.0),
+                            ),
+                          ),
+                        ],
                       ),
                       // Title
                       Padding(
@@ -153,7 +159,7 @@ class PublicRideDetailsSheet extends StatelessWidget {
                                 allRideParticipantsAtMeetingPoint:
                                     allRideParticipantsAtMeetingPoint,
                                 enRoute: enRoute,
-                                rideParticipant: rideParticipant!,
+                                rideParticipant: rideParticipant,
                                 stopped: stopped),
                           ),
                           // const SizedBox(height: 8.0),
@@ -359,6 +365,7 @@ class RideParticipantsList extends StatelessWidget {
               print('Riders going into list view: ${state.riders}');
               return ListView.builder(
                 shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: ride.rideParticipants!.length,
                 itemBuilder: (context, index) {
                   RideParticipant rideParticipant =
@@ -640,7 +647,7 @@ class PublicRideActionCard extends StatelessWidget {
   final bool waitingForRideParticipants;
   final bool allRideParticipantsAtMeetingPoint;
   final bool enRoute;
-  final RideParticipant rideParticipant;
+  final RideParticipant? rideParticipant;
   final bool stopped;
 
   @override
@@ -706,8 +713,8 @@ class PublicRideActionCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           subtitle: ride.status == RideStatus.meetingUp &&
-                  (rideParticipant.arrivalStatus == ArrivalStatus.stopped ||
-                      rideParticipant.arrivalStatus == ArrivalStatus.enRoute)
+                  (rideParticipant?.arrivalStatus == ArrivalStatus.stopped ||
+                      rideParticipant?.arrivalStatus == ArrivalStatus.enRoute)
               ? Text.rich(
                   TextSpan(
                     text: 'It\'s time to head to the meeting point!',
@@ -742,7 +749,7 @@ class PublicRideActionCard extends StatelessWidget {
                           PhosphorIconsStyle.fill,
                         ),
                       RideStatus.meetingUp => switch (
-                            rideParticipant.arrivalStatus) {
+                            rideParticipant?.arrivalStatus) {
                           ArrivalStatus.stopped =>
                             PhosphorIcons.navigationArrow(
                               PhosphorIconsStyle.fill,
