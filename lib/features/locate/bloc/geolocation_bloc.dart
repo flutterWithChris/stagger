@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:bloc/bloc.dart';
 import 'package:buoy/features/activity/bloc/activity_bloc.dart';
 import 'package:buoy/features/locate/model/location.dart';
@@ -8,6 +9,7 @@ import 'package:buoy/features/locate/repository/encryption_repository.dart';
 import 'package:buoy/features/locate/repository/location_realtime_repository.dart';
 import 'package:buoy/features/locate/repository/public_key_repository.dart';
 import 'package:buoy/core/constants.dart';
+import 'package:buoy/features/notifications/domain/usecase/show_notification_usecase.dart';
 import 'package:compassx/compassx.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
@@ -34,18 +36,21 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
   final ActivityBloc _activityBloc;
   final List<bg.Location> _locationUpdates = [];
   final EncryptionRepository _encryptionRepository;
+  final ShowNotificationUsecase showNotificationUsecase;
   StreamSubscription? _compassSubscription;
   Timer? _timer;
   Timer? _locationDelayTimer;
+  bool _locationTrackingNotificationShown = false;
 
-  GeolocationBloc(
-      {required BackgroundLocationRepository backgroundLocationRepository,
-      required LocationRealtimeRepository locationRealtimeRepository,
-      required MapboxSearchRepository mapboxSearchRepository,
-      required PublicKeyRepository publicKeyRepository,
-      required ActivityBloc activityBloc,
-      required EncryptionRepository encryptionRepository})
-      : _backgroundLocationRepository = backgroundLocationRepository,
+  GeolocationBloc({
+    required BackgroundLocationRepository backgroundLocationRepository,
+    required LocationRealtimeRepository locationRealtimeRepository,
+    required MapboxSearchRepository mapboxSearchRepository,
+    required PublicKeyRepository publicKeyRepository,
+    required ActivityBloc activityBloc,
+    required EncryptionRepository encryptionRepository,
+    required this.showNotificationUsecase,
+  })  : _backgroundLocationRepository = backgroundLocationRepository,
         _locationRealtimeRepository = locationRealtimeRepository,
         _mapboxSearchRepository = mapboxSearchRepository,
         _encryptionRepository = encryptionRepository,
@@ -132,6 +137,13 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
 
         return bgLocation;
       });
+      if (_locationTrackingNotificationShown == false) {
+        await showNotificationUsecase.call('Location Tracking Enabled',
+            'Your location is now being tracked in the background',
+            category: NotificationCategory.Service);
+
+        _locationTrackingNotificationShown = true;
+      }
 
       /// Update activity bloc
       // _activityBloc.add(LoadActivity(activity: bgLocation.activity.type));

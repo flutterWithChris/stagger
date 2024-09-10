@@ -58,3 +58,7 @@ class InvalidCredentialsFailure extends Failure {
 class SubscriptionFailure extends Failure {
   SubscriptionFailure(super.message);
 }
+
+class NotificationFailure extends Failure {
+  NotificationFailure(super.message);
+}

@@ -1,3 +1,4 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:buoy/features/activity/bloc/activity_bloc.dart';
 import 'package:buoy/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:buoy/features/auth/presentation/cubit/login_cubit.dart';
@@ -13,6 +14,9 @@ import 'package:buoy/features/locate/repository/location_realtime_repository.dar
 import 'package:buoy/features/locate/repository/mapbox_search_repository.dart';
 import 'package:buoy/features/locate/repository/public_key_repository.dart';
 import 'package:buoy/features/motion/bloc/motion_bloc.dart';
+import 'package:buoy/features/notifications/data/repository/notification_repository_impl.dart';
+import 'package:buoy/features/notifications/domain/usecase/show_notification_usecase.dart';
+import 'package:buoy/features/notifications/presentation/bloc/notification_bloc.dart';
 import 'package:buoy/features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import 'package:buoy/features/profile/repository/bloc/profile_bloc.dart';
 import 'package:buoy/features/profile/repository/user_repository.dart';
@@ -46,8 +50,23 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
+
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    // Only after at least the action method is set, the notification events are delivered
+    // context.read<NotificationBloc>().add(InitializeNotifications());
+    super.initState();
+  }
 
   // This widget is the root of your application.
   @override
@@ -84,6 +103,8 @@ class MyApp extends StatelessWidget {
         RepositoryProvider(
           create: (context) => RidersRepository(),
         ),
+        RepositoryProvider(
+            create: (context) => locator<NotificationRepositoryImpl>()),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -116,15 +137,16 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider(
             create: (context) => GeolocationBloc(
-                locationRealtimeRepository:
-                    context.read<LocationRealtimeRepository>(),
-                mapboxSearchRepository: context.read<MapboxSearchRepository>(),
-                activityBloc: context.read<ActivityBloc>(),
-                backgroundLocationRepository:
-                    context.read<BackgroundLocationRepository>(),
-                encryptionRepository: context.read<EncryptionRepository>(),
-                publicKeyRepository: context.read<PublicKeyRepository>())
-              ..add(LoadGeolocation()),
+              locationRealtimeRepository:
+                  context.read<LocationRealtimeRepository>(),
+              mapboxSearchRepository: context.read<MapboxSearchRepository>(),
+              activityBloc: context.read<ActivityBloc>(),
+              backgroundLocationRepository:
+                  context.read<BackgroundLocationRepository>(),
+              encryptionRepository: context.read<EncryptionRepository>(),
+              publicKeyRepository: context.read<PublicKeyRepository>(),
+              showNotificationUsecase: locator<ShowNotificationUsecase>(),
+            )..add(LoadGeolocation()),
           ),
           BlocProvider(
               create: (context) => FriendsBloc(
@@ -162,6 +184,10 @@ class MyApp extends StatelessWidget {
           BlocProvider(
             create: (context) => locator<SubscriptionBloc>()
               ..add(const InitializeSubscription()),
+          ),
+          BlocProvider(
+            create: (context) =>
+                locator<NotificationBloc>()..add(InitializeNotifications()),
           )
         ],
         child: BlocBuilder<ThemeCubit, ThemeState>(
