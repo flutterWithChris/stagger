@@ -453,11 +453,11 @@ class _MainMapState extends State<MainMap> {
                                                   }
                                                   if (ridersState
                                                       is RidersLoaded) {
+                                                    List<Rider> ridersWithLocation = ridersState.riders.where((rider) => rider.currentLocation != null).toList();
                                                     return MarkerLayer(
                                                       markers: [
                                                         for (Rider rider
-                                                            in ridersState
-                                                                .riders)
+                                                            in ridersWithLocation)
                                                           Marker(
                                                             point: LatLng(
                                                                 rider

@@ -83,78 +83,96 @@ class RiderDetailsSheet extends StatelessWidget {
               // ),
               // const Gutter(),
               Row(
-                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Experience: ',
-                      style: Theme.of(context).textTheme.bodyMedium),
-                  const GutterSmall(),
-                  const Chip(
-                    visualDensity: VisualDensity.compact,
-                    side: BorderSide.none,
-                    label: Text(
-                      '3 Years',
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
+                  Flexible(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('Exp: ',
+                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              )),
+                        const GutterSmall(),
+                        Flexible(
+                          child: Chip(
+                            visualDensity: VisualDensity.compact,
+                            side: BorderSide.none,
+                            label: Text(
+                              rider.yearsRiding == 0
+                              ? 'New Rider'
+                              : '${rider.yearsRiding} Years',
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                            backgroundColor: Colors.orange,
+                          ),
+                        ),
+                      ],
                     ),
-                    backgroundColor: Colors.orange,
+                  ),
+                  Gutter(),
+                  // Gear Preference
+                  Flexible(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('Gear: ',
+                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              )),
+                        const GutterSmall(),
+                        Flexible(
+                          child: Chip(
+                            visualDensity: VisualDensity.compact,
+                            side: BorderSide.none,
+                            label: Text(
+                              rider.gearLevel?.name.enumToString() ?? 'Gear',
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                            backgroundColor: Colors.orange,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
               const Gutter(),
-              const Text('Preferred Ride Types'),
+              Text('Preferred Ride Types', style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              )),
               const GutterSmall(),
               Wrap(
                 spacing: 6,
                 runSpacing: 3,
                 children: [
-                  Chip(
-                    visualDensity: VisualDensity.compact,
-                    avatar: PhosphorIcon(PhosphorIcons.sunHorizon()),
-                    label: const Text('Sunset Rides'),
-                  ),
-                  Chip(
-                    visualDensity: VisualDensity.compact,
-                    avatar: PhosphorIcon(PhosphorIcons.moon()),
-                    label: const Text('Night Rides'),
-                  ),
-                  Chip(
-                    visualDensity: VisualDensity.compact,
-                    avatar: PhosphorIcon(PhosphorIcons.sun()),
-                    label: const Text('Day Rides'),
-                  ),
                   if (rider.rideTypes != null)
                     for (var rideType in rider.rideTypes!)
                       Chip(
                         visualDensity: VisualDensity.compact,
-                        avatar: PhosphorIcon(PhosphorIcons.motorcycle()),
                         label: Text(rideType.name.enumToString()),
                       ),
                 ],
               ),
               const Gutter(),
-              const Text('I Like Stops At'),
+               Text('I Like Stops At', style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              )),
               const GutterSmall(),
               Wrap(
                 spacing: 6,
                 runSpacing: 3,
                 children: [
-                  Chip(
-                      visualDensity: VisualDensity.compact,
-                      avatar: PhosphorIcon(PhosphorIcons.coffee()),
-                      label: const Text('Cafes')),
-                  Chip(
-                      visualDensity: VisualDensity.compact,
-                      avatar: PhosphorIcon(PhosphorIcons.iceCream()),
-                      label: const Text('Ice Cream Shops')),
-                  Chip(
-                      visualDensity: VisualDensity.compact,
-                      avatar: PhosphorIcon(PhosphorIcons.pizza()),
-                      label: const Text('Pizza Places')),
-                  Chip(
-                      visualDensity: VisualDensity.compact,
-                      avatar: PhosphorIcon(PhosphorIcons.hamburger()),
-                      label: const Text('Burger Joints')),
+                  if (rider.rideDestinations != null)
+                    for (var rideDestination in rider.rideDestinations!)
+                      Chip(
+                        visualDensity: VisualDensity.compact,
+                        label: Text(rideDestination.name.enumToString()),
+                      ),
+                  
                 ],
               ),
             ],

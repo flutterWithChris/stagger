@@ -12,6 +12,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gutter/flutter_gutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -70,14 +71,10 @@ class PublicRideDetailsSheet extends StatelessWidget {
                           Supabase.instance.client.auth.currentUser!.id)
                       .toList();
                   bool allRideParticipantsAtMeetingPoint =
-                      rideParticipant?.arrivalStatus ==
-                              ArrivalStatus.atMeetingPoint &&
                           rideParticipants.every((rideParticipant) =>
                               rideParticipant.arrivalStatus ==
                               ArrivalStatus.atMeetingPoint);
-                  bool waitingForRideParticipants =
-                      rideParticipant?.arrivalStatus ==
-                              ArrivalStatus.atMeetingPoint &&
+                  bool waitingForRideParticipants = allRideParticipantsAtMeetingPoint == false &&
                           rideParticipants.any((rideParticipant) =>
                               rideParticipant.arrivalStatus ==
                                   ArrivalStatus.stopped ||
@@ -379,118 +376,142 @@ class RideParticipantsList extends StatelessWidget {
                     return const SizedBox.shrink();
                   }
 
-                  return Material(
-                    type: MaterialType.transparency,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16.0),
-                    ),
-                    // borderRadius: BorderRadius.circular(16.0),
-                    child: InkWell(
-                      radius: 16.0,
-                      customBorder: RoundedRectangleBorder(
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                    child: Material(
+                      type: MaterialType.transparency,
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16.0),
                       ),
-                      borderRadius: BorderRadius.circular(16.0),
-                      onTap: () =>
-                          context.push('/profile/${rideParticipant.userId}'),
-                      child: ListTile(
-                        shape: RoundedRectangleBorder(
+                      // borderRadius: BorderRadius.circular(16.0),
+                      child: InkWell(
+                        radius: 16.0,
+                        customBorder: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16.0),
                         ),
-                        onTap: () {
-                          context
-                              .read<RiderProfileBloc>()
-                              .add(LoadRiderProfile(rider: rider));
-                          context
-                              .push('/rider-profile/${rideParticipant.userId}');
-                        },
-                        leading: CircleAvatar(
-                          radius: 24.0,
-                          // foregroundImage: rideParticipant.photoUrl != null
-                          //     ? CachedNetworkImageProvider(rideParticipant.photoUrl!)
-                          //     : null,
-                          child: rideParticipant.photoUrl == null
-                              ? PhosphorIcon(
-                                  PhosphorIcons.personSimple(),
-                                  size: 24,
-                                )
-                              : ClipRRect(
-                                  borderRadius: BorderRadius.circular(50.0),
-                                  child: CachedNetworkImage(
-                                    imageUrl: rideParticipant.photoUrl!,
-                                    height: 48.0,
-                                    width: 48.0,
-                                    fit: BoxFit.cover,
+                        borderRadius: BorderRadius.circular(16.0),
+                        onTap: () =>
+                            context.push('/profile/${rideParticipant.userId}'),
+                        child: InkWell(
+                          // shape: RoundedRectangleBorder(
+                          //   borderRadius: BorderRadius.circular(16.0),
+                          // ),
+                          onTap: () {
+                            context
+                                .read<RiderProfileBloc>()
+                                .add(LoadRiderProfile(rider: rider));
+                            context
+                                .push('/rider-profile/${rideParticipant.userId}');
+                          },
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                            radius: 24.0,
+                            // foregroundImage: rideParticipant.photoUrl != null
+                            //     ? CachedNetworkImageProvider(rideParticipant.photoUrl!)
+                            //     : null,
+                            child: rideParticipant.photoUrl == null
+                                ? PhosphorIcon(
+                                    PhosphorIcons.personSimple(),
+                                    size: 24,
+                                  )
+                                : ClipRRect(
+                                    borderRadius: BorderRadius.circular(50.0),
+                                    child: CachedNetworkImage(
+                                      imageUrl: rideParticipant.photoUrl!,
+                                      height: 48.0,
+                                      width: 48.0,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
-                                ),
-                        ),
-                        title: Row(
-                          children: [
-                            if (rider.id == ride.userId)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 4.0),
-                                child: Icon(Icons.star,
-                                    size: 16, color: Colors.yellow),
+                          ),
+                          Gutter(),
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                           if (rider.id == ride.userId)
+                            const Padding(
+                              padding: EdgeInsets.only(right: 4.0),
+                              child: Icon(Icons.star,
+                                  size: 16, color: Colors.yellow),
+                            ),
+                                  Text(
+                                    rideParticipant.firstName ?? 'N/A',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                  ),
+                                ],
                               ),
-                            Text(
-                              rideParticipant.firstName ?? 'N/A',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(width: 16.0),
-
-                            const SizedBox(
-                              width: 8.0,
-                            ),
-                            // if (rider.ridingStyle != null)
-                            //   Chip(
-                            //     visualDensity: VisualDensity.compact,
-                            //     avatar: PhosphorIcon(
-                            //       PhosphorIcons.bicycle(
-                            //         PhosphorIconsStyle.fill,
-                            //       ),
-                            //       size: 16,
-                            //     ),
-                            //     label: Text(
-                            //       rider.ridingStyle!.name.enumToString(),
-                            //       style: Theme.of(context).textTheme.bodySmall,
-                            //     ),
-                            //   ),
-                          ],
-                        ),
-                        trailing: rider.bike != null
-                            ? Chip(
-                                visualDensity: VisualDensity.compact,
-                                avatar: PhosphorIcon(
-                                  PhosphorIcons.motorcycle(
-                                    PhosphorIconsStyle.fill,
-                                  ),
-                                  size: 16,
+                              Row(
+                                                    children: [
+                          const Icon(Icons.share_location_rounded, size: 16),
+                          const SizedBox(width: 4.0),
+                          Text(
+                            switch (rideParticipant.arrivalStatus) {
+                              ArrivalStatus.atMeetingPoint =>
+                                'At Meeting Point',
+                              ArrivalStatus.atDestination => 'At Destination',
+                              ArrivalStatus.enRoute => 'En Route',                                ArrivalStatus.stopped => 'Stopped',
+                              null => 'Unknown',
+                            },
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                                                    ],
+                                                  ),
+                            ],
+                          ),
+                          const SizedBox(width: 16.0),
+                          
+                          const SizedBox(
+                            width: 8.0,
+                          ),
+                          // if (rider.ridingStyle != null)
+                          //   Chip(
+                          //     visualDensity: VisualDensity.compact,
+                          //     avatar: PhosphorIcon(
+                          //       PhosphorIcons.bicycle(
+                          //         PhosphorIconsStyle.fill,
+                          //       ),
+                          //       size: 16,
+                          //     ),
+                          //     label: Text(
+                          //       rider.ridingStyle!.name.enumToString(),
+                          //       style: Theme.of(context).textTheme.bodySmall,
+                          //     ),
+                          //   ),
+                          rider.bike != null
+                          ? Flexible(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Flexible(
+                                  child: Chip(
+                                      visualDensity: VisualDensity.compact,
+                                      avatar: PhosphorIcon(
+                                        PhosphorIcons.motorcycle(
+                                          PhosphorIconsStyle.fill,
+                                        ),
+                                        size: 16,
+                                      ),
+                                      label: Text(
+                                        rider.bike!,
+                                        style: Theme.of(context).textTheme.bodySmall,
+                                      ),
+                                    ),
                                 ),
-                                label: Text(
-                                  rider.bike!,
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                              )
-                            : null,
-                        subtitle: Row(
-                          children: [
-                            const Icon(Icons.share_location_rounded, size: 16),
-                            const SizedBox(width: 4.0),
-                            Text(
-                              switch (rideParticipant.arrivalStatus) {
-                                ArrivalStatus.atMeetingPoint =>
-                                  'At Meeting Point',
-                                ArrivalStatus.atDestination => 'At Destination',
-                                ArrivalStatus.enRoute => 'En Route',
-                                ArrivalStatus.stopped => 'Stopped',
-                                null => 'Unknown',
-                              },
-                              style: Theme.of(context).textTheme.bodySmall,
+                              ],
                             ),
-                          ],
+                          )
+                          : SizedBox(),
+                            ],
+                          ),
+                        
                         ),
                       ),
                     ),
@@ -697,16 +718,16 @@ class PublicRideActionCard extends StatelessWidget {
                         ? '${ride.meetingPointAddress}'
                         : atMeetingPoint && waitingForRideParticipants
                             ? 'Wait for riders to arrive...'
-                            : atMeetingPoint &&
+                            : 
                                     allRideParticipantsAtMeetingPoint
-                                ? 'Waiting for ${ride.rideParticipants?.where((rideParticipant) => rideParticipant.id == ride.userId).first.firstName} to start the ride...'
+                                ? 'Waiting for host to start ride...'
                                 : ride.status == RideStatus.rejected
                                     ? 'Ride Request Rejected'
                                     : ride.status == RideStatus.completed
-                                        ? 'Ride Request Completed'
+                                        ? 'Ride Complete'
                                         : ride.status == RideStatus.canceled
-                                            ? 'Ride Request Canceled'
-                                            : 'Ride Request Unknown'
+                                            ? 'Ride Canceled'
+                                            : 'Ride Status Unknown'
                     : 'Ride In Progress',
             style: Theme.of(context).textTheme.titleMedium,
             maxLines: 1,

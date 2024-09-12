@@ -3,6 +3,7 @@ import 'package:buoy/core/errors/failure.dart';
 import 'package:buoy/features/locate/model/location.dart';
 import 'package:buoy/features/riders/model/rider.dart';
 import 'package:buoy/features/rides/model/ride.dart';
+import 'package:collection/collection.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -138,39 +139,42 @@ class RidersRepository {
     });
   }
 
-  Future<List<Rider>> fetchRiders(List<String> riderIds) async {
-    try {
-      print('Fetching riders: $riderIds');
-      final ridersResponse =
-          await ridersTable.select().inFilter('id', riderIds).select();
-      print('Response: $ridersResponse');
+Future<List<Rider>> fetchRiders(List<String> riderIds) async {
+  try {
+    print('Fetching riders: $riderIds');
+    final ridersResponse =
+        await ridersTable.select().inFilter('id', riderIds).select();
+    print('Response: $ridersResponse');
 
-      // Step 1: Fetch location updates within the bounds
-      final locationResponse =
-          await locationUpdatesTable.select().inFilter('user_id', riderIds);
+    // Step 1: Fetch location updates within the bounds
+    final locationResponse =
+        await locationUpdatesTable.select().inFilter('user_id', riderIds);
 
-      print('Location Response: ${locationResponse.length}');
+    print('Location Response: ${locationResponse.length}');
 
-      if (locationResponse.isEmpty) {
-        return []; // No riders found in the bounds
-      }
-      // Step 4: Map the results to Rider models and attach location
-      return ridersResponse.map((rider) {
-        final matchingLocation = locationResponse.firstWhere(
-          (location) => location['user_id'] == rider['id'],
-        );
-        return Rider.fromMap(rider).copyWith(
-          currentLocation: Location(
-            userId: rider['id'] as String,
-            latitude: matchingLocation['latitude'],
-            longitude: matchingLocation['longitude'],
-            timeStamp: 'Just now',
-          ),
-        );
-      }).toList();
-    } catch (error) {
-      print(error);
-      rethrow;
-    }
+    // Step 4: Map the results to Rider models and attach location
+    return ridersResponse.map((rider) {
+      // **Check if there's a matching location**
+      final matchingLocation = locationResponse.firstWhereOrNull(
+        (location) => location['user_id'] == rider['id'],
+      );
+
+      // **Return Rider with or without location, depending on if it's found**
+      return Rider.fromMap(rider).copyWith(
+        currentLocation: matchingLocation != null
+          ? Location(
+              userId: rider['id'] as String,
+              latitude: matchingLocation['latitude'],
+              longitude: matchingLocation['longitude'],
+              timeStamp: 'Just now',
+            )
+          : null,  // **Handle case where there's no location**
+      );
+    }).toList();
+  } catch (error) {
+    print(error);
+    rethrow;
   }
+}
+
 }
