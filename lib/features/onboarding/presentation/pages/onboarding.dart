@@ -44,7 +44,7 @@ class _OnboardingState extends State<Onboarding> {
     return Scaffold(
       bottomNavigationBar: Container(
           height: 60,
-          color: Theme.of(context).navigationBarTheme.backgroundColor,
+          color: Theme.of(context).scaffoldBackgroundColor,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Row(
@@ -60,8 +60,8 @@ class _OnboardingState extends State<Onboarding> {
                       ? 0.0
                       : 1.0,
                   child: TextButton(
-                    onPressed: () {
-                      pageController.previousPage(
+                    onPressed: () async {
+                      await pageController.previousPage(
                           duration: const Duration(milliseconds: 400),
                           curve: Curves.easeInOut);
                     },
@@ -124,6 +124,7 @@ class _OnboardingState extends State<Onboarding> {
           // ),
           PageView(
             controller: pageController,
+            physics: const NeverScrollableScrollPhysics(),
             children: [
               Signup(
                 pageController: pageController,

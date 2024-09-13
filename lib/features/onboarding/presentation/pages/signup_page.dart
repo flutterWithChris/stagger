@@ -111,11 +111,15 @@ class _SignupState extends State<Signup> {
                       children: [
                         Expanded(
                           child: FilledButton.icon(
-                              style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.black),
-                              
-                                  foregroundColor: 
-                                  Theme.of(context).brightness == Brightness.dark ? WidgetStatePropertyAll(Colors.white) :
-                                  null),
+                              style: ButtonStyle(
+                                  backgroundColor: const WidgetStatePropertyAll(
+                                      Colors.black87),
+                                  foregroundColor:
+                                      Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? const WidgetStatePropertyAll(
+                                              Colors.white)
+                                          : null),
                               onPressed: () {
                                 Platform.isIOS
                                     ? context
@@ -141,110 +145,111 @@ class _SignupState extends State<Signup> {
                 },
               ),
               const GutterSmall(),
-              BlocBuilder<SignupCubit, SignupState>(
-                builder: (context, state) {
-                  if (state.status == SignupStatus.submitting) {
-                    return FilledButton(
-                        onPressed: () {},
-                        child: const CircularProgressIndicator.adaptive());
-                  }
-                  if (state.status == SignupStatus.failure) {
-                    return FilledButton.icon(
-                        icon: const Icon(Icons.error),
-                        onPressed: () {
-                          context.read<SignupCubit>().signUpWithGoogle();
-                        },
-                        label: const Text(
-                          'Error! Retry.',
-                        ));
-                  }
-                  if (state.status == SignupStatus.success) {
-                    return FilledButton.icon(
-                        icon: const Icon(Icons.check),
-                        onPressed: () {},
-                        label: const Text(
-                          'Signup Success!',
-                        ));
-                  }
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: FilledButton.icon(
-                              style: const ButtonStyle(
-                                  backgroundColor:
-                                      WidgetStatePropertyAll(Color(0xFF4267B2)),
-                                  foregroundColor:
-                                      WidgetStatePropertyAll(Colors.white)),
-                              onPressed: () {
-                                context.read<SignupCubit>().signUpWithGoogle();
-                              },
-                              icon: const Icon(
-                                FontAwesomeIcons.facebook,
-                                size: 20.0,
-                              ),
-                              label: const Text('Continue with Facebook')),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-              const GutterSmall(),
 
-              BlocBuilder<SignupCubit, SignupState>(
-                builder: (context, state) {
-                  if (state.status == SignupStatus.submitting) {
-                    return FilledButton(
-                        onPressed: () {},
-                        child: const CircularProgressIndicator.adaptive());
-                  }
-                  if (state.status == SignupStatus.failure) {
-                    return FilledButton.icon(
-                        icon: const Icon(Icons.error),
-                        onPressed: () {
-                          context.read<SignupCubit>().signUpWithGoogle();
-                        },
-                        label: const Text(
-                          'Error! Retry.',
-                        ));
-                  }
-                  if (state.status == SignupStatus.success) {
-                    return FilledButton.icon(
-                        icon: const Icon(Icons.check),
-                        onPressed: () {},
-                        label: const Text(
-                          'Success!',
-                        ));
-                  }
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                              style: ButtonStyle(
-                                  backgroundColor: WidgetStatePropertyAll(
-                                      Theme.of(context)
-                                          .colorScheme
-                                          .tertiaryContainer),
-                                  foregroundColor: const WidgetStatePropertyAll(
-                                      Colors.white)),
-                              onPressed: () {
-                                context.read<SignupCubit>().signUpWithGoogle();
-                              },
-                              icon: const Icon(
-                                Icons.email_rounded,
-                                size: 20.0,
-                              ),
-                              label: const Text('Continue with Email')),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+              // BlocBuilder<SignupCubit, SignupState>(
+              //   builder: (context, state) {
+              //     if (state.status == SignupStatus.submitting) {
+              //       return FilledButton(
+              //           onPressed: () {},
+              //           child: const CircularProgressIndicator.adaptive());
+              //     }
+              //     if (state.status == SignupStatus.failure) {
+              //       return FilledButton.icon(
+              //           icon: const Icon(Icons.error),
+              //           onPressed: () {
+              //             context.read<SignupCubit>().signUpWithGoogle();
+              //           },
+              //           label: const Text(
+              //             'Error! Retry.',
+              //           ));
+              //     }
+              //     if (state.status == SignupStatus.success) {
+              //       return FilledButton.icon(
+              //           icon: const Icon(Icons.check),
+              //           onPressed: () {},
+              //           label: const Text(
+              //             'Signup Success!',
+              //           ));
+              //     }
+              //     return Padding(
+              //       padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              //       child: Row(
+              //         children: [
+              //           Expanded(
+              //             child: FilledButton.icon(
+              //                 style: const ButtonStyle(
+              //                     backgroundColor:
+              //                         WidgetStatePropertyAll(Color(0xFF4267B2)),
+              //                     foregroundColor:
+              //                         WidgetStatePropertyAll(Colors.white)),
+              //                 onPressed: () {
+              //                   context.read<SignupCubit>().signUpWithGoogle();
+              //                 },
+              //                 icon: const Icon(
+              //                   FontAwesomeIcons.facebook,
+              //                   size: 20.0,
+              //                 ),
+              //                 label: const Text('Continue with Facebook')),
+              //           ),
+              //         ],
+              //       ),
+              //     );
+              //   },
+              // ),
+              // const GutterSmall(),
+
+              // BlocBuilder<SignupCubit, SignupState>(
+              //   builder: (context, state) {
+              //     if (state.status == SignupStatus.submitting) {
+              //       return FilledButton(
+              //           onPressed: () {},
+              //           child: const CircularProgressIndicator.adaptive());
+              //     }
+              //     if (state.status == SignupStatus.failure) {
+              //       return FilledButton.icon(
+              //           icon: const Icon(Icons.error),
+              //           onPressed: () {
+              //             context.read<SignupCubit>().signUpWithGoogle();
+              //           },
+              //           label: const Text(
+              //             'Error! Retry.',
+              //           ));
+              //     }
+              //     if (state.status == SignupStatus.success) {
+              //       return FilledButton.icon(
+              //           icon: const Icon(Icons.check),
+              //           onPressed: () {},
+              //           label: const Text(
+              //             'Success!',
+              //           ));
+              //     }
+              //     return Padding(
+              //       padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              //       child: Row(
+              //         children: [
+              //           Expanded(
+              //             child: ElevatedButton.icon(
+              //                 style: ButtonStyle(
+              //                     backgroundColor: WidgetStatePropertyAll(
+              //                         Theme.of(context)
+              //                             .colorScheme
+              //                             .tertiaryContainer),
+              //                     foregroundColor: const WidgetStatePropertyAll(
+              //                         Colors.white)),
+              //                 onPressed: () {
+              //                   context.read<SignupCubit>().signUpWithGoogle();
+              //                 },
+              //                 icon: const Icon(
+              //                   Icons.email_rounded,
+              //                   size: 20.0,
+              //                 ),
+              //                 label: const Text('Continue with Email')),
+              //           ),
+              //         ],
+              //       ),
+              //     );
+              //   },
+              // ),
               TextButton(
                   style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(

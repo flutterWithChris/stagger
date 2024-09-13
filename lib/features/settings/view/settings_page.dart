@@ -1,6 +1,7 @@
 import 'package:buoy/core/system/bottom_nav_bar.dart';
 import 'package:buoy/core/system/main_sliver_app_bar.dart';
 import 'package:buoy/config/theme/theme_cubit.dart';
+import 'package:buoy/features/locate/view/home.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,10 +37,11 @@ class _SettingsPageState extends State<SettingsPage> {
 
     return Scaffold(
       bottomNavigationBar: const BottomNavBar(),
-      body: CustomScrollView(
-        slivers: [
-          const MainSliverAppBar(),
-          SliverFillRemaining(
+      appBar: const PreferredSize(
+          preferredSize: Size.fromHeight(80), child: NonSliverAppBar()),
+      body: Column(
+        children: [
+          Expanded(
             child: FutureBuilder<List<bool>>(
                 future: checkTrackingSettings(),
                 builder: (context, snapshot) {

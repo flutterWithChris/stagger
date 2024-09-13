@@ -31,43 +31,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       child: Scaffold(
         // extendBody: true,
         // extendBodyBehindAppBar: true,
-        appBar: PreferredSize(
-            preferredSize: const Size.fromHeight(56.0),
-            child: AppBar(
-              title: Wrap(
-                spacing: 16.0,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Image.asset(
-                    'lib/assets/logo/logo_no_bg.png',
-                    //  color: Colors.orange[800],
-                    width: 26,
-                    height: 26,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 2.0),
-                    child: BlocBuilder<RideBloc, RideState>(
-                      builder: (context, state) {
-                        if (state is CreatingRide) {
-                          return const Text('Create Ride');
-                        }
-                        return const Text('Stagger');
-                      },
-                    ),
-                  )
-                ],
-              ),
-              actions: const [
-                Padding(
-                  padding: EdgeInsets.only(right: 16.0),
-                  child: LocationUpdatesSwitch(),
-                ),
-                // IconButton(
-                //   onPressed: () {},
-                //   icon: const Icon(Icons.more_vert),
-                // ),
-              ],
-            )),
+        appBar: const PreferredSize(
+            preferredSize: Size.fromHeight(120), child: NonSliverAppBar()),
         floatingActionButton: BlocBuilder<RidesBloc, RidesState>(
           builder: (context, state) {
             return Padding(
@@ -102,5 +67,52 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         ),
       ),
     );
+  }
+}
+
+class NonSliverAppBar extends StatelessWidget {
+  const NonSliverAppBar({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return PreferredSize(
+        preferredSize: const Size.fromHeight(56.0),
+        child: AppBar(
+          title: Wrap(
+            spacing: 16.0,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Image.asset(
+                'lib/assets/logo/logo_no_bg.png',
+                //  color: Colors.orange[800],
+                width: 26,
+                height: 26,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 2.0),
+                child: BlocBuilder<RideBloc, RideState>(
+                  builder: (context, state) {
+                    if (state is CreatingRide) {
+                      return const Text('Create Ride');
+                    }
+                    return const Text('Stagger');
+                  },
+                ),
+              )
+            ],
+          ),
+          actions: const [
+            Padding(
+              padding: EdgeInsets.only(right: 16.0),
+              child: LocationUpdatesSwitch(),
+            ),
+            // IconButton(
+            //   onPressed: () {},
+            //   icon: const Icon(Icons.more_vert),
+            // ),
+          ],
+        ));
   }
 }
