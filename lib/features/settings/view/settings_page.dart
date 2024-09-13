@@ -1,6 +1,7 @@
 import 'package:buoy/core/system/bottom_nav_bar.dart';
 import 'package:buoy/core/system/main_sliver_app_bar.dart';
 import 'package:buoy/config/theme/theme_cubit.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:settings_ui/settings_ui.dart';
@@ -62,44 +63,6 @@ class _SettingsPageState extends State<SettingsPage> {
                         SettingsSection(
                           title: const Text('Location Settings'),
                           tiles: [
-                            SettingsTile.switchTile(
-                              initialValue: activityTrackingEnabled,
-                              onToggle: (enabled) async {
-                                await SharedPreferences.getInstance()
-                                    .then((value) {
-                                  setState(() {
-                                    value.setBool(
-                                        'activityTrackingEnabled', enabled);
-                                  });
-
-                                  return value;
-                                }).then((value) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Wrap(
-                                        crossAxisAlignment:
-                                            WrapCrossAlignment.center,
-                                        spacing: 6.0,
-                                        children: [
-                                          const Icon(
-                                            Icons.directions_car_rounded,
-                                            color: Colors.white,
-                                            size: 20.0,
-                                          ),
-                                          Text(
-                                              'Activity tracking is now ${enabled ? 'enabled' : 'disabled'}'),
-                                        ],
-                                      ),
-                                      duration: const Duration(seconds: 2),
-                                    ),
-                                  );
-                                });
-                              },
-                              leading: const Icon(Icons.directions_car_rounded),
-                              title: const Text('Activity Tracking'),
-                              description: const Text(
-                                  'Tracks walking, cycling, driving, etc'),
-                            ),
                             // Motion Tracking
                             SettingsTile.switchTile(
                               initialValue: motionTrackingEnabled,
@@ -137,46 +100,9 @@ class _SettingsPageState extends State<SettingsPage> {
                                   const Icon(Icons.directions_walk_rounded),
                               title: const Text('Motion Tracking'),
                               description: const Text(
-                                  'Tracks when you\'re moving/still.'),
+                                  'When the plugin detects the device is not moving, it will enter the stationary state, '),
                             ),
-                            // Battery Tracking
-                            SettingsTile.switchTile(
-                              initialValue: batteryTrackingEnabled,
-                              onToggle: (enabled) async {
-                                await SharedPreferences.getInstance()
-                                    .then((value) {
-                                  setState(() {
-                                    value.setBool(
-                                        'batteryTrackingEnabled', enabled);
-                                  });
-                                  return value;
-                                }).then((value) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Wrap(
-                                        crossAxisAlignment:
-                                            WrapCrossAlignment.center,
-                                        spacing: 6.0,
-                                        children: [
-                                          const Icon(
-                                            Icons.battery_full_rounded,
-                                            color: Colors.white,
-                                            size: 20.0,
-                                          ),
-                                          Text(
-                                              'Battery tracking is now ${enabled ? 'enabled' : 'disabled'}'),
-                                        ],
-                                      ),
-                                      duration: const Duration(seconds: 2),
-                                    ),
-                                  );
-                                });
-                              },
-                              leading: const Icon(Icons.battery_full_rounded),
-                              title: const Text('Battery Tracking'),
-                              description:
-                                  const Text('Tracks your battery level.'),
-                            ),
+
                             // Tracking Rules
                             // SettingsTile.navigation(
                             //   onPressed: (context) {},
@@ -185,22 +111,17 @@ class _SettingsPageState extends State<SettingsPage> {
                             //   description: const Text(
                             //       'Set rules for when to track your location'),
                             // ),
-                            // Geofencing
-                            // SettingsTile.navigation(
-                            //   onPressed: (context) {},
-                            //   leading: const Icon(Icons.location_on_rounded),
-                            //   title: const Text('Geofencing'),
-                            //   description: const Text(
-                            //       'Set safe zones - like home, school, or work.'),
-                            // ),
-                            // Data Usage Settings
-                            // SettingsTile.navigation(
-                            //   leading: const Icon(Icons.data_usage_rounded),
-                            //   title: const Text('Data Usage'),
-                            //   description: const Text(
-                            //       'Update location always, only over Wi-Fi, etc'),
-                            //   onPressed: (context) {},
-                            // ),
+                            //   Geofencing']
+                            // Check if debug mode
+                            // TODO: Implement Geofencing
+                            if (!kReleaseMode)
+                              SettingsTile.navigation(
+                                onPressed: (context) {},
+                                leading: const Icon(Icons.location_on_rounded),
+                                title: const Text('Geofencing'),
+                                description: const Text(
+                                    'Set safe zones - like home, school, or work. Your location will be hidden when you are in these zones.'),
+                              ),
                           ],
                         ),
                         SettingsSection(
@@ -209,52 +130,62 @@ class _SettingsPageState extends State<SettingsPage> {
                             SettingsTile(
                               title: const Text('Brightness'),
                               trailing: SizedBox(
-                                width: 240,
+                                width: 180,
                                 child: FittedBox(
                                   child: BlocBuilder<ThemeCubit, ThemeState>(
                                     builder: (context, state) {
-                                      return SegmentedButton(
-                                          selected:
+                                      return DropdownMenu(
+                                          leadingIcon: state.themeMode ==
+                                                  ThemeMode.light
+                                              ? const Icon(
+                                                  Icons.wb_sunny_rounded)
+                                              : state.themeMode ==
+                                                      ThemeMode.dark
+                                                  ? const Icon(
+                                                      Icons.nightlight_round)
+                                                  : const Icon(Icons
+                                                      .brightness_auto_rounded),
+                                          initialSelection:
                                               state.themeMode == ThemeMode.light
-                                                  ? {'Light'}
+                                                  ? 'Light'
                                                   : state.themeMode ==
                                                           ThemeMode.dark
-                                                      ? {'Dark'}
-                                                      : {'System'},
-                                          onSelectionChanged: (p0) {
-                                            if (p0.first == 'Light') {
+                                                      ? 'Dark'
+                                                      : 'System',
+                                          onSelected: (p0) {
+                                            if (p0 == 'Light') {
                                               context
                                                   .read<ThemeCubit>()
                                                   .changeBrightness(
                                                       ThemeMode.light);
-                                            } else if (p0.first == 'Dark') {
+                                            } else if (p0 == 'Dark') {
                                               context
                                                   .read<ThemeCubit>()
                                                   .changeBrightness(
                                                       ThemeMode.dark);
-                                            } else if (p0.first == 'System') {
+                                            } else if (p0 == 'System') {
                                               context
                                                   .read<ThemeCubit>()
                                                   .changeBrightness(
                                                       ThemeMode.system);
                                             }
                                           },
-                                          segments: const [
-                                            ButtonSegment(
+                                          dropdownMenuEntries: const [
+                                            DropdownMenuEntry(
                                                 value: 'Light',
-                                                icon: Icon(
+                                                leadingIcon: Icon(
                                                     Icons.wb_sunny_rounded),
-                                                label: Text('Light')),
-                                            ButtonSegment(
+                                                label: 'Light'),
+                                            DropdownMenuEntry(
                                                 value: 'Dark',
-                                                icon: Icon(
+                                                leadingIcon: Icon(
                                                     Icons.nightlight_round),
-                                                label: Text('Dark')),
-                                            ButtonSegment(
+                                                label: 'Dark'),
+                                            DropdownMenuEntry(
                                                 value: 'System',
-                                                icon: Icon(Icons
+                                                leadingIcon: Icon(Icons
                                                     .brightness_auto_rounded),
-                                                label: Text('System')),
+                                                label: 'System'),
                                           ]);
                                     },
                                   ),

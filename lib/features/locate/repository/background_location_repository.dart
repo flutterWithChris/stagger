@@ -39,15 +39,13 @@ class BackgroundLocationRepository {
       }
     });
     await bg.BackgroundGeolocation.ready(bg.Config(
-      desiredAccuracy: bg.Config.DESIRED_ACCURACY_MEDIUM,
-      stopOnTerminate: true,
-      debug: false,
-      logLevel: bg.Config.LOG_LEVEL_VERBOSE,
-      distanceFilter: 100.0,
-      disableElasticity: true,
-      stopTimeout: 3,
-      showsBackgroundLocationIndicator: true
-    )).then((state) {
+            desiredAccuracy: bg.Config.DESIRED_ACCURACY_MEDIUM,
+            stopOnTerminate: true,
+            debug: false,
+            logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+            stopTimeout: 3,
+            showsBackgroundLocationIndicator: true))
+        .then((state) {
       if (!state.enabled) {
         bg.BackgroundGeolocation.start();
       }

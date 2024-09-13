@@ -46,7 +46,15 @@ void main() async {
   await Supabase.initialize(
       url: dotenv.get('SUPABASE_URL'),
       anonKey: dotenv.get('SUPABASE_PUBLIC_KEY'));
-
+  await AwesomeNotifications().initialize(
+      null,
+      [
+        NotificationChannel(
+            channelKey: 'stagger',
+            channelName: 'notifications',
+            channelDescription: 'Stagger notifications')
+      ],
+      debug: true);
   runApp(const MyApp());
 }
 
@@ -64,6 +72,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     // Only after at least the action method is set, the notification events are delivered
+
     // context.read<NotificationBloc>().add(InitializeNotifications());
     super.initState();
   }
