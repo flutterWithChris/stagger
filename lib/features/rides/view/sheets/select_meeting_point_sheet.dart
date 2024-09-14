@@ -17,7 +17,7 @@ class SelectMeetingPointSheet extends StatelessWidget {
         return DraggableScrollableSheet(
           expand: false,
           maxChildSize: 0.58,
-          initialChildSize: 0.33,
+          initialChildSize: 0.45,
           minChildSize: 0.13,
           builder: (context, controller) {
             return Container(
@@ -104,7 +104,7 @@ class SelectMeetingPointSheet extends StatelessWidget {
                                     ),
                                     title: state.ride!.meetingPoint != null
                                         ? Text(
-                                            'Destination Set: ${state.ride!.meetingPointAddress ?? state.ride!.meetingPointName}',
+                                            '${state.ride!.meetingPointAddress ?? state.ride!.meetingPointName}',
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .bodyMedium,
@@ -114,9 +114,7 @@ class SelectMeetingPointSheet extends StatelessWidget {
                                         ? const Icon(Icons.location_on_rounded)
                                         : const Icon(
                                             Icons.location_off_rounded),
-                                    onTap: () {
-                                      // Show search bar
-                                    },
+                               
                                   ),
                                 ),
                               ),
@@ -130,7 +128,7 @@ class SelectMeetingPointSheet extends StatelessWidget {
                   state.ride!.meetingPoint != null
                       ? Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: ElevatedButton.icon(
+                          child: FilledButton.icon(
                             onPressed: () {
                               GoRouter.of(context).pop(null);
                               showBottomSheet(

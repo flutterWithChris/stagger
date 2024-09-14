@@ -23,12 +23,24 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
     on<InitializeSubscription>((event, emit) async {
       try {
         final response = await initSubscriptionsUsecase.execute();
-        response.fold(
+       await response.fold(
           (failure) {
             print('Caught failure: ${failure.message}');
             emit(SubscriptionError(failure.message));
           },
-          (success) => emit(SubscriptionInitial()),
+          (success) async {
+            // Get customer info
+            final customerInfo = await _getCustomerInfoUsecase.execute();
+           customerInfo.fold(
+              (failure) {
+                print('Caught failure: ${failure.message}');
+                emit(SubscriptionError(failure.message));
+              },
+              (customerInfo) {
+                emit(SubscriptionLoaded(customerInfo: customerInfo));
+              },
+            );
+          },
         );
       } catch (e) {
         print('Caught exception: $e');
@@ -36,6 +48,7 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
       }
     });
     on<ShowPaywall>((event, emit) async {
+      emit(SubscriptionLoading());
       final result = await showPaywallUsecase.execute();
       print('ShowPaywall result: $result');
       result.fold(

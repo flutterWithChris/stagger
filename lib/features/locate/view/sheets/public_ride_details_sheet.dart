@@ -144,7 +144,8 @@ class PublicRideDetailsSheet extends StatelessWidget {
                               padding: const EdgeInsets.all(8.0),
                               child: MeetingPointAddressWidget(ride: ride),
                             ),
-
+                          if (ride.status != RideStatus.pending &&
+                              ride.status != RideStatus.meetingUp)
                           Padding(
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 8.0),
@@ -486,9 +487,10 @@ class RideParticipantsList extends StatelessWidget {
                           //     ),
                           //   ),
                           rider.bike != null
-                          ? Flexible(
+                          ? Expanded(
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 Flexible(
                                   child: Chip(
@@ -711,11 +713,13 @@ class PublicRideActionCard extends StatelessWidget {
               )),
           },
           title: Text(
+            ride.status == RideStatus.inProgress
+            ? 'Ride In Progress'
+            :
             ride.status == RideStatus.pending
                 ? 'Waiting For Riders..'
                 : ride.status == RideStatus.meetingUp
-                    ? enRoute
-                        ? '${ride.meetingPointAddress}'
+                    ? '${ride.meetingPointAddress}'
                         : atMeetingPoint && waitingForRideParticipants
                             ? 'Wait for riders to arrive...'
                             : 
@@ -728,7 +732,7 @@ class PublicRideActionCard extends StatelessWidget {
                                         : ride.status == RideStatus.canceled
                                             ? 'Ride Canceled'
                                             : 'Ride Status Unknown'
-                    : 'Ride In Progress',
+                   ,
             style: Theme.of(context).textTheme.titleMedium,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

@@ -1,4 +1,6 @@
 import 'package:buoy/features/profile/repository/bloc/profile_bloc.dart';
+import 'package:buoy/features/riders/bloc/riders_bloc.dart';
+import 'package:buoy/features/riders/model/rider.dart';
 import 'package:buoy/features/rides/bloc/ride_bloc.dart';
 import 'package:buoy/features/rides/bloc/rides_bloc.dart';
 import 'package:buoy/features/rides/model/ride.dart';
@@ -8,6 +10,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gutter/flutter_gutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -78,21 +81,26 @@ class RideDetailsSheet extends StatelessWidget {
                   bool enRoute = rider.arrivalStatus == ArrivalStatus.enRoute;
                   bool stopped = rider.arrivalStatus == ArrivalStatus.stopped;
 
-                  return Column(
+                  return ListView(
                     //  /   physics: const NeverScrollableScrollPhysics(),
-                    // controller: controller,
-                    mainAxisSize: MainAxisSize.min,
+                    controller: controller,
+                    // mainAxisSize: MainAxisSize.min,
                     children: [
                       const SizedBox(
                         height: 8.0,
                       ),
-                      Container(
-                        height: 4.0,
-                        width: 48.0,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).dividerColor,
-                          borderRadius: BorderRadius.circular(2.0),
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            height: 4.0,
+                            width: 48.0,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).dividerColor,
+                              borderRadius: BorderRadius.circular(2.0),
+                            ),
+                          ),
+                        ],
                       ),
                       // Title
                       Padding(
@@ -140,6 +148,45 @@ class RideDetailsSheet extends StatelessWidget {
                                 stopped: stopped),
                           ),
                           const SizedBox(height: 8.0),
+                          // On The Way Button
+                          if (ride.status == RideStatus.pending &&
+                              !enRoute &&
+                              !atMeetingPoint)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  FilledButton.icon(
+                                    onPressed: () {
+                                      context.read<RideBloc>().add(
+                                          UpdateArrivalStatus(
+                                              ride: ride,
+                                              userId: context
+                                                  .read<ProfileBloc>()
+                                                  .state
+                                                  .user!
+                                                  .id!,
+                                              arrivalStatus:
+                                                  ArrivalStatus.enRoute));
+                                    },
+                                    label: const Text('On The Way'),
+                                    icon: PhosphorIcon(
+                                      PhosphorIcons.navigationArrow(
+                                        PhosphorIconsStyle.fill,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8.0),
+                                  Text(
+                                    'Let them know you\'re on the way!',
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
+                                  ),
+                                ],
+                              ),
+                            ),
                           // Get Directions Button
                           if (ride.status == RideStatus.meetingUp && enRoute)
                             Padding(
@@ -240,54 +287,162 @@ class RidersList extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8.0),
-        ListView.builder(
-          shrinkWrap: true,
-          itemCount: ride.rideParticipants!.length,
-          itemBuilder: (context, index) {
-            RideParticipant rider = ride.rideParticipants![index];
-            return Material(
-              type: MaterialType.transparency,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16.0),
-              ),
-              // borderRadius: BorderRadius.circular(16.0),
-              child: InkWell(
-                radius: 16.0,
-                customBorder: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16.0),
-                ),
-                borderRadius: BorderRadius.circular(16.0),
-                onTap: () => context.go('/profile/${rider.userId}'),
-                child: ListTile(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16.0),
-                  ),
-                  onTap: () {},
-                  leading: const CircleAvatar(
-                    radius: 24.0,
-                    foregroundImage: CachedNetworkImageProvider(
-                        'https://scontent-lga3-1.cdninstagram.com/v/t51.2885-19/239083158_1041850919887570_7755239183612531984_n.jpg?stp=dst-jpg_s150x150&_nc_ht=scontent-lga3-1.cdninstagram.com&_nc_cat=110&_nc_ohc=N89ZbyRlvsMQ7kNvgHSGD4V&gid=3de9eaed2f0241b48c6ca6bf392219c2&edm=AFg4Q8wBAAAA&ccb=7-5&oh=00_AYCFBSzLCF1NWqhA3o4VH_6R5PqiaLiv6RpnsjZk03rxJw&oe=66B57CEB&_nc_sid=0b30b7'),
-                  ),
-                  title: Row(
-                    children: [
-                      Text(
-                        rider.firstName ?? 'N/A',
-                        style: Theme.of(context).textTheme.titleMedium,
+        BlocBuilder<RidersBloc, RidersState>(
+          builder: (context, state) {
+            if (state is RidersError) {
+              return const Center(
+                child: Text('Error fetching riders!'),
+              );
+            }
+            if (state is RidersLoaded) {
+              return ListView.builder(
+                shrinkWrap: true,
+                itemCount: ride.rideParticipants!.length,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) {
+                  RideParticipant rideParticipant =
+                      ride.rideParticipants![index];
+                  Rider? rider = state.riders.firstWhereOrNull(
+                      (rider) => rider.id == rideParticipant.userId);
+
+                  if (rider == null) {
+                    return const SizedBox();
+                  }
+                  return Material(
+                    type: MaterialType.transparency,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.0),
+                    ),
+                    // borderRadius: BorderRadius.circular(16.0),
+                    child: InkWell(
+                      radius: 16.0,
+                      customBorder: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16.0),
                       ),
-                    ],
-                  ),
-                  subtitle: Text(
-                    switch (rider.arrivalStatus) {
-                      ArrivalStatus.atMeetingPoint => 'At Meeting Point',
-                      ArrivalStatus.atDestination => 'At Destination',
-                      ArrivalStatus.enRoute => 'En Route',
-                      ArrivalStatus.stopped => 'Stopped',
-                      null => 'Unknown',
-                    },
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-              ),
+                      borderRadius: BorderRadius.circular(16.0),
+                      onTap: () => context.go('/profile/${rider.id}'),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 24.0,
+                            // foregroundImage: rideParticipant.photoUrl != null
+                            //     ? CachedNetworkImageProvider(rideParticipant.photoUrl!)
+                            //     : null,
+                            child: rideParticipant.photoUrl == null
+                                ? PhosphorIcon(
+                                    PhosphorIcons.personSimple(),
+                                    size: 24,
+                                  )
+                                : ClipRRect(
+                                    borderRadius: BorderRadius.circular(50.0),
+                                    child: CachedNetworkImage(
+                                      imageUrl: rideParticipant.photoUrl!,
+                                      height: 48.0,
+                                      width: 48.0,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                          ),
+                          Gutter(),
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (rider.id == ride.userId)
+                                    const Padding(
+                                      padding: EdgeInsets.only(right: 4.0),
+                                      child: Icon(Icons.star,
+                                          size: 16, color: Colors.yellow),
+                                    ),
+                                  Text(
+                                    rideParticipant.firstName ?? 'N/A',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  const Icon(Icons.share_location_rounded,
+                                      size: 16),
+                                  const SizedBox(width: 4.0),
+                                  Text(
+                                    switch (rideParticipant.arrivalStatus) {
+                                      ArrivalStatus.atMeetingPoint =>
+                                        'At Meeting Point',
+                                      ArrivalStatus.atDestination =>
+                                        'At Destination',
+                                      ArrivalStatus.enRoute => 'En Route',
+                                      ArrivalStatus.stopped => 'Stopped',
+                                      null => 'Unknown',
+                                    },
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(width: 16.0),
+
+                          const SizedBox(
+                            width: 8.0,
+                          ),
+                          // if (rider.ridingStyle != null)
+                          //   Chip(
+                          //     visualDensity: VisualDensity.compact,
+                          //     avatar: PhosphorIcon(
+                          //       PhosphorIcons.bicycle(
+                          //         PhosphorIconsStyle.fill,
+                          //       ),
+                          //       size: 16,
+                          //     ),
+                          //     label: Text(
+                          //       rider.ridingStyle!.name.enumToString(),
+                          //       style: Theme.of(context).textTheme.bodySmall,
+                          //     ),
+                          //   ),
+                          rider.bike != null
+                              ? Expanded(
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Flexible(
+                                        child: Chip(
+                                          visualDensity: VisualDensity.compact,
+                                          avatar: PhosphorIcon(
+                                            PhosphorIcons.motorcycle(
+                                              PhosphorIconsStyle.fill,
+                                            ),
+                                            size: 16,
+                                          ),
+                                          label: Text(
+                                            rider.bike!,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : SizedBox(),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            }
+            return const Center(
+              child: CircularProgressIndicator(),
             );
           },
         ),
@@ -474,7 +629,7 @@ class RideActionCard extends StatelessWidget {
           },
           title: Text(
             ride.status == RideStatus.pending
-                ? 'Waiting For Rider Response...'
+                ? 'Waiting For Riders To Join..'
                 : ride.status == RideStatus.meetingUp
                     ? enRoute
                         ? '${ride.meetingPointAddress}'
@@ -773,7 +928,7 @@ class RideStepper extends StatelessWidget {
                     Step(
                       isActive: ride.status == RideStatus.meetingUp ||
                           ride.status == RideStatus.inProgress,
-                      title: const Text('Request'),
+                      title: const Text('Waiting'),
                       content: const SizedBox.shrink(),
                     ),
                     Step(

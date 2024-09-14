@@ -2,6 +2,7 @@ import 'package:buoy/features/locate/view/map/main_map.dart';
 import 'package:buoy/features/rides/bloc/ride_bloc.dart';
 import 'package:buoy/features/rides/model/ride.dart';
 import 'package:buoy/features/rides/view/sheets/select_meeting_point_sheet.dart';
+import 'package:buoy/features/subscription/presentation/bloc/subscription_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gutter/flutter_gutter.dart';
@@ -26,7 +27,7 @@ class _RidePrivacySheetState extends State<RidePrivacySheet> {
         return DraggableScrollableSheet(
           expand: false,
           maxChildSize: 0.58,
-          initialChildSize: 0.5,
+          initialChildSize: 0.55,
           minChildSize: 0.13,
           builder: (context, controller) {
             return Container(
@@ -128,96 +129,116 @@ class _RidePrivacySheetState extends State<RidePrivacySheet> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Expanded(
-                                child: Material(
-                                  type: MaterialType.card,
-                                  elevation: 1.618,
-                                  borderRadius: BorderRadius.circular(16.0),
-                                  child: InkWell(
-                                    onTap: () {
-                                      print('Tapped Invite Only');
-                                    },
-                                    child: ListTile(
-                                      style: ListTileStyle.list,
-                                      shape: RoundedRectangleBorder(
-                                        side: selectedPrivacy ==
-                                                RidePrivacy.private
-                                            ? BorderSide(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary,
-                                                width: 2.0,
-                                              )
-                                            : BorderSide.none,
-                                        borderRadius:
-                                            BorderRadius.circular(16.0),
-                                      ),
-                                      title: Row(
-                                        children: [
-                                          const Text('Invite Only'),
-                                          const Gutter(),
-                                          SizedBox(
-                                            height: 30,
-                                            child: FittedBox(
-                                              child: Chip(
-                                                  label: Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      const Icon(
-                                                        Icons.star_rounded,
-                                                        size: 16.0,
+                                child: BlocConsumer<SubscriptionBloc, SubscriptionState>(
+                                  listener: (context, state) {
+                                    // TODO: implement listener
+                                  },
+                                  builder: (context, subscriptionState) {
+                                    if (subscriptionState is SubscriptionError) {
+                                      return const Center(child: Text('Error Loading Subscription'),);
+                                    }
+                                    if (subscriptionState is SubscriptionLoading) {
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    } if (subscriptionState is SubscriptionLoaded)
+                                    {  return Material(
+                                        type: MaterialType.card,
+                                        elevation: 1.618,
+                                        borderRadius: BorderRadius.circular(16.0),
+                                        child: ListTile(
+                                          style: ListTileStyle.list,
+                                          shape: RoundedRectangleBorder(
+                                            side: selectedPrivacy ==
+                                                    RidePrivacy.private
+                                                ? BorderSide(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
+                                                    width: 2.0,
+                                                  )
+                                                : BorderSide.none,
+                                            borderRadius:
+                                                BorderRadius.circular(16.0),
+                                          ),
+                                          title: Row(
+                                            children: [
+                                              const Text('Invite Only'),
+                                              const Gutter(),
+                                              SizedBox(
+                                                height: 30,
+                                                child: FittedBox(
+                                                  child: Chip(
+                                                      label: Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          const Icon(
+                                                            Icons.star_rounded,
+                                                            size: 16.0,
+                                                          ),
+                                                          const GutterSmall(),
+                                                          Text(
+                                                            'Pro',
+                                                            style: Theme.of(
+                                                                    context)
+                                                                .textTheme
+                                                                .bodyMedium
+                                                                ?.copyWith(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                          ),
+                                                        ],
                                                       ),
-                                                      const GutterSmall(),
-                                                      Text(
-                                                        'Pro',
-                                                        style: Theme.of(context)
-                                                            .textTheme
-                                                            .bodyMedium
-                                                            ?.copyWith(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 4.0),
+                                                      visualDensity:
+                                                          VisualDensity.compact,
+                                                      side: BorderSide.none,
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(50.0),
                                                       ),
-                                                    ],
-                                                  ),
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 4.0),
-                                                  visualDensity:
-                                                      VisualDensity.compact,
-                                                  side: BorderSide.none,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            50.0),
-                                                  ),
-                                                  backgroundColor:
-                                                      Theme.of(context)
+                                                      backgroundColor: Theme.of(
+                                                              context)
                                                           .colorScheme
                                                           .tertiaryContainer),
-                                            ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
-                                      subtitle: const Text(
-                                          'Only riders you invite can see & join your ride.'),
-                                      leading: CircleAvatar(
-                                        backgroundColor: Theme.of(context)
-                                            .colorScheme
-                                            .tertiaryContainer,
-                                        child: Icon(
-                                            PhosphorIcons.envelopeSimple(
-                                                PhosphorIconsStyle.duotone)),
-                                      ),
-                                      onTap: () {
-                                        context.read<RideBloc>().add(
-                                            UpdateRideDraft(state.ride!
-                                                .copyWith(
-                                                    privacy:
-                                                        RidePrivacy.private)));
-                                      },
-                                    ),
-                                  ),
+                                          subtitle: const Text(
+                                              'Only riders you invite can see & join your ride.'),
+                                          leading: CircleAvatar(
+                                            backgroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .tertiaryContainer,
+                                            child: Icon(
+                                                PhosphorIcons.envelopeSimple(
+                                                    PhosphorIconsStyle
+                                                        .duotone)),
+                                          ),
+                                          onTap: () {
+                                               if (subscriptionState.customerInfo!.entitlements.active.isNotEmpty) {
+                                              context.read<RideBloc>().add(
+                                                  UpdateRideDraft(state.ride!
+                                                      .copyWith(
+                                                          privacy: RidePrivacy
+                                                              .private)));
+                                            } else {
+                                              context.read<SubscriptionBloc>().add(
+                                                   ShowPaywall());
+                                            }
+                                          },
+                                        ),
+                                      );} else {
+                                      return const Center(child: Text('Something Went Wrong..'),);
+                                      }
+                                  },
                                 ),
                               ),
                             ],
