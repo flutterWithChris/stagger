@@ -1,3 +1,4 @@
+import 'package:buoy/core/constants.dart';
 import 'package:buoy/core/system/bottom_nav_bar.dart';
 import 'package:buoy/core/system/main_sliver_app_bar.dart';
 import 'package:buoy/config/theme/theme_cubit.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../auth/presentation/bloc/auth_bloc.dart';
 
@@ -249,6 +251,51 @@ class _SettingsPageState extends State<SettingsPage> {
                                 leading:
                                     const Icon(Icons.delete_forever_rounded),
                                 title: const Text('Delete Account'))
+                          ],
+                        ),
+                        SettingsSection(
+                          title: const Text('Info'),
+                          tiles: [
+                            // SettingsTile(
+                            //   leading: Icon(Icons.email_rounded),
+                            //   title: Text('Email'),
+                            //   description:
+                            //       Text(context.watch<ProfileBloc>().state.user!.email!),
+                            //   onPressed: (context) {},
+                            // ),
+                            // SettingsTile(
+                            //   leading: const Icon(Icons.notifications_rounded),
+                            //   title: const Text('Notifications'),
+                            //   onPressed: (context) {},
+                            // ),
+                            SettingsTile(
+                              leading: const Icon(Icons.privacy_tip_rounded),
+                              title: const Text('Privacy Policy'),
+                              onPressed: (context) async {
+                                await launchUrlString(privacyPolicyUrl,
+                                    mode: LaunchMode.externalApplication);
+                              },
+                            ),
+                            // SettingsTile(
+                            //   leading: const Icon(Icons.security_rounded),
+                            //   title: const Text('Security'),
+                            //   onPressed: (context) {},
+                            // ),
+                            // SettingsTile(
+                            //   leading: const Icon(Icons.language_rounded),
+                            //   title: const Text('Language'),
+                            //   onPressed: (context) {},
+                            // ),
+                            // SettingsTile(
+                            //   leading: const Icon(Icons.help_rounded),
+                            //   title: const Text('Help'),
+                            //   onPressed: (context) {},
+                            // ),
+                            // SettingsTile(
+                            //   leading: const Icon(Icons.info_rounded),
+                            //   title: const Text('About'),
+                            //   onPressed: (context) {},
+                            // ),
                           ],
                         ),
                       ],

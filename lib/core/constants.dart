@@ -8,6 +8,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 final supabase = Supabase.instance.client;
 
+const String privacyPolicyUrl =
+    'https://gist.github.com/flutterWithChris/9e87960abbb88ab0184a7c11cff7ed6f';
+
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
