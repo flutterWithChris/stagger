@@ -7,6 +7,7 @@ import 'package:buoy/features/rides/bloc/ride_bloc.dart';
 import 'package:buoy/features/rides/bloc/rides_bloc.dart';
 import 'package:buoy/features/rides/model/ride.dart';
 import 'package:buoy/core/constants.dart';
+import 'package:buoy/shared/presentation/widgets/location_updates_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
@@ -30,50 +31,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       child: Scaffold(
         // extendBody: true,
         // extendBodyBehindAppBar: true,
-        appBar: PreferredSize(
-            preferredSize: const Size.fromHeight(56.0),
-            child: AppBar(
-              title: Wrap(
-                spacing: 16.0,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Image.asset(
-                    'lib/assets/logo/logo_no_bg.png',
-                    //  color: Colors.orange[800],
-                    width: 26,
-                    height: 26,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 2.0),
-                    child: BlocBuilder<RideBloc, RideState>(
-                      builder: (context, state) {
-                        if (state is CreatingRide) {
-                          return const Text('Create Ride');
-                        }
-                        return const Text('Stagger');
-                      },
-                    ),
-                  )
-                ],
-              ),
-              actions: [
-                // IconButton(
-                //   onPressed: () async {
-                //     showDialog(
-                //       context: context,
-                //       builder: (context) {
-                //         return const AddFriendDialog();
-                //       },
-                //     );
-                //   },
-                //   icon: const Icon(Icons.person_add_alt_1_rounded),
-                // ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.more_vert),
-                ),
-              ],
-            )),
+        appBar: const PreferredSize(
+            preferredSize: Size.fromHeight(120), child: NonSliverAppBar()),
         floatingActionButton: BlocBuilder<RidesBloc, RidesState>(
           builder: (context, state) {
             return Padding(
@@ -103,59 +62,57 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           physics: const NeverScrollableScrollPhysics(),
           slivers: [
             // const MainSliverAppBar(),
-            SliverFillRemaining(
-                child: Stack(
-              alignment: Alignment.topRight,
-              children: [
-                MainMap(mapController: mapController),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(50.0),
-                      // border: Border.all(color: Colors.white, width: 2.0),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 4.0,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.location_on_rounded,
-                            size: 32.0,
-                          ),
-                          // const SizedBox(width: 8.0),
-                          // const Text('Location:'),
-                          const SizedBox(width: 8.0),
-                          Switch(
-                              value: context.watch<GeolocationBloc>().state
-                                      is GeolocationStopped ==
-                                  false,
-                              onChanged: (value) {
-                                if (value == false) {
-                                  context
-                                      .read<GeolocationBloc>()
-                                      .add(StopGeoLocation());
-                                } else {
-                                  context
-                                      .read<GeolocationBloc>()
-                                      .add(LoadGeolocation());
-                                }
-                              }),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            )),
+            SliverFillRemaining(child: MainMap(mapController: mapController)),
           ],
         ),
       ),
     );
+  }
+}
+
+class NonSliverAppBar extends StatelessWidget {
+  const NonSliverAppBar({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return PreferredSize(
+        preferredSize: const Size.fromHeight(56.0),
+        child: AppBar(
+          title: Wrap(
+            spacing: 16.0,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Image.asset(
+                'lib/assets/logo/logo_no_bg.png',
+                //  color: Colors.orange[800],
+                width: 26,
+                height: 26,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 2.0),
+                child: BlocBuilder<RideBloc, RideState>(
+                  builder: (context, state) {
+                    if (state is CreatingRide) {
+                      return const Text('Create Ride');
+                    }
+                    return const Text('Stagger');
+                  },
+                ),
+              )
+            ],
+          ),
+          actions: const [
+            Padding(
+              padding: EdgeInsets.only(right: 16.0),
+              child: LocationUpdatesSwitch(),
+            ),
+            // IconButton(
+            //   onPressed: () {},
+            //   icon: const Icon(Icons.more_vert),
+            // ),
+          ],
+        ));
   }
 }

@@ -88,3 +88,8 @@ extension TitleCase on String {
 EventTransformer<T> debounce<T>(Duration duration) {
   return (events, mapper) => events.debounceTime(duration).flatMap(mapper);
 }
+
+/// Throttle transformer to limit event firing frequency
+EventTransformer<T> throttle<T>(Duration duration) {
+  return (events, mapper) => events.throttleTime(duration).switchMap(mapper);
+}

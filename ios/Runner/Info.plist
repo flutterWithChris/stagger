@@ -40,11 +40,11 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	 <key>NSMotionUsageDescription</key>
-     <string>Motion is used for location auto-stop.</string>
+     <string>Motion is used to stop location tracking when still.</string>
      <key>NSLocationWhenInUseUsageDescription</key>
      <string>Your location is used to show you on the map.</string>
      <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-     <string>Allows the app to update location when backgrounded.</string>
+     <string>Enables background location updates, geofencing, and auto-stopping when still.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>

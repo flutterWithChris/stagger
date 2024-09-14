@@ -51,7 +51,9 @@ class _MainMapState extends State<MainMap> {
         if (state is GeolocationLoading) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (state is GeolocationLoaded || state is GeolocationUpdating) {
+        if (state is GeolocationLoaded ||
+            state is GeolocationUpdating ||
+            state is GeolocationStopped) {
           return SafeArea(
             child: Stack(
               alignment: Alignment.bottomCenter,
@@ -823,60 +825,62 @@ class _MainMapState extends State<MainMap> {
                                                           ),
 
                                                         /// User Location
-                                                        Marker(
-                                                          width: 32.0,
-                                                          height: 32.0,
-                                                          point: LatLng(
-                                                              state
-                                                                  .bgLocation!
-                                                                  .coords
-                                                                  .latitude,
-                                                              state
-                                                                  .bgLocation!
-                                                                  .coords
-                                                                  .longitude),
-                                                          child: Stack(
-                                                            clipBehavior:
-                                                                Clip.none,
-                                                            alignment: Alignment
-                                                                .center,
-                                                            children: [
-                                                              InkWell(
-                                                                onTap:
-                                                                    () async {
-                                                                  await widget.mapController?.animateTo(
-                                                                      dest: LatLng(
-                                                                          state
-                                                                              .bgLocation!
-                                                                              .coords
-                                                                              .latitude,
-                                                                          state
-                                                                              .bgLocation!
-                                                                              .coords
-                                                                              .longitude));
-                                                                },
-                                                                child: Transform
-                                                                    .flip(
-                                                                  child: Transform
-                                                                      .rotate(
-                                                                    angle: 0,
-                                                                    // state.location?.heading !=
-                                                                    //         null
-                                                                    //     ? (state.location!.heading! * math.pi / 180) -
-                                                                    //         90
-                                                                    //     : 0.0,
-                                                                    child:
-                                                                        const PhosphorIcon(
-                                                                      Icons
-                                                                          .person_pin_circle_rounded,
-                                                                      size: 32,
+                                                        if (state.bgLocation !=
+                                                                null &&
+                                                            state.locationUpdatesEnabled !=
+                                                                false)
+                                                          Marker(
+                                                            width: 32.0,
+                                                            height: 32.0,
+                                                            point: LatLng(
+                                                                state
+                                                                    .bgLocation!
+                                                                    .coords
+                                                                    .latitude,
+                                                                state
+                                                                    .bgLocation!
+                                                                    .coords
+                                                                    .longitude),
+                                                            child: Stack(
+                                                              clipBehavior:
+                                                                  Clip.none,
+                                                              alignment:
+                                                                  Alignment
+                                                                      .center,
+                                                              children: [
+                                                                InkWell(
+                                                                  onTap:
+                                                                      () async {
+                                                                    await widget
+                                                                        .mapController
+                                                                        ?.animateTo(
+                                                                            dest:
+                                                                                LatLng(state.bgLocation!.coords.latitude, state.bgLocation!.coords.longitude));
+                                                                  },
+                                                                  child:
+                                                                      Transform
+                                                                          .flip(
+                                                                    child: Transform
+                                                                        .rotate(
+                                                                      angle: 0,
+                                                                      // state.location?.heading !=
+                                                                      //         null
+                                                                      //     ? (state.location!.heading! * math.pi / 180) -
+                                                                      //         90
+                                                                      //     : 0.0,
+                                                                      child:
+                                                                          const PhosphorIcon(
+                                                                        Icons
+                                                                            .person_pin_circle_rounded,
+                                                                        size:
+                                                                            32,
+                                                                      ),
                                                                     ),
                                                                   ),
                                                                 ),
-                                                              ),
-                                                            ],
+                                                              ],
+                                                            ),
                                                           ),
-                                                        ),
                                                       ],
                                                     );
                                                   } else {

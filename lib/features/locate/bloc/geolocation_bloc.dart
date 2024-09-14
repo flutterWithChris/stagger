@@ -59,11 +59,9 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
         super(GeolocationInitial()) {
     on<LoadGeolocation>(
       _onLoadGeolocation,
-      transformer: state is GeolocationInitial
-          ? null
-          : debounce(const Duration(seconds: 30)),
     );
-    on<UpdateGeoLocation>(_onUpdateGeoLocation);
+    on<UpdateGeoLocation>(_onUpdateGeoLocation,
+        transformer: throttle(const Duration(minutes: 2)));
     on<StopGeoLocation>(_onStopGeoLocation);
   }
 
@@ -138,8 +136,7 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
         return bgLocation;
       });
       if (_locationTrackingNotificationShown == false) {
-        await showNotificationUsecase.call('Location Tracking Enabled',
-            'Your location is now being tracked in the background',
+        await showNotificationUsecase.call('Stagger', 'Location Service Active',
             category: NotificationCategory.Service);
 
         _locationTrackingNotificationShown = true;
@@ -170,11 +167,9 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
       print('batteryTrackingEnabled: $batteryTrackingEnabled');
 
       Location location = Location.fromBGLocation(bgLocation).copyWith(
-        activity: activityTrackingEnabled ? bgLocation.activity.type : null,
-        isMoving: motionTrackingEnabled ? bgLocation.isMoving : null,
-        batteryLevel: batteryTrackingEnabled
-            ? (bgLocation.battery.level * 100).toInt()
-            : null,
+        activity: null,
+        isMoving: null,
+        batteryLevel: null,
         includeNull: true,
       );
       print('Handling Location: ${location.toJson().toString()}');
@@ -215,6 +210,8 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
       return null;
     }
   }
+
+  Timer? _stillnessTimer;
 
   void _onUpdateGeoLocation(
     UpdateGeoLocation event,
@@ -270,11 +267,25 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
         );
       }
 
+      _locationDelayTimer?.cancel();
+
       /// Encrypt Location & Send a location update to the server
 
       _locationDelayTimer = Timer(const Duration(minutes: 2), () async {
         await _locationRealtimeRepository.sendLocationUpdate(location);
       });
+
+      // Handle stillness: Cancel previous stillness timer if user is moving
+      if (event.location.isMoving == true) {
+        _stillnessTimer?.cancel();
+        // Restart 30-minute inactivity timer if user stops moving
+        _stillnessTimer = Timer(const Duration(minutes: 30), () async {
+          await _locationRealtimeRepository.deleteLocationUpdate(
+              Supabase.instance.client.auth.currentUser!.id);
+          await _backgroundLocationRepository.stopBackgroundGeolocation();
+          emit(GeolocationStopped());
+        });
+      }
       emit(GeolocationLoaded(bgLocation: event.location, location: location));
 
       // await emit.forEach(CompassX.events ?? const Stream.empty(),
@@ -302,11 +313,15 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
     Emitter<GeolocationState> emit,
   ) async {
     try {
+      var oldState = state;
       emit(GeolocationLoading());
       await _locationRealtimeRepository
           .deleteLocationUpdate(Supabase.instance.client.auth.currentUser!.id);
-      await _backgroundLocationRepository.stopBackgroundGeolocation();
-      emit(GeolocationStopped());
+      // await _backgroundLocationRepository.stopBackgroundGeolocation();
+      emit(GeolocationLoaded(
+          bgLocation: oldState.bgLocation!,
+          location: oldState.location!,
+          locationUpdatesEnabled: false));
     } catch (e) {
       emit(GeolocationError(message: e.toString()));
       return;

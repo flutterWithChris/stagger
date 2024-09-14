@@ -4,13 +4,15 @@ part of 'geolocation_bloc.dart';
 abstract class GeolocationState extends Equatable {
   final bg.Location? bgLocation;
   final Location? location;
+  final bool? locationUpdatesEnabled;
   const GeolocationState({
     this.bgLocation,
     this.location,
+    this.locationUpdatesEnabled,
   });
   @override
   // TODO: implement props
-  List<Object?> get props => [bgLocation];
+  List<Object?> get props => [bgLocation, location, locationUpdatesEnabled];
 }
 
 class GeolocationInitial extends GeolocationState {}
@@ -33,13 +35,16 @@ class GeolocationLoaded extends GeolocationState {
   final bg.Location bgLocation;
   @override
   final Location location;
-  const GeolocationLoaded({
-    required this.bgLocation,
-    required this.location,
-  });
+  @override
+  final bool? locationUpdatesEnabled;
+  const GeolocationLoaded(
+      {required this.bgLocation,
+      required this.location,
+      this.locationUpdatesEnabled});
+
   @override
   // TODO: implement props
-  List<Object?> get props => [bgLocation];
+  List<Object?> get props => [bgLocation, location, locationUpdatesEnabled];
 }
 
 class GeolocationError extends GeolocationState {

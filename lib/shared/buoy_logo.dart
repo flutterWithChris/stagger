@@ -5,9 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 class BuoyLogo extends StatefulWidget {
   final double? size;
-  final bool? iconOnly;
+  final bool iconOnly;
 
-  const BuoyLogo({this.size, this.iconOnly, super.key});
+  const BuoyLogo({this.size, this.iconOnly = false, super.key});
 
   @override
   State<BuoyLogo> createState() => _BuoyLogoState();

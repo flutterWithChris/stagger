@@ -12,24 +12,13 @@ class NotificationRepositoryImpl extends NotificationRepository {
   Future<Either<NotificationFailure, NotificationSuccess>>
       initializeNotifications() async {
     try {
-      bool response = await AwesomeNotifications()
-          .initialize('resource://drawable/res_app_icon', [
-        NotificationChannel(
-            channelKey: 'stagger',
-            channelName: 'notifications',
-            channelDescription: 'Stagger notifications')
-      ]);
-
       await AwesomeNotifications().setChannel(NotificationChannel(
           channelKey: 'stagger',
-          channelName: 'stagger',
+          channelName: 'notifications',
           channelDescription: 'Stagger notifications',
           channelShowBadge: true));
-      if (response == true) {
-        return Right(NotificationSuccess('Notifications initialized'));
-      } else {
-        return Left(NotificationFailure('Failed to initialize notifications'));
-      }
+
+      return Right(NotificationSuccess('Notifications initialized'));
     } catch (e) {
       print('Error initializing notifications: $e');
       return Left(NotificationFailure('Failed to initialize notifications'));
@@ -43,6 +32,7 @@ class NotificationRepositoryImpl extends NotificationRepository {
     try {
       await AwesomeNotifications().createNotification(
           content: NotificationContent(
+              locked: true,
               category: category,
               id: 10,
               channelKey: 'stagger',
