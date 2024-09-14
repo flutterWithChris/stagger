@@ -240,7 +240,7 @@ class _SelectMeetingTimeSheetState extends State<SelectMeetingTimeSheet> {
                                             ),
                                           ),
                                           onTap: () async {
-                                            if (!subscriptionState
+                                            if (subscriptionState
                                                 .customerInfo
                                                 .entitlements
                                                 .active
