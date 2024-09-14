@@ -26,8 +26,8 @@ class _RidePrivacySheetState extends State<RidePrivacySheet> {
         selectedPrivacy = state.ride!.privacy!;
         return DraggableScrollableSheet(
           expand: false,
-          maxChildSize: 0.58,
-          initialChildSize: 0.55,
+          maxChildSize: 0.7,
+          initialChildSize: 0.6,
           minChildSize: 0.13,
           builder: (context, controller) {
             return Container(

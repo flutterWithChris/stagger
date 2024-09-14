@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:buoy/features/locate/bloc/geolocation_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,10 +12,12 @@ class LocationUpdatesSwitch extends StatelessWidget {
     return Switch.adaptive(
         thumbIcon: WidgetStatePropertyAll(
           context.watch<GeolocationBloc>().state.locationUpdatesEnabled != false
-              ? const Icon(
+              ?  Icon(
                   Icons.location_on_rounded,
+                  color: Platform.isIOS ? Colors.black87 : null,
                 )
-              : const Icon(Icons.location_off_rounded),
+              : Icon(Icons.location_off_rounded, color: Platform.isIOS ? Colors.black87 : null,
+),
         ),
         value: context.watch<GeolocationBloc>().state.locationUpdatesEnabled !=
             false,

@@ -11,7 +11,7 @@ class ConfirmRideRequestSheet extends StatelessWidget {
     return DraggableScrollableSheet(
       expand: false,
       maxChildSize: 0.58,
-      initialChildSize: 0.35,
+      initialChildSize: 0.43,
       minChildSize: 0.13,
       builder: (context, controller) {
         return BlocConsumer<RideBloc, RideState>(

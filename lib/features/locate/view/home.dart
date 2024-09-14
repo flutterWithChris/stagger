@@ -35,26 +35,20 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             preferredSize: Size.fromHeight(80), child: NonSliverAppBar()),
         floatingActionButton: BlocBuilder<RidesBloc, RidesState>(
           builder: (context, state) {
-            return Padding(
-              padding: EdgeInsets.only(
-                  bottom: state.myRides != null && state.myRides!.isNotEmpty
-                      ? 88.0 * state.myRides!.length
-                      : 0.0),
-              child: FloatingActionButton(
-                  child: Icon(PhosphorIcons.plus(PhosphorIconsStyle.bold)),
-                  onPressed: () {
-                    if (state.myRides?.isNotEmpty ?? false) {
-                      scaffoldMessengerKey.currentState?.showSnackBar(
-                          getErrorSnackbar('You already have an active ride!'));
-                      return;
-                    }
-                    context.read<RideBloc>().add(CreateRide(Ride(
-                          senderIds: [
-                            context.read<ProfileBloc>().state.user!.id!
-                          ],
-                        )));
-                  }),
-            );
+            return FloatingActionButton(
+                child: Icon(PhosphorIcons.plus(PhosphorIconsStyle.bold)),
+                onPressed: () {
+                  if (state.myRides?.isNotEmpty ?? false) {
+                    scaffoldMessengerKey.currentState?.showSnackBar(
+                        getErrorSnackbar('You already have an active ride!'));
+                    return;
+                  }
+                  context.read<RideBloc>().add(CreateRide(Ride(
+                        senderIds: [
+                          context.read<ProfileBloc>().state.user!.id!
+                        ],
+                      )));
+                });
           },
         ),
         bottomNavigationBar: const BottomNavBar(),

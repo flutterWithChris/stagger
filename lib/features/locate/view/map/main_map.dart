@@ -25,6 +25,7 @@ import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 class MainMap extends StatefulWidget {
   const MainMap({
@@ -463,7 +464,7 @@ class _MainMapState extends State<MainMap> {
                                                             .where((rider) =>
                                                                 rider
                                                                     .currentLocation !=
-                                                                null)
+                                                                null && rider.id != Supabase.instance.client.auth.currentUser?.id)
                                                             .toList();
                                                     return MarkerLayer(
                                                       markers: [

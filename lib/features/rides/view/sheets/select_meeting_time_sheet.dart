@@ -327,7 +327,7 @@ class _SelectMeetingTimeSheetState extends State<SelectMeetingTimeSheet> {
                                 const ConfirmRideRequestSheet());
                       },
                       icon: const Icon(Icons.check_rounded),
-                      label: const Text('Set Privacy'),
+                      label: const Text('Set Meeting Time'),
                     ),
                   )
                 ],
