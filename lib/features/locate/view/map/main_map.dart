@@ -104,18 +104,20 @@ class _MainMapState extends State<MainMap> {
                       // context.read<RidersBloc>().add(LoadRiders(
                       //     mapController!.mapController.camera.visibleBounds));
                     },
-                    onTap: (tapPosition, point) {
-                      if (context.read<RideBloc>().state is CreatingRide) {
+                    onTap: (tapPosition, point) async {
+                      if (context.read<RideBloc>().state
+                          is SelectingMeetingPoint) {
                         context.read<RideBloc>().add(
-                              UpdateRideDraft(
-                                context.read<RideBloc>().state.ride!.copyWith(
-                                  meetingPoint: [
-                                    point.latitude,
-                                    point.longitude,
-                                  ],
-                                ),
+                              SelectMeetingPoint(
+                                context.read<RideBloc>().state.ride!,
+                                [
+                                  point.latitude,
+                                  point.longitude,
+                                ],
                               ),
                             );
+                        await widget.mapController?.animateTo(
+                            dest: point, offset: const Offset(0, -180.0));
                       }
                     },
                   ),
@@ -455,7 +457,14 @@ class _MainMapState extends State<MainMap> {
                                                   }
                                                   if (ridersState
                                                       is RidersLoaded) {
-                                                    List<Rider> ridersWithLocation = ridersState.riders.where((rider) => rider.currentLocation != null).toList();
+                                                    List<Rider>
+                                                        ridersWithLocation =
+                                                        ridersState.riders
+                                                            .where((rider) =>
+                                                                rider
+                                                                    .currentLocation !=
+                                                                null)
+                                                            .toList();
                                                     return MarkerLayer(
                                                       markers: [
                                                         for (Rider rider

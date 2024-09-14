@@ -41,23 +41,7 @@ class RideBloc extends Bloc<RideEvent, RideState> {
     });
     on<UpdateRideDraft>((event, emit) async {
       Ride ride = event.ride;
-      if (event.ride.meetingPoint != null &&
-          event.ride.meetingPointName == null) {
-        var placeResult = await _mapboxSearchRepository.reverseGeocode(
-          event.ride.meetingPoint![0],
-          event.ride.meetingPoint![1],
-        );
-        if (placeResult!.failure != null) {
-          emit(RideError(placeResult.failure!.message!));
-          return;
-        } else {
-          MapBoxPlace place = placeResult.success!.first;
-          ride = ride.copyWith(
-            meetingPointName: place.placeName,
-            meetingPointAddress: place.placeName,
-          );
-        }
-      }
+
       print('Updating ride draft: $ride');
       emit(CreatingRide(ride));
     });
@@ -165,7 +149,45 @@ class RideBloc extends Bloc<RideEvent, RideState> {
         emit(RideError(e.toString()));
       }
     });
+    on<StartSelectingMeetingPoint>((event, emit) async {
+      emit(RideLoading());
+      print('Starting to select meeting point');
+      emit(SelectingMeetingPoint(event.ride));
+    });
+    on<SelectMeetingPoint>((event, emit) async {
+      Ride ride = state.ride!;
+      emit(RideLoading());
+      Ride? rideWithMeetingPoint;
+      print('Selected meeting point: ${event.ride}');
+
+      var placeResult = await _mapboxSearchRepository.reverseGeocode(
+        event.meetingPoint[0],
+        event.meetingPoint[1],
+      );
+      if (placeResult!.failure != null) {
+        emit(RideError(placeResult.failure!.message!));
+        return;
+      } else {
+        MapBoxPlace place = placeResult.success!.first;
+        rideWithMeetingPoint = ride.copyWith(
+          meetingPoint: event.meetingPoint,
+          meetingPointName: place.placeName,
+          meetingPointAddress: place.placeName,
+        );
+        emit(SelectingMeetingPoint(rideWithMeetingPoint,
+            meetingPoint: event.meetingPoint));
+      }
+    });
+    on<SetMeetingPoint>((event, emit) async {
+      emit(CreatingRide(state.ride!));
+    });
+    on<StopCreatingRide>((event, emit) async {
+      emit(RideLoading());
+      print('Stopping to create ride');
+      emit(RideInitial());
+    });
   }
+
   @override
   Future<void> close() {
     // TODO: implement close

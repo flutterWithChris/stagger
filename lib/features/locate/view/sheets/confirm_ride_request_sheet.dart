@@ -149,7 +149,7 @@ class ConfirmRideRequestSheet extends StatelessWidget {
                   const SizedBox(height: 8.0),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: ElevatedButton.icon(
+                    child: FilledButton.icon(
                       onPressed: () {
                         context.read<RideBloc>().add(SendRideRequest(
                             context.read<RideBloc>().state.ride!));

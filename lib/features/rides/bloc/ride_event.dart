@@ -117,3 +117,30 @@ class LoadRideParticipants extends RideEvent {
   @override
   List<Object> get props => [ride];
 }
+
+class StartSelectingMeetingPoint extends RideEvent {
+  final Ride ride;
+
+  const StartSelectingMeetingPoint(this.ride);
+
+  @override
+  List<Object> get props => [ride];
+}
+
+class SelectMeetingPoint extends RideEvent {
+  final Ride ride;
+  final List<double> meetingPoint;
+
+  const SelectMeetingPoint(this.ride, this.meetingPoint);
+
+  @override
+  List<Object> get props => [
+        ride,
+      ];
+}
+
+class SetMeetingPoint extends RideEvent {}
+
+class StopCreatingRide extends RideEvent {
+  const StopCreatingRide();
+}

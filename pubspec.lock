@@ -302,6 +302,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.5"
+  cupertino_calendar_picker:
+    dependency: "direct main"
+    description:
+      name: cupertino_calendar_picker
+      sha256: c36d8a44de52c18a8bf25f9fca6df296db2b25eeac9e8b7ba45fe51cc5fde0db
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0+1"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -491,6 +499,11 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
+  flutter_localizations:
+    dependency: transitive
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   flutter_map:
     dependency: "direct main"
     description:

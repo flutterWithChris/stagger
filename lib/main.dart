@@ -32,6 +32,7 @@ import 'package:buoy/features/subscription/data/repositories/subscription_reposi
 import 'package:buoy/features/subscription/presentation/bloc/subscription_bloc.dart';
 import 'package:buoy/injection_container.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -202,6 +203,11 @@ class _MyAppState extends State<MyApp> {
         child: BlocBuilder<ThemeCubit, ThemeState>(
           builder: (context, state) {
             return MaterialApp.router(
+              localizationsDelegates: const [
+                DefaultMaterialLocalizations.delegate,
+                DefaultCupertinoLocalizations.delegate,
+                DefaultWidgetsLocalizations.delegate,
+              ],
               scaffoldMessengerKey: scaffoldMessengerKey,
               debugShowCheckedModeBanner: false,
               routeInformationParser: goRouter.routeInformationParser,

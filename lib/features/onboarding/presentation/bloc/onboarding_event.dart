@@ -9,8 +9,10 @@ sealed class OnboardingEvent extends Equatable {
 
 final class StartOnboarding extends OnboardingEvent {
   final sb.User user;
+  final String? firstName;
+  final String? lastName;
 
-  const StartOnboarding({required this.user});
+  const StartOnboarding({required this.user, this.firstName, this.lastName});
 }
 
 final class UpdateUser extends OnboardingEvent {

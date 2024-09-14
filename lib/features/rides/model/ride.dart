@@ -23,6 +23,7 @@ class Ride {
   final List<double>? meetingPoint;
   final String? meetingPointName;
   final String? meetingPointAddress;
+  final DateTime? meetingTime;
   final List<double>? destination;
   final String? destinationName;
   final String? destinationAddress;
@@ -40,6 +41,7 @@ class Ride {
     this.meetingPoint,
     this.meetingPointName,
     this.meetingPointAddress,
+    this.meetingTime,
     this.destination,
     this.destinationName,
     this.destinationAddress,
@@ -58,6 +60,7 @@ class Ride {
     List<double>? meetingPoint,
     String? meetingPointName,
     String? meetingPointAddress,
+    DateTime? meetingTime,
     List<double>? destination,
     String? destinationName,
     String? destinationAddress,
@@ -75,6 +78,7 @@ class Ride {
       meetingPoint: meetingPoint ?? this.meetingPoint,
       meetingPointName: meetingPointName ?? this.meetingPointName,
       meetingPointAddress: meetingPointAddress ?? this.meetingPointAddress,
+      meetingTime: meetingTime ?? this.meetingTime,
       destination: destination ?? this.destination,
       destinationName: destinationName ?? this.destinationName,
       destinationAddress: destinationAddress ?? this.destinationAddress,
@@ -93,6 +97,7 @@ class Ride {
       'meeting_point': meetingPoint,
       'meeting_point_name': meetingPointName,
       'meeting_point_address': meetingPointAddress,
+      'meeting_time': meetingTime,
       'destination': destination,
       'destination_name': destinationName,
       'destination_address': destinationAddress,
@@ -106,6 +111,7 @@ class Ride {
       'meeting_point': meetingPoint,
       'meeting_point_name': meetingPointName,
       'meeting_point_address': meetingPointAddress,
+      'meeting_time': meetingTime,
       'destination': destination,
       'destination_name': destinationName,
       'destination_address': destinationAddress,
@@ -128,6 +134,9 @@ class Ride {
           : List<double>.from(map['meeting_point']),
       meetingPointName: map['meeting_point_name'],
       meetingPointAddress: map['meeting_point_address'],
+      meetingTime: map['meeting_time'] == null
+          ? null
+          : DateTime.parse(map['meeting_time']),
       destination: map['destination'] == null
           ? null
           : List<double>.from(map['destination']),
@@ -145,7 +154,7 @@ class Ride {
 
   @override
   String toString() {
-    return 'Ride(id: $id, senderIds: $senderIds, receiverIds: $receiverIds, status: $status, privacy: $privacy, meetingPoint: $meetingPoint, meetingPointName: $meetingPointName, meetingPointAddress: $meetingPointAddress destination: $destination, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Ride(id: $id, senderIds: $senderIds, receiverIds: $receiverIds, status: $status, privacy: $privacy, meetingPoint: $meetingPoint, meetingPointName: $meetingPointName, meetingPointAddress: $meetingPointAddress, meetingTime: $meetingTime, destination: $destination, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -159,6 +168,9 @@ class Ride {
         other.status == status &&
         other.privacy == privacy &&
         other.meetingPoint == meetingPoint &&
+        other.meetingPointName == meetingPointName &&
+        other.meetingPointAddress == meetingPointAddress &&
+        other.meetingTime == meetingTime &&
         other.destination == destination &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;

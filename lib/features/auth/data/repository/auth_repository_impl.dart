@@ -13,7 +13,8 @@ class AuthRepositoryImpl extends AuthRepository {
   final supabase.SupabaseClient _supabase = supabase.Supabase.instance.client;
 
   @override
-  Future<supabase.AuthResponse?> signInWithGoogle() async {
+  Future<(supabase.AuthResponse, String? firstName, String? lastName)?>
+      signInWithGoogle() async {
     try {
       /// Web Client ID that you registered with Google Cloud.
       String? webClientId = dotenv.env['GOOGLE_OAUTH_ID'];
@@ -40,10 +41,21 @@ class AuthRepositoryImpl extends AuthRepository {
         throw 'No ID Token found.';
       }
 
-      return await _supabase.auth.signInWithIdToken(
-        provider: supabase.OAuthProvider.google,
-        idToken: idToken,
-        accessToken: accessToken,
+      String? firstName = googleUser.displayName != null
+          ? googleUser.displayName!.split(' ')[0]
+          : null;
+      String? lastName = googleUser.displayName != null
+          ? googleUser.displayName!.split(' ')[1]
+          : null;
+
+      return (
+        await _supabase.auth.signInWithIdToken(
+          provider: supabase.OAuthProvider.google,
+          idToken: idToken,
+          accessToken: accessToken,
+        ),
+        firstName,
+        lastName
       );
     } catch (e, stackTrace) {
       print(e);
@@ -64,7 +76,8 @@ class AuthRepositoryImpl extends AuthRepository {
       _supabase.auth.onAuthStateChange;
 
   @override
-  Future<supabase.AuthResponse?> signInWithApple() async {
+  Future<(supabase.AuthResponse, String? firstName, String? lastName)?>
+      signInWithApple() async {
     try {
       // Generate a random nonce for security purposes
       final rawNonce = _generateNonce();
@@ -86,11 +99,19 @@ class AuthRepositoryImpl extends AuthRepository {
             'Could not find ID Token from generated credential.');
       }
 
+      // Extract first name and last name from the Apple credential
+      final String? firstName = credential.givenName;
+      final String? lastName = credential.familyName;
+
       // Sign in to Supabase with the ID token and the original raw nonce
-      return _supabase.auth.signInWithIdToken(
-        provider: supabase.OAuthProvider.apple,
-        idToken: idToken,
-        nonce: rawNonce,
+      return (
+        await _supabase.auth.signInWithIdToken(
+          provider: supabase.OAuthProvider.apple,
+          idToken: idToken,
+          nonce: rawNonce,
+        ),
+        firstName,
+        lastName
       );
     } catch (e, stackTrace) {
       // scaffoldKey.currentState?.showSnackBar(

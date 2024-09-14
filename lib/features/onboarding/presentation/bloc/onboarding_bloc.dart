@@ -31,6 +31,8 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
             user: User(
           id: event.user.id,
           email: event.user.email!,
+          firstName: event.firstName,
+          lastName: event.lastName,
         ));
         response.fold((l) {
           print(l.message);
@@ -46,7 +48,11 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     on<CreateRider>((event, emit) async {
       emit(OnboardingLoading());
       try {
-        Rider rider = Rider(id: event.user.id, email: event.user.email);
+        Rider rider = Rider(
+            id: event.user.id,
+            email: event.user.email,
+            firstName: event.user.firstName,
+            lastName: event.user.lastName);
         await _ridersRepository.createRider(
           rider,
         );

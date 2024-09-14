@@ -2,13 +2,16 @@ part of 'ride_bloc.dart';
 
 sealed class RideState extends Equatable {
   final Ride? ride;
+  final List<double>? meetingPoint;
   const RideState({
     this.ride,
+    this.meetingPoint,
   });
 
   @override
   List<Object?> get props => [
         ride,
+        meetingPoint,
       ];
 }
 
@@ -126,4 +129,16 @@ final class JoinedRide extends RideState {
 
   @override
   List<Object> get props => [ride];
+}
+
+final class SelectingMeetingPoint extends RideState {
+  @override
+  final Ride ride;
+  @override
+  final List<double>? meetingPoint;
+
+  const SelectingMeetingPoint(this.ride, {this.meetingPoint});
+
+  @override
+  List<Object?> get props => [ride, meetingPoint];
 }

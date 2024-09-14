@@ -1,29 +1,28 @@
-import 'package:buoy/features/locate/view/map/main_map.dart';
+import 'package:buoy/features/locate/view/sheets/confirm_ride_request_sheet.dart';
 import 'package:buoy/features/rides/bloc/ride_bloc.dart';
-import 'package:buoy/features/rides/model/ride.dart';
-import 'package:buoy/features/rides/view/sheets/select_meeting_point_sheet.dart';
 import 'package:buoy/features/subscription/presentation/bloc/subscription_bloc.dart';
+import 'package:cupertino_calendar_picker/cupertino_calendar_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gutter/flutter_gutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-class RidePrivacySheet extends StatefulWidget {
-  const RidePrivacySheet({super.key});
+class SelectMeetingTimeSheet extends StatefulWidget {
+  const SelectMeetingTimeSheet({super.key});
 
   @override
-  State<RidePrivacySheet> createState() => _RidePrivacySheetState();
+  State<SelectMeetingTimeSheet> createState() => _SelectMeetingTimeSheetState();
 }
 
-class _RidePrivacySheetState extends State<RidePrivacySheet> {
-  RidePrivacy selectedPrivacy = RidePrivacy.public;
+class _SelectMeetingTimeSheetState extends State<SelectMeetingTimeSheet> {
+  DateTime? _selectedDate;
+  String? _selectedTimeString;
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<RideBloc, RideState>(
       builder: (context, state) {
-        selectedPrivacy = state.ride!.privacy!;
+        // _selectedDate = context.watch<RideBloc>().state.ride!.meetingTime;
         return DraggableScrollableSheet(
           expand: false,
           maxChildSize: 0.58,
@@ -63,7 +62,7 @@ class _RidePrivacySheetState extends State<RidePrivacySheet> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'Set Ride Privacy',
+                              'Set Meeting Time',
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
                           ],
@@ -80,41 +79,44 @@ class _RidePrivacySheetState extends State<RidePrivacySheet> {
                                     elevation: 1.618,
                                     type: MaterialType.card,
                                     borderRadius: BorderRadius.circular(16.0),
-                                    child: InkWell(
-                                      onTap: () {},
-                                      child: ListTile(
-                                        style: ListTileStyle.list,
-                                        shape: RoundedRectangleBorder(
-                                          side: selectedPrivacy ==
-                                                  RidePrivacy.public
-                                              ? BorderSide(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .primary,
-                                                  width: 2.0,
-                                                )
-                                              : BorderSide.none,
-                                          borderRadius:
-                                              BorderRadius.circular(16.0),
-                                        ),
-                                        title: const Text('Public'),
-                                        subtitle: const Text(
-                                            'Displayed on map. Riders can request to join.'),
-                                        leading: CircleAvatar(
-                                            backgroundColor: Theme.of(context)
-                                                .colorScheme
-                                                .primaryContainer,
-                                            child: Icon(
-                                                PhosphorIcons.usersThree())),
-                                        onTap: () {
-                                          // Show search bar
-                                          context.read<RideBloc>().add(
-                                              UpdateRideDraft(state.ride!
-                                                  .copyWith(
-                                                      privacy:
-                                                          RidePrivacy.public)));
-                                        },
+                                    child: ListTile(
+                                      style: ListTileStyle.list,
+                                      shape: RoundedRectangleBorder(
+                                        side: _selectedDate == null &&
+                                                _selectedTimeString == null
+                                            ? BorderSide(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
+                                                width: 2.0,
+                                              )
+                                            : BorderSide.none,
+                                        borderRadius:
+                                            BorderRadius.circular(16.0),
                                       ),
+                                      title: const Text('ASAP'),
+                                      subtitle: const Text(
+                                          'Ride as soon as possible.'),
+                                      leading: CircleAvatar(
+                                          backgroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .primaryContainer,
+                                          child: Icon(
+                                            PhosphorIcons.lightning(
+                                                PhosphorIconsStyle.fill),
+                                            color: Colors.white,
+                                          )),
+                                      onTap: () {
+                                        setState(() {
+                                          _selectedDate = null;
+                                          _selectedTimeString = null;
+                                        });
+                                        print('Meeting Time: $_selectedDate');
+                                        // Show search bar
+                                        context.read<RideBloc>().add(
+                                            UpdateRideDraft(state.ride!
+                                                .copyWith(meetingTime: null)));
+                                      },
                                     ),
                                   ),
                                 ),
@@ -158,8 +160,7 @@ class _RidePrivacySheetState extends State<RidePrivacySheet> {
                                         child: ListTile(
                                           style: ListTileStyle.list,
                                           shape: RoundedRectangleBorder(
-                                            side: selectedPrivacy ==
-                                                    RidePrivacy.private
+                                            side: _selectedDate != null
                                                 ? BorderSide(
                                                     color: Theme.of(context)
                                                         .colorScheme
@@ -172,7 +173,13 @@ class _RidePrivacySheetState extends State<RidePrivacySheet> {
                                           ),
                                           title: Row(
                                             children: [
-                                              const Text('Invite Only'),
+                                              Text(
+                                                _selectedDate == null ||
+                                                        _selectedTimeString ==
+                                                            null
+                                                    ? 'Later'
+                                                    : 'Meet at ${_selectedTimeString!}',
+                                              ),
                                               const Gutter(),
                                               SizedBox(
                                                 height: 30,
@@ -221,27 +228,71 @@ class _RidePrivacySheetState extends State<RidePrivacySheet> {
                                             ],
                                           ),
                                           subtitle: const Text(
-                                              'Only riders you invite can see & join your ride.'),
+                                              'Schedule a ride for later.'),
                                           leading: CircleAvatar(
                                             backgroundColor: Theme.of(context)
                                                 .colorScheme
                                                 .tertiaryContainer,
                                             child: Icon(
-                                                PhosphorIcons.envelopeSimple(
-                                                    PhosphorIconsStyle
-                                                        .duotone)),
+                                              PhosphorIcons.clock(
+                                                  PhosphorIconsStyle.fill),
+                                              color: Colors.white,
+                                            ),
                                           ),
-                                          onTap: () {
-                                            if (subscriptionState
+                                          onTap: () async {
+                                            if (!subscriptionState
                                                 .customerInfo
                                                 .entitlements
                                                 .active
                                                 .isNotEmpty) {
-                                              context.read<RideBloc>().add(
-                                                  UpdateRideDraft(state.ride!
-                                                      .copyWith(
-                                                          privacy: RidePrivacy
-                                                              .private)));
+                                              await showTimePicker(
+                                                context: context,
+                                                initialTime: TimeOfDay.now(),
+                                              ).then((time) {
+                                                if (time != null) {
+                                                  print(
+                                                      'Minute: ${time.minute}');
+                                                  setState(() {
+                                                    _selectedDate ??=
+                                                        DateTime.now().copyWith(
+                                                            hour: time.hour,
+                                                            minute:
+                                                                time.minute);
+
+                                                    _selectedTimeString = time
+                                                                .hour <
+                                                            12
+                                                        ? _selectedDate!
+                                                                    .minute ==
+                                                                0
+                                                            ? '${time.hour} AM'
+                                                            : '${time.hour}:${_selectedDate!.minute} AM'
+                                                        : _selectedDate!
+                                                                    .minute ==
+                                                                0
+                                                            ? '${time.hour - 12} PM'
+                                                            : '${time.hour - 12}:${_selectedDate!.minute} PM';
+                                                  });
+
+                                                  context.read<RideBloc>().add(
+                                                        UpdateRideDraft(
+                                                          state.ride!.copyWith(
+                                                            meetingTime:
+                                                                DateTime(
+                                                              _selectedDate!
+                                                                  .year,
+                                                              _selectedDate!
+                                                                  .month,
+                                                              _selectedDate!
+                                                                  .day,
+                                                              time.hour,
+                                                              time.minute,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      );
+                                                }
+                                              });
                                             } else {
                                               context
                                                   .read<SubscriptionBloc>()
@@ -272,12 +323,8 @@ class _RidePrivacySheetState extends State<RidePrivacySheet> {
                         context.pop();
                         showBottomSheet(
                             context: context,
-                            builder: (context) {
-                              context
-                                  .read<RideBloc>()
-                                  .add(StartSelectingMeetingPoint(state.ride!));
-                              return const SelectMeetingPointSheet();
-                            });
+                            builder: (context) =>
+                                const ConfirmRideRequestSheet());
                       },
                       icon: const Icon(Icons.check_rounded),
                       label: const Text('Set Privacy'),

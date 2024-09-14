@@ -139,42 +139,41 @@ class RidersRepository {
     });
   }
 
-Future<List<Rider>> fetchRiders(List<String> riderIds) async {
-  try {
-    print('Fetching riders: $riderIds');
-    final ridersResponse =
-        await ridersTable.select().inFilter('id', riderIds).select();
-    print('Response: $ridersResponse');
+  Future<List<Rider>> fetchRiders(List<String> riderIds) async {
+    try {
+      print('Fetching riders: $riderIds');
+      final ridersResponse =
+          await ridersTable.select().inFilter('id', riderIds).select();
+      print('Response: $ridersResponse');
 
-    // Step 1: Fetch location updates within the bounds
-    final locationResponse =
-        await locationUpdatesTable.select().inFilter('user_id', riderIds);
+      // Step 1: Fetch location updates within the bounds
+      final locationResponse =
+          await locationUpdatesTable.select().inFilter('user_id', riderIds);
 
-    print('Location Response: ${locationResponse.length}');
+      print('Location Response: ${locationResponse.length}');
 
-    // Step 4: Map the results to Rider models and attach location
-    return ridersResponse.map((rider) {
-      // **Check if there's a matching location**
-      final matchingLocation = locationResponse.firstWhereOrNull(
-        (location) => location['user_id'] == rider['id'],
-      );
+      // Step 4: Map the results to Rider models and attach location
+      return ridersResponse.map((rider) {
+        // **Check if there's a matching location**
+        final matchingLocation = locationResponse.firstWhereOrNull(
+          (location) => location['user_id'] == rider['id'],
+        );
 
-      // **Return Rider with or without location, depending on if it's found**
-      return Rider.fromMap(rider).copyWith(
-        currentLocation: matchingLocation != null
-          ? Location(
-              userId: rider['id'] as String,
-              latitude: matchingLocation['latitude'],
-              longitude: matchingLocation['longitude'],
-              timeStamp: 'Just now',
-            )
-          : null,  // **Handle case where there's no location**
-      );
-    }).toList();
-  } catch (error) {
-    print(error);
-    rethrow;
+        // **Return Rider with or without location, depending on if it's found**
+        return Rider.fromMap(rider).copyWith(
+          currentLocation: matchingLocation != null
+              ? Location(
+                  userId: rider['id'] as String,
+                  latitude: matchingLocation['latitude'],
+                  longitude: matchingLocation['longitude'],
+                  timeStamp: 'Just now',
+                )
+              : null, // **Handle case where there's no location**
+        );
+      }).toList();
+    } catch (error) {
+      print(error);
+      rethrow;
+    }
   }
-}
-
 }

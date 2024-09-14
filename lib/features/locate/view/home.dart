@@ -32,7 +32,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         // extendBody: true,
         // extendBodyBehindAppBar: true,
         appBar: const PreferredSize(
-            preferredSize: Size.fromHeight(120), child: NonSliverAppBar()),
+            preferredSize: Size.fromHeight(80), child: NonSliverAppBar()),
         floatingActionButton: BlocBuilder<RidesBloc, RidesState>(
           builder: (context, state) {
             return Padding(
