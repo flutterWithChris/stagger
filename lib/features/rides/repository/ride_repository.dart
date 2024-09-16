@@ -332,9 +332,10 @@ class RideRepository {
 
         // Insert the sender participants into the past_ride_participants table
         for (RideParticipant rideParticipant in ride.rideParticipants!) {
+          print('Archiving ride participant: $rideParticipant');
           await client
               .from('past_ride_participants')
-              .insert(rideParticipant.toMap());
+              .insert(rideParticipant.copyWith(rideId: rideId).toMap());
         }
 
         // Delete the ride from the rides table

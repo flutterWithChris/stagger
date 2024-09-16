@@ -1,3 +1,4 @@
+import 'package:buoy/features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import 'package:buoy/features/profile/repository/bloc/profile_bloc.dart';
 import 'package:buoy/features/riders/bloc/riders_bloc.dart';
 import 'package:buoy/features/riders/model/rider.dart';
@@ -42,7 +43,8 @@ class RideDetailsSheet extends StatelessWidget {
                 }
               },
               builder: (context, state) {
-                if (state is RideLoading) {
+                print('Ride Details Sheet State: $state');
+                if (state is RideLoading || state is RideUpdated) {
                   return const Center(
                     child: CircularProgressIndicator(),
                   );
@@ -51,10 +53,10 @@ class RideDetailsSheet extends StatelessWidget {
                   return const Center(
                     child: Text('Error'),
                   );
-                } else if (state is RideLoaded) {
+                } else if (state is RideLoaded ) {
                   Ride ride = state.ride;
 
-                  print('All Participants: ${ride.rideParticipants}');
+                 print('Ride: $ride');
                   RideParticipant rider = ride.rideParticipants!.firstWhere(
                       (rider) =>
                           rider.userId ==
@@ -158,25 +160,37 @@ class RideDetailsSheet extends StatelessWidget {
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  FilledButton.icon(
-                                    onPressed: () {
-                                      context.read<RideBloc>().add(
-                                          UpdateArrivalStatus(
-                                              ride: ride,
-                                              userId: context
-                                                  .read<ProfileBloc>()
-                                                  .state
-                                                  .user!
-                                                  .id!,
-                                              arrivalStatus:
-                                                  ArrivalStatus.enRoute));
-                                    },
-                                    label: const Text('On The Way'),
-                                    icon: PhosphorIcon(
-                                      PhosphorIcons.navigationArrow(
-                                        PhosphorIconsStyle.fill,
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: FilledButton.icon(
+                                          onPressed: () {
+                                                        context.read<RideBloc>().add(
+                                                UpdateArrivalStatus(
+                                                  ride: ride,
+                                                  userId: supabase.auth.currentUser!.id,
+                                                  arrivalStatus: ArrivalStatus.enRoute,
+
+                                                    ));
+                                                  context.read<RideBloc>().add(
+                                                          UpdateRide(
+                                                            ride.copyWith(
+                                                              status: RideStatus.meetingUp,
+                                                            ),
+                                                          ),
+                                                        );
+                                
+                                                  
+                                          },
+                                          label: const Text('On The Way'),
+                                          icon: PhosphorIcon(
+                                            PhosphorIcons.navigationArrow(
+                                              PhosphorIconsStyle.fill,
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                    ],
                                   ),
                                   const SizedBox(height: 8.0),
                                   Text(
@@ -195,7 +209,7 @@ class RideDetailsSheet extends StatelessWidget {
                               child: ImHereButton(ride: ride),
                             ),
                           if (atMeetingPoint &&
-                              allRidersAtMeetingPoint &&
+                              
                               ride.status == RideStatus.meetingUp)
                             Padding(
                               padding:
@@ -241,27 +255,45 @@ class FinishRideButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FilledButton.icon(
-      style: FilledButton.styleFrom(
-        backgroundColor: Colors.red,
-        foregroundColor: Colors.white,
-        side: const BorderSide(
-          color: Colors.red,
-          width: 2.0,
-        ),
-      ),
-      onPressed: () {
-        context.read<RideBloc>().add(FinishRide(
-              context.read<RideBloc>().state.ride!.copyWith(
-                    status: RideStatus.completed,
-                  ),
-            ));
+    return BlocListener<RideBloc, RideState>(
+      listener: (context, state) {
+        if(state is RideCompleted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            getSuccessSnackbar('Finished Ride!')
+          );
+          if (context.mounted){
+            context.pop();
+          }
+        } if (state is RideError){
+           ScaffoldMessenger.of(context).showSnackBar(
+            getErrorSnackbar('Error Completing Ride!')
+          );
+        }
+       
       },
-      icon: PhosphorIcon(
-        PhosphorIcons.flag(),
-        size: 20,
-      ),
-      label: const Text('Finish Ride'),
+      child: FilledButton.icon(
+          style: FilledButton.styleFrom(
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
+            side: const BorderSide(
+              color: Colors.red,
+              width: 2.0,
+            ),
+          ),
+          onPressed: () {
+    
+            context.read<RideBloc>().add(FinishRide(
+                  context.read<RideBloc>().state.ride!.copyWith(
+                        status: RideStatus.completed,
+                      ),
+                ));
+          },
+          icon: PhosphorIcon(
+            PhosphorIcons.flag(),
+            size: 20,
+          ),
+          label: const Text('Finish Ride'),
+        ),
     );
   }
 }

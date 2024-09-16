@@ -33,7 +33,7 @@ final class RideUpdated extends RideState {
   @override
   final Ride ride;
 
-  const RideUpdated(this.ride);
+  const RideUpdated({required this.ride});
 
   @override
   List<Object> get props => [ride];

@@ -27,3 +27,12 @@ final class LoadRiders extends RidersEvent {
   @override
   List<Object?> get props => [riderIds];
 }
+
+final class UpdateRider extends RidersEvent {
+  final Rider rider;
+
+  const UpdateRider({required this.rider});
+
+  @override
+  List<Object?> get props => [rider];
+}

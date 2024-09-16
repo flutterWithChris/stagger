@@ -63,7 +63,7 @@ class RideBloc extends Bloc<RideEvent, RideState> {
             event.ride, event.userId, event.arrivalStatus);
 
         print('Updating ride: ${event.ride}');
-        emit(RideUpdated(event.ride));
+        emit(RideUpdated(ride: event.ride));
 
         scaffoldMessengerKey.currentState!.showSnackBar(
           const SnackBar(
@@ -95,11 +95,12 @@ class RideBloc extends Bloc<RideEvent, RideState> {
 
     on<UpdateRide>((event, emit) async {
       try {
-        emit(RideLoading());
-        await _rideRepository.updateRide(event.ride);
+         emit(RideLoading());
+       Ride updatedRide = await _rideRepository.updateRide(event.ride);
 
-        print('Updating ride: ${event.ride}');
-        emit(RideUpdated(event.ride));
+        print('Updated ride: ${updatedRide}');
+        emit(RideUpdated(ride: updatedRide));
+        add(LoadRideParticipants(updatedRide));
       } catch (e) {
         print('Error updating ride: $e');
         emit(RideError(e.toString(), ride: event.ride));

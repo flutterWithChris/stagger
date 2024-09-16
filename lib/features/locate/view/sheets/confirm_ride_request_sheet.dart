@@ -1,3 +1,4 @@
+import 'package:buoy/core/constants.dart';
 import 'package:buoy/features/rides/bloc/ride_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,12 +27,13 @@ class ConfirmRideRequestSheet extends StatelessWidget {
             }
             if (state is RideRequestSent) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Ride Request Sent!'),
-                  duration: Duration(seconds: 3),
+                getSuccessSnackbar(
+                 'Ride Created!',
                 ),
               );
+              
               context.pop();
+              
             }
           },
           builder: (context, state) {
@@ -42,7 +44,7 @@ class ConfirmRideRequestSheet extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Center(
-                    child: Text('Error sending ride request!'),
+                    child: Text('Error creating ride!'),
                   ),
                   const SizedBox(height: 16.0),
                   ElevatedButton.icon(

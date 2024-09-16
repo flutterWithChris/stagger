@@ -25,7 +25,6 @@ import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 class MainMap extends StatefulWidget {
   const MainMap({
@@ -199,7 +198,7 @@ class _MainMapState extends State<MainMap> {
 
                                           return BlocConsumer<RideBloc,
                                               RideState>(
-                                            listener: (context, state) {
+                                            listener: (context, state) async {
                                               if (state is CreatingRide &&
                                                   state.ride.meetingPoint ==
                                                       null) {
@@ -218,21 +217,49 @@ class _MainMapState extends State<MainMap> {
                                                 //   },
                                                 // );
                                               }
+                                              if (state is RideRequestSent) {
+                                                await widget.mapController
+                                                    ?.animateTo(
+                                                  dest: LatLng(
+                                                      state.ride.meetingPoint![0],
+                                                      state.ride.meetingPoint![1]),
+                                                  
+                                                );
+                                              }
                                             },
                                             builder: (context, rideState) {
-                                              if (rideState is CreatingRide &&
-                                                  rideState.ride.meetingPoint !=
-                                                      null) {
-                                                return MarkerLayer(
-                                                  markers: [
-                                                    /// User Location
-                                                    /// Destination Location
+                                            
+                                              return BlocBuilder<RidersBloc,
+                                                  RidersState>(
+                                                builder:
+                                                    (context, ridersState) {
+                                                  if (ridersState
+                                                      is RidersLoading) {
+                                                    return const MarkerLayer(
+                                                      markers: [],
+                                                    );
+                                                  }
+                                                  if (ridersState
+                                                      is RidersLoaded) {
+                                                    List<Rider>
+                                                        ridersWithLocation =
+                                                        ridersState.riders
+                                                            .where((rider) =>
+                                                                rider
+                                                                    .currentLocation !=
+                                                                null )
+                                                            .toList();
+                                                    return MarkerLayer(
+                                                      markers: [
+                                                          if ((rideState is CreatingRide || rideState is SelectingMeetingPoint) &&
+                                                  (rideState.meetingPoint !=
+                                                      null || rideState.ride?.meetingPoint != null))  
                                                     Marker(
                                                       point: LatLng(
-                                                          rideState.ride
-                                                              .meetingPoint![0],
-                                                          rideState.ride
-                                                              .meetingPoint![1]),
+                                                          rideState
+                                                              .meetingPoint?[0] ?? rideState.ride!.meetingPoint![0], 
+                                                          rideState
+                                                              .meetingPoint?[1] ?? rideState.ride!.meetingPoint![1],),
                                                       child: PhosphorIcon(
                                                               PhosphorIcons.mapPin(
                                                                   PhosphorIconsStyle
@@ -443,31 +470,7 @@ class _MainMapState extends State<MainMap> {
                                                             ],
                                                           ),
                                                         ),
-                                                  ],
-                                                );
-                                              }
-                                              return BlocBuilder<RidersBloc,
-                                                  RidersState>(
-                                                builder:
-                                                    (context, ridersState) {
-                                                  if (ridersState
-                                                      is RidersLoading) {
-                                                    return const MarkerLayer(
-                                                      markers: [],
-                                                    );
-                                                  }
-                                                  if (ridersState
-                                                      is RidersLoaded) {
-                                                    List<Rider>
-                                                        ridersWithLocation =
-                                                        ridersState.riders
-                                                            .where((rider) =>
-                                                                rider
-                                                                    .currentLocation !=
-                                                                null && rider.id != Supabase.instance.client.auth.currentUser?.id)
-                                                            .toList();
-                                                    return MarkerLayer(
-                                                      markers: [
+                                               
                                                         for (Rider rider
                                                             in ridersWithLocation)
                                                           Marker(
