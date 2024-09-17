@@ -25,7 +25,11 @@ class _RidingExperiencePageState extends State<RidingExperiencePage> {
     // TODO: implement initState
     context.read<OnboardingBloc>().add(SetCanMoveForwardCallback(() {
       if (newRider == true) {
-        return true;
+        context.read<OnboardingBloc>().add(UpdateRider(
+            user: context.read<OnboardingBloc>().state.user!,
+            rider: context.read<OnboardingBloc>().state.rider!.copyWith(
+                  yearsRiding: 0,
+                )));
       } else {
         if (_formKey.currentState!.validate()) {
           context.read<OnboardingBloc>().add(UpdateRider(
@@ -90,7 +94,8 @@ class _RidingExperiencePageState extends State<RidingExperiencePage> {
                         ),
                         const Gutter(),
                         TextFormField(
-                          keyboardType: TextInputType.numberWithOptions(signed: true),
+                          keyboardType: const TextInputType.numberWithOptions(
+                              signed: true),
                           textInputAction: TextInputAction.done,
                           enabled: !newRider,
                           controller: _yearsRidingController,
