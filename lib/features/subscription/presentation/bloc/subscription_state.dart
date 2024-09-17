@@ -7,7 +7,15 @@ sealed class SubscriptionState extends Equatable {
   List<Object?> get props => [];
 }
 
-final class SubscriptionInitial extends SubscriptionState {}
+final class SubscriptionInitial extends SubscriptionState {
+  final CustomerInfo customerInfo;
+
+  const SubscriptionInitial({required this.customerInfo});
+
+  @override
+  // TODO: implement props
+  List<Object?> get props => [customerInfo];
+}
 
 final class SubscriptionLoaded extends SubscriptionState {
   final CustomerInfo customerInfo;

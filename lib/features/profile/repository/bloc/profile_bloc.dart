@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:buoy/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:buoy/features/profile/repository/user_repository.dart';
 import 'package:meta/meta.dart';
 
@@ -9,9 +10,16 @@ part 'profile_state.dart';
 
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final UserRepository _userRepository;
-  ProfileBloc({required UserRepository userRepository})
+  final AuthBloc _authBloc;
+  ProfileBloc({required UserRepository userRepository, required AuthBloc authBloc})
       : _userRepository = userRepository,
+        _authBloc = authBloc,
         super(ProfileLoading()) {
+    _authBloc.stream.listen((authState){
+      if (authState.status == AuthStatus.authenticated && authState.user != null){
+        add(LoadProfile(authState.user!.id));
+      }
+    });
     on<LoadProfile>(_onLoadProfile);
     on<UpdateProfile>(_onUpdateProfile);
   }

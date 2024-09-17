@@ -118,14 +118,14 @@ class _MyAppState extends State<MyApp> {
       ],
       child: MultiBlocProvider(
         providers: [
+                    BlocProvider(
+              create: (context) => AuthBloc(
+                  authRepository: context.read<AuthRepositoryImpl>(),)),
           BlocProvider(
               create: (context) => ProfileBloc(
+                authBloc: context.read<AuthBloc>(),
                     userRepository: context.read<UserRepository>(),
                   )),
-          BlocProvider(
-              create: (context) => AuthBloc(
-                  authRepository: context.read<AuthRepositoryImpl>(),
-                  profileBloc: context.read<ProfileBloc>())),
           BlocProvider(
               create: (context) => SignupCubit(
                   authRepository: context.read<AuthRepositoryImpl>())),

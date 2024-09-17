@@ -37,7 +37,7 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
                 emit(SubscriptionError(failure.message));
               },
               (customerInfo) {
-                emit(SubscriptionLoaded(customerInfo: customerInfo));
+                emit(SubscriptionInitial(customerInfo: customerInfo));
               },
             );
           },

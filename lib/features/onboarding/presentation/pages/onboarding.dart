@@ -10,6 +10,7 @@ import 'package:buoy/features/onboarding/presentation/pages/ride_types_page.dart
 import 'package:buoy/features/onboarding/presentation/pages/rider_profile_summary_page.dart';
 import 'package:buoy/features/onboarding/presentation/pages/riding_experience_page.dart';
 import 'package:buoy/features/onboarding/presentation/pages/signup_page.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -124,7 +125,10 @@ class _OnboardingState extends State<Onboarding> {
           // ),
           PageView(
             controller: pageController,
-            physics: const NeverScrollableScrollPhysics(),
+            physics: 
+            kDebugMode
+            ? null
+            : const NeverScrollableScrollPhysics(),
             children: [
               Signup(
                 pageController: pageController,

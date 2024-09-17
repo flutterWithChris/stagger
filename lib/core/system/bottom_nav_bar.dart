@@ -11,7 +11,7 @@ class BottomNavBar extends StatefulWidget {
 }
 
 class _BottomNavBarState extends State<BottomNavBar> {
-  static int selectedIndex = 1;
+  static int selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
     return NavigationBar(
@@ -20,19 +20,19 @@ class _BottomNavBarState extends State<BottomNavBar> {
       selectedIndex: selectedIndex,
       onDestinationSelected: (index) {
         switch (index) {
+          // case 0:
+          //   context.go('/profile');
+          //   setState(() {
+          //     selectedIndex = index;
+          //   });
+          //   break;
           case 0:
-            context.go('/profile');
-            setState(() {
-              selectedIndex = index;
-            });
-            break;
-          case 1:
             context.go('/');
             setState(() {
               selectedIndex = index;
             });
             break;
-          case 2:
+          case 1:
             context.go('/settings');
             setState(() {
               selectedIndex = index;
@@ -41,7 +41,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
         }
       },
       destinations: const [
-        NavigationDestination(icon: Icon(Icons.groups), label: 'Friends'),
+        // NavigationDestination(icon: Icon(Icons.groups), label: 'Friends'),
         NavigationDestination(
             icon: Icon(Icons.person_pin_circle_rounded), label: 'Home'),
         NavigationDestination(

@@ -19,14 +19,16 @@ class LocationPermissionsPage extends StatefulWidget {
 }
 
 class _LocationPermissionsPageState extends State<LocationPermissionsPage> {
+  bool _locationPermissionGranted = false;
+  bool _locationAlwaysPermissionGranted = false;
+
   @override
   void initState() {
-    // TODO: implement initState
+    super.initState();
+    _checkPermissions();
     context.read<OnboardingBloc>().add(SetCanMoveForwardCallback(
       () async {
-        var granted = await Permission.location.isGranted;
-        var grantedAlways = await Permission.locationAlways.isGranted;
-        if (granted && grantedAlways) {
+        if (_locationPermissionGranted && _locationAlwaysPermissionGranted) {
           context.read<SubscriptionBloc>().add(ShowPaywall());
         } else {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -34,7 +36,15 @@ class _LocationPermissionsPageState extends State<LocationPermissionsPage> {
         }
       },
     ));
-    super.initState();
+  }
+
+  void _checkPermissions() async {
+    var granted = await Permission.location.isGranted;
+    var grantedAlways = await Permission.locationAlways.isGranted;
+    setState(() {
+      _locationPermissionGranted = granted;
+      _locationAlwaysPermissionGranted = grantedAlways;
+    });
   }
 
   @override
@@ -45,13 +55,10 @@ class _LocationPermissionsPageState extends State<LocationPermissionsPage> {
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text(state.message)));
         } else if (state is SubscriptionLoaded) {
-          print('Subscription loaded');
           SharedPreferences prefs = await SharedPreferences.getInstance();
           prefs.setBool('onboardingComplete', true);
           context.go('/');
-          print('Attempting to navigate to /');
         }
-        // TODO: implement listener
       },
       child: Scaffold(
         body: Center(
@@ -82,132 +89,76 @@ class _LocationPermissionsPageState extends State<LocationPermissionsPage> {
                         .bodyMedium
                         ?.copyWith(fontWeight: FontWeight.w400)),
                 const GutterLarge(),
-                FutureBuilder<bool?>(
-                    future: Permission.location.isGranted,
-                    builder: (context, snapshot) {
-                      var granted = snapshot.data ?? false;
-                      return ListTile(
-                        textColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.0)),
-                        tileColor:
-                            granted ? Colors.green[400] : Colors.redAccent,
-                        title: const Text('Location Permissions'),
-                        trailing: Wrap(
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          spacing: 8.0,
-                          children: [
-                            Icon(
-                              granted
-                                  ? Icons.check_circle_rounded
-                                  : Icons.near_me_disabled_rounded,
-                              size: 16.0,
-                              color: Colors.white,
-                            ),
-                            Text(granted ? 'Enabled' : 'Disabled',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white)),
-                          ],
-                        ),
-                      );
-                    }),
+                // Location Permissions ListTile
+                ListTile(
+                  onTap: () async => await Permission.location.request().then((value) => setState(() {
+                    _locationPermissionGranted = value.isGranted;
+                  }),),
+                  textColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0)),
+                  tileColor: _locationPermissionGranted
+                      ? Colors.green[400]
+                      : Colors.redAccent,
+                  title: const Text('Location Permissions'),
+                  trailing: Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8.0,
+                    children: [
+                      Icon(
+                        _locationPermissionGranted
+                            ? Icons.check_circle_rounded
+                            : Icons.near_me_disabled_rounded,
+                        size: 16.0,
+                        color: Colors.white,
+                      ),
+                      Text(
+                          _locationPermissionGranted ? 'Enabled' : 'Disabled',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white)),
+                    ],
+                  ),
+                ),
                 const Gutter(),
-                FutureBuilder<bool?>(
-                    future: Permission.locationAlways.isGranted,
-                    builder: (context, snapshot) {
-                      var granted = snapshot.data ?? false;
-                      return ListTile(
-                        textColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.0)),
-                        tileColor:
-                            granted ? Colors.green[400] : Colors.redAccent,
-                        title: const Text(
-                          'Background Location',
-                        ),
-                        trailing: Wrap(
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          spacing: 8.0,
-                          children: [
-                            Icon(
-                              granted
-                                  ? Icons.check_circle_rounded
-                                  : Icons.location_disabled_rounded,
-                              size: 16.0,
-                              color: Colors.white,
-                            ),
-                            Text(granted ? 'Enabled' : 'Disabled',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white)),
-                          ],
-                        ),
-                      );
-                    }),
+                // Background Location Permissions ListTile
+           
                 const Gutter(),
                 Row(
                   children: [
                     Expanded(
-                      child: FutureBuilder(
-                          future: Future.wait([
-                            Permission.location.isGranted,
-                            Permission.locationAlways.isGranted,
-                          ]),
-                          builder: (context, snapshot) {
-                            var granted = snapshot.data;
-                            if (snapshot.connectionState !=
-                                ConnectionState.done) {
-                              return FilledButton(
-                                  onPressed: () {},
-                                  child: CircularProgressIndicator(
-                                    color: Theme.of(context)
-                                        .scaffoldBackgroundColor,
-                                  ));
-                            }
-                            if (granted != null && granted.contains(false)) {
-                              return FilledButton(
-                                onPressed: () async {
-                                  print('Requestin location permission');
-                                  await Permission.location.request().then((_) {
-                                    print('Location permission requested');
-                                  });
-                                  await Permission.locationAlways.request().then(
-                                    (value){ setState(() {});}
-                                  );
-                                 
-                                },
-                                child:
-                                    const Text('Enable Location Permissions'),
-                              );
-                            }
-                            return const SizedBox();
-
-                            BlocConsumer<SubscriptionBloc, SubscriptionState>(
-                              listener: (context, state) {
-                                if (state is SubscriptionError) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(state.message)));
-                                }
+                      child:
+                       _locationPermissionGranted
+                          ? FilledButton(
+                              onPressed: () {
+                                context
+                                    .read<SubscriptionBloc>()
+                                    .add(ShowPaywall());
                               },
-                              builder: (context, state) {
-                                return FilledButton(
-                                  onPressed: () async {
-                                    context
-                                        .read<SubscriptionBloc>()
-                                        .add(ShowPaywall());
-                                  },
-                                  child: const Text('Continue'),
-                                );
+                              child: const Text('Continue'),
+                            )
+                          :
+                           FilledButton(
+                              onPressed: () async {
+                                await Permission.locationWhenInUse.request().then((permission) async {
+                                  setState(() {
+                                  _locationPermissionGranted = permission.isGranted;
+                                });
+                                });
+                                await Permission.locationAlways.request().then((permission) async {
+                                  setState(() {
+                                  _locationAlwaysPermissionGranted = permission.isGranted;
+                                });
+                                });
+                             
+                               // _checkPermissions();
                               },
-                            );
-                          }),
+                              child:
+                                  const Text('Enable Location Permissions'),
+                            ),
                     ),
                   ],
                 ),

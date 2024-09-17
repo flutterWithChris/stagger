@@ -639,7 +639,7 @@ class ImHereButton extends StatelessWidget {
             onPressed: () {
               context.read<RideBloc>().add(UpdateArrivalStatus(
                   ride: ride,
-                  userId: context.read<ProfileBloc>().state.user!.id!,
+                  userId: supabase.auth.currentUser!.id,
                   arrivalStatus: ArrivalStatus.atMeetingPoint));
             },
             label: const Text('I\'m Here'),

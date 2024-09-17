@@ -11,12 +11,11 @@ part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepositoryImpl _authRepository;
-  final ProfileBloc _profileBloc;
   AuthBloc(
       {required AuthRepositoryImpl authRepository,
-      required ProfileBloc profileBloc})
+     })
       : _authRepository = authRepository,
-        _profileBloc = profileBloc,
+     
         super(AuthState.initial()) {
     _authRepository.authStateChanges.listen((state) {
       print('Auth state changed');
@@ -35,7 +34,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       } else {
         print('User is not null');
         emit(AuthState.authenticated(event.user!));
-        _profileBloc.add(LoadProfile(event.user!.id));
       }
       goRouter.refresh();
     });
