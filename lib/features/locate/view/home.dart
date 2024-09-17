@@ -45,7 +45,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   }
                   context.read<RideBloc>().add(CreateRide(Ride(
                         senderIds: [
-                          context.read<ProfileBloc>().state.user!.id!
+                          supabase.auth.currentUser!.id,
                         ],
                       )));
                 });

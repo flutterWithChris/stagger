@@ -134,56 +134,8 @@ class _MainMapState extends State<MainMap> {
                         'id': 'mapbox/streets-v11',
                       },
                     ),
-                    BlocBuilder<FriendsBloc, FriendsState>(
-                      builder: (context, friendsState) {
-                        print('Friends State: $friendsState');
-                        if (friendsState is FriendsLoading) {
-                          return const MarkerLayer(
-                            markers: [],
-                          );
-                        }
-                        if (friendsState is FriendsLoaded) {
-                          return BlocBuilder<ProfileBloc, ProfileState>(
-                            builder: (context, profileState) {
-                              if (profileState is ProfileLoading) {
-                                print('Profile Loading State...');
-                                return const MarkerLayer(
-                                  markers: [],
-                                );
-                              }
-                              if (profileState is ProfileLoaded) {
-                                print(
-                                    'Profile: ${profileState.user.firstName}');
-                                return BlocBuilder<FriendsBloc, FriendsState>(
-                                  builder: (context, friendsState) {
-                                    if (friendsState is FriendsLoading) {
-                                      print('Friends Loading State...');
-                                      return const MarkerLayer(
-                                        markers: [],
-                                      );
-                                    }
-                                    if (friendsState is FriendsError) {
-                                      return const MarkerLayer(
-                                        markers: [],
-                                      );
-                                    }
-                                    if (friendsState is FriendsLoaded) {
-                                      // if (friendsState.friends.isEmpty ||
-                                      //     friendsState.locations.isEmpty) {
-                                      //   print('Friends Empty...');
-
-                                      //   return const MarkerLayer(
-                                      //     markers: [],
-                                      //   );
-                                      // }
-                                      for (int i = 0;
-                                          i < friendsState.locations.length;
-                                          i++) {
-                                        print(
-                                            'showing location $i: ${friendsState.locations[i].latitude}');
-                                      }
-
-                                      return BlocBuilder<RidesBloc, RidesState>(
+                  
+                                     BlocBuilder<RidesBloc, RidesState>(
                                         builder: (context, ridesState) {
                                           if (ridesState is RidesLoading) {
                                             return const MarkerLayer(
@@ -280,196 +232,69 @@ class _MainMapState extends State<MainMap> {
                                                               duration: 1.618
                                                                   .seconds),
                                                     ),
-                                                    Marker(
-                                                      // anchorPos:
-                                                      //     AnchorPos.align(AnchorAlign.top),
-                                                      width: 32.0,
-                                                      height: 32.0,
-                                                      point: LatLng(
-                                                          state.bgLocation!
-                                                              .coords.latitude,
-                                                          state
-                                                              .bgLocation!
-                                                              .coords
-                                                              .longitude),
-                                                      child: Stack(
-                                                        clipBehavior: Clip.none,
-                                                        alignment:
-                                                            Alignment.center,
-                                                        children: [
-                                                          CircleAvatar(
-                                                            radius: 30.0,
-                                                            backgroundColor:
-                                                                Theme.of(
-                                                                        context)
-                                                                    .splashColor,
-                                                          )
-                                                              .animate(
-                                                                onComplete:
-                                                                    (controller) =>
-                                                                        controller
-                                                                            .repeat(),
-                                                              )
-                                                              .fadeIn(
-                                                                  duration:
-                                                                      800.ms)
-                                                              .scale(
-                                                                  duration: 1.618
-                                                                      .seconds)
-                                                              .fadeOut(
-                                                                  delay:
-                                                                      800.ms),
-                                                          InkWell(
-                                                            onTap: () async {
-                                                              await widget.mapController?.animateTo(
-                                                                  dest: LatLng(
-                                                                      state
-                                                                          .bgLocation!
-                                                                          .coords
-                                                                          .latitude,
-                                                                      state
-                                                                          .bgLocation!
-                                                                          .coords
-                                                                          .longitude));
-                                                            },
-                                                            child: PhosphorIcon(
-                                                                PhosphorIcons
-                                                                    .motorcycle(
-                                                                        PhosphorIconsStyle
-                                                                            .fill)),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
+                                                    // Marker(
+                                                    //   // anchorPos:
+                                                    //   //     AnchorPos.align(AnchorAlign.top),
+                                                    //   width: 32.0,
+                                                    //   height: 32.0,
+                                                    //   point: LatLng(
+                                                    //       state.bgLocation!
+                                                    //           .coords.latitude,
+                                                    //       state
+                                                    //           .bgLocation!
+                                                    //           .coords
+                                                    //           .longitude),
+                                                    //   child: Stack(
+                                                    //     clipBehavior: Clip.none,
+                                                    //     alignment:
+                                                    //         Alignment.center,
+                                                    //     children: [
+                                                    //       CircleAvatar(
+                                                    //         radius: 30.0,
+                                                    //         backgroundColor:
+                                                    //             Theme.of(
+                                                    //                     context)
+                                                    //                 .splashColor,
+                                                    //       )
+                                                    //           .animate(
+                                                    //             onComplete:
+                                                    //                 (controller) =>
+                                                    //                     controller
+                                                    //                         .repeat(),
+                                                    //           )
+                                                    //           .fadeIn(
+                                                    //               duration:
+                                                    //                   800.ms)
+                                                    //           .scale(
+                                                    //               duration: 1.618
+                                                    //                   .seconds)
+                                                    //           .fadeOut(
+                                                    //               delay:
+                                                    //                   800.ms),
+                                                    //       InkWell(
+                                                    //         onTap: () async {
+                                                    //           await widget.mapController?.animateTo(
+                                                    //               dest: LatLng(
+                                                    //                   state
+                                                    //                       .bgLocation!
+                                                    //                       .coords
+                                                    //                       .latitude,
+                                                    //                   state
+                                                    //                       .bgLocation!
+                                                    //                       .coords
+                                                    //                       .longitude));
+                                                    //         },
+                                                    //         child: PhosphorIcon(
+                                                    //             PhosphorIcons
+                                                    //                 .motorcycle(
+                                                    //                     PhosphorIconsStyle
+                                                    //                         .fill)),
+                                                    //       ),
+                                                    //     ],
+                                                    //   ),
+                                                    // ),
 
-                                                    if (friendsState.friends
-                                                            .isNotEmpty &&
-                                                        friendsState.locations
-                                                            .isNotEmpty)
-                                                      for (Location location
-                                                          in friendsState
-                                                              .locations)
-                                                        Marker(
-                                                          width: 100.0,
-                                                          height: 100.0,
-                                                          point: LatLng(
-                                                              location
-                                                                  .latitude!,
-                                                              location
-                                                                  .longitude!),
-                                                          child: Stack(
-                                                            alignment: Alignment
-                                                                .center,
-                                                            children: [
-                                                              CircleAvatar(
-                                                                radius: 28.0,
-                                                                backgroundColor:
-                                                                    Theme.of(
-                                                                            context)
-                                                                        .splashColor,
-                                                              )
-                                                                  .animate(
-                                                                    onComplete:
-                                                                        (controller) =>
-                                                                            controller.repeat(),
-                                                                  )
-                                                                  .fadeIn(
-                                                                      duration:
-                                                                          800
-                                                                              .ms)
-                                                                  .scale(
-                                                                      duration:
-                                                                          1.618
-                                                                              .seconds)
-                                                                  .fadeOut(
-                                                                      delay: 800
-                                                                          .ms),
-                                                              InkWell(
-                                                                onTap:
-                                                                    () async {
-                                                                  showBottomSheet(
-                                                                    context:
-                                                                        context,
-                                                                    //       isScrollControlled: true,
-                                                                    builder:
-                                                                        (context) {
-                                                                      return DraggableScrollableSheet(
-                                                                          expand:
-                                                                              false,
-                                                                          maxChildSize:
-                                                                              0.28,
-                                                                          initialChildSize:
-                                                                              0.28,
-                                                                          minChildSize:
-                                                                              0.13,
-                                                                          builder:
-                                                                              (context, controller) {
-                                                                            return FriendDetailsSheet(
-                                                                                friendId: friendsState.friends[1].id!,
-                                                                                location: location,
-                                                                                scrollController: controller);
-                                                                          });
-                                                                    },
-                                                                  );
-                                                                  await widget
-                                                                      .mapController
-                                                                      ?.centerOnPoint(
-                                                                    LatLng(
-                                                                        location
-                                                                            .latitude!,
-                                                                        location
-                                                                            .longitude!),
-                                                                  );
-                                                                  // await mapController
-                                                                  //     ?.centerOnPoint(
-                                                                  //         LatLng(
-                                                                  //           double.parse(
-                                                                  //               location
-                                                                  //                   .latitude),
-                                                                  //           double.parse(
-                                                                  //               location
-                                                                  //                   .longitude),
-                                                                  //         ),
-                                                                  //         zoom: 14.0,
-                                                                  //         curve: Curves
-                                                                  //             .easeOutSine);
-                                                                },
-                                                                child:
-                                                                    CircleAvatar(
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .white,
-                                                                  radius: 18.0,
-                                                                  child:
-                                                                      CircleAvatar(
-                                                                    radius:
-                                                                        16.0,
-                                                                    // foregroundImage:
-                                                                    //     CachedNetworkImageProvider(
-                                                                    //   friendsState
-                                                                    //           .friends
-                                                                    //           .firstWhere((friend) =>
-                                                                    //               friend.id ==
-                                                                    //               location.userId)
-                                                                    //           .photoUrl ??
-                                                                    //       '',
-                                                                    // ),
-                                                                    child: friendsState.friends.firstWhere((friend) => friend.id == location.userId).photoUrl ==
-                                                                            null
-                                                                        ? Text(friendsState
-                                                                            .friends
-                                                                            .firstWhere((friend) =>
-                                                                                friend.id ==
-                                                                                location.userId)
-                                                                            .firstName!
-                                                                            .toUpperCase())
-                                                                        : null,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
+                                                   
                                                
                                                         for (Rider rider
                                                             in ridersWithLocation)
@@ -839,9 +664,8 @@ class _MainMapState extends State<MainMap> {
 
                                                         /// User Location
                                                         if (state.bgLocation !=
-                                                                null &&
-                                                            state.locationUpdatesEnabled !=
-                                                                false)
+                                                                null 
+                                                            )
                                                           Marker(
                                                             width: 32.0,
                                                             height: 32.0,
@@ -854,44 +678,47 @@ class _MainMapState extends State<MainMap> {
                                                                     .bgLocation!
                                                                     .coords
                                                                     .longitude),
-                                                            child: Stack(
-                                                              clipBehavior:
-                                                                  Clip.none,
-                                                              alignment:
-                                                                  Alignment
-                                                                      .center,
-                                                              children: [
-                                                                InkWell(
-                                                                  onTap:
-                                                                      () async {
-                                                                    await widget
-                                                                        .mapController
-                                                                        ?.animateTo(
-                                                                            dest:
-                                                                                LatLng(state.bgLocation!.coords.latitude, state.bgLocation!.coords.longitude));
-                                                                  },
-                                                                  child:
-                                                                      Transform
-                                                                          .flip(
-                                                                    child: Transform
-                                                                        .rotate(
-                                                                      angle: 0,
-                                                                      // state.location?.heading !=
-                                                                      //         null
-                                                                      //     ? (state.location!.heading! * math.pi / 180) -
-                                                                      //         90
-                                                                      //     : 0.0,
-                                                                      child:
-                                                                          const PhosphorIcon(
-                                                                        Icons
-                                                                            .person_pin_circle_rounded,
-                                                                        size:
-                                                                            32,
-                                                                      ),
+                                                            child: Opacity(
+                                                              opacity: state.locationUpdatesEnabled !=
+                                                                false
+                                                                ? 1.0
+                                                                : 0.5,
+                                                              child: InkWell(
+                                                                onTap:
+                                                                    () async {
+                                                                  await widget
+                                                                      .mapController
+                                                                      ?.animateTo(
+                                                                          dest:
+                                                                              LatLng(state.bgLocation!.coords.latitude, state.bgLocation!.coords.longitude));
+                                                                },
+                                                                child:
+                                                                    Transform
+                                                                        .flip(
+                                                                  child: Transform
+                                                                      .rotate(
+                                                                    angle: 0,
+                                                                    // state.location?.heading !=
+                                                                    //         null
+                                                                    //     ? (state.location!.heading! * math.pi / 180) -
+                                                                    //         90
+                                                                    //     : 0.0,
+                                                                    child:
+                                                                    
+                                                                         PhosphorIcon(
+                                                                      
+                                                                      Icons
+                                                                          .person_pin_circle_rounded
+                                                                          ,
+                                                                      size:
+                                                                          32,
+                                                                          color: state.locationUpdatesEnabled !=
+                                                                false
+                                                                ? Colors.black87: null,
                                                                     ),
                                                                   ),
                                                                 ),
-                                                              ],
+                                                              ),
                                                             ),
                                                           ),
                                                       ],
@@ -906,36 +733,7 @@ class _MainMapState extends State<MainMap> {
                                             },
                                           );
                                         },
-                                      );
-                                    }
-                                    return const Center(
-                                        child: Text('Something went wrong...'));
-                                  },
-                                );
-                              } else {
-                                return const MarkerLayer(
-                                  markers: [],
-                                );
-                              }
-                            },
-                          );
-                        }
-                        print('Location Data: ${friendsState.locations}');
-                        // Find matching ids in friend objects and location stream & print them
-                        for (Location location in friendsState.locations) {
-                          if (location.userId == friendsState.friends[1].id) {
-                            print('Matching id: ${location.userId}');
-                            print(
-                                '${friendsState.friends[1].firstName} photo: ${friendsState.friends[1].photoUrl}');
-                          }
-                        }
-                        // print(
-                        //     'Location: ${location.coords.latitude}, ${location.coords.longitude}');
-                        return const MarkerLayer(
-                          markers: [],
-                        );
-                      },
-                    )
+                                      )
                   ],
                 ),
               ],
