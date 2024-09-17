@@ -14,6 +14,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:flutter/foundation.dart' as foundation;
 
 import 'add_friends_page.dart';
 
@@ -125,10 +126,9 @@ class _OnboardingState extends State<Onboarding> {
           // ),
           PageView(
             controller: pageController,
-            physics: 
-            kDebugMode
-            ? null
-            : const NeverScrollableScrollPhysics(),
+            physics: foundation.kReleaseMode == false
+                ? null
+                : const NeverScrollableScrollPhysics(),
             children: [
               Signup(
                 pageController: pageController,
