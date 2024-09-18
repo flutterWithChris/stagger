@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gutter/flutter_gutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class BatteryInfoPage extends StatelessWidget {
-  const BatteryInfoPage({super.key});
+class RideButtonsPage extends StatelessWidget {
+  const RideButtonsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +18,7 @@ class BatteryInfoPage extends StatelessWidget {
                 Expanded(
                   flex: 3,
                   child: Image.asset(
-                    'lib/assets/screenshots/ride_details.png',
+                    'lib/assets/screenshots/on_the_way_button.png',
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -30,7 +30,7 @@ class BatteryInfoPage extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Text('Wait For Riders.',
+                          Text('We Ride at Dawn!',
                               style: Theme.of(context)
                                   .textTheme
                                   .headlineMedium!
@@ -43,7 +43,7 @@ class BatteryInfoPage extends StatelessWidget {
                       const Gutter(),
                       const Flexible(
                         child: Text(
-                          'Other riders will be able to see/join your ride. You’ll see a list with riders & their arrival status.',
+                          'Use the buttons to keep riders posted on the ride status.',
                         ),
                       ),
                       const GutterLarge(),

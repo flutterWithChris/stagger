@@ -27,122 +27,82 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
     return Scaffold(
       body: Center(
         child: SafeArea(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                flex: 2,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  flex: 3,
                   child: Image.asset(
-                    'lib/assets/screenshots/rider_details.png',
+                    'lib/assets/screenshots/main_map_dark.png',
                     fit: BoxFit.cover,
                   ),
                 ),
-              ),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Wrap(
-                          spacing: 16.0,
+                Flexible(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Gutter(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Wrap(
+                            spacing: 16.0,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              // Icon(
+                              //   Icons.battery_full_rounded,
+                              //   size: 20.0,
+                              //   color: Colors.orange[800],
+                              // ),
+                              Text('Create Rides',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium!
+                                      .copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily:
+                                              GoogleFonts.corben().fontFamily)),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const Gutter(),
+                      Flexible(
+                        child: Wrap(
+                          runSpacing: 8.0,
                           crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            // Icon(
-                            //   Icons.battery_full_rounded,
-                            //   size: 20.0,
-                            //   color: Colors.orange[800],
-                            // ),
-                            Text('Find Riding Buddies',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineMedium!
-                                    .copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily:
-                                            GoogleFonts.corben().fontFamily)),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const Gutter(),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Wrap(
-                          spacing: 12.0,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            Icon(
-                              PhosphorIcons.mapTrifold(),
-                              // color: Theme.of(context).scaffoldBackgroundColor,
-                              size: 20.0,
-                            ),
-                            Text(
-                              'Live map with nearby riders!',
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.titleMedium,
-                            )
-                          ],
-                        ),
-                        const GutterSmall(),
-                        Wrap(
                           spacing: 8.0,
-                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
-                            Icon(
-                              PhosphorIcons.motorcycle(),
-                              size: 20.0,
+                            const Text(
+                              'Use the',
+                              textAlign: TextAlign.left,
                             ),
-                            Text('See bike type, riding style, & more',
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.copyWith(fontWeight: FontWeight.w400)),
+                            SizedBox(
+                              height: 24.0,
+                              child: FittedBox(
+                                child: FloatingActionButton(
+                                  onPressed: () {},
+                                  child: const Icon(Icons.add_rounded),
+                                ),
+                              ),
+                            ),
+                            const Text('button on the map to create a ride.',
+                                textAlign: TextAlign.left),
+                            const Text(
+                                'You can set meeting points, times, & set ride privacy.',
+                                textAlign: TextAlign.left),
                           ],
                         ),
-                        const GutterSmall(),
-                        Wrap(
-                          spacing: 8.0,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.person_add_alt_1_rounded,
-                              size: 20.0,
-                            ),
-                            Text('Add friends for future rides',
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.copyWith(fontWeight: FontWeight.w400)),
-                          ],
-                        ),
-                        const GutterLarge(),
-                        // FilledButton.icon(
-                        //     style: FilledButton.styleFrom(
-                        //       fixedSize: const Size(400, 40),
-                        //     ),
-                        //     onPressed: () async {
-                        //       SharedPreferences prefs =
-                        //           await SharedPreferences.getInstance();
-                        //       prefs.setBool('onboardingComplete', true);
-                        //       goRouter.go('/');
-                        //     },
-                        //     icon: const Icon(Icons.check_circle_outline_rounded),
-                        //     label: const Text('Finish Setup'))
-                      ],
-                    ),
-                    const GutterLarge(),
-                  ],
+                      ),
+                      const GutterLarge(),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -3,12 +3,15 @@ import 'package:buoy/features/onboarding/presentation/pages/battery_info_page.da
 import 'package:buoy/features/onboarding/presentation/pages/bike_type_page.dart';
 import 'package:buoy/features/onboarding/presentation/pages/destinations_page.dart';
 import 'package:buoy/features/onboarding/presentation/pages/gear_preference_page.dart';
+import 'package:buoy/features/onboarding/presentation/pages/join_rides_page.dart';
 import 'package:buoy/features/onboarding/presentation/pages/location_permissions.dart';
 import 'package:buoy/features/onboarding/presentation/pages/privacy_security_page.dart';
+import 'package:buoy/features/onboarding/presentation/pages/ride_buttons_page.dart';
 import 'package:buoy/features/onboarding/presentation/pages/ride_style_page.dart';
 import 'package:buoy/features/onboarding/presentation/pages/ride_types_page.dart';
 import 'package:buoy/features/onboarding/presentation/pages/rider_profile_summary_page.dart';
 import 'package:buoy/features/onboarding/presentation/pages/riding_experience_page.dart';
+import 'package:buoy/features/onboarding/presentation/pages/see_nearby_riders_page.dart';
 import 'package:buoy/features/onboarding/presentation/pages/signup_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -135,6 +138,9 @@ class _OnboardingState extends State<Onboarding> {
               ),
               const PrivacySecurityPage(),
               const BatteryInfoPage(),
+              const RideButtonsPage(),
+              const JoinRidesPage(),
+              const SeeNearbyRidersPage(),
               const RiderProfileSummaryPage(),
               const BikeTypePage(),
               const RidingExperiencePage(),

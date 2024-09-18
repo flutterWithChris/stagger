@@ -1,5 +1,6 @@
 import 'package:buoy/core/system/bottom_nav_bar.dart';
 import 'package:buoy/core/system/main_sliver_app_bar.dart';
+import 'package:buoy/features/coach_marks/cubit/coach_marks_cubit.dart';
 import 'package:buoy/features/locate/bloc/geolocation_bloc.dart';
 import 'package:buoy/features/locate/view/map/main_map.dart';
 import 'package:buoy/features/profile/repository/bloc/profile_bloc.dart';
@@ -24,18 +25,27 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> with TickerProviderStateMixin {
   late final AnimatedMapController mapController =
       AnimatedMapController(vsync: this);
+  final GlobalKey _fabKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
     return DefaultSheetController(
-      child: Scaffold(
-        // extendBody: true,
-        // extendBodyBehindAppBar: true,
-        appBar: const PreferredSize(
-            preferredSize: Size.fromHeight(80), child: NonSliverAppBar()),
-        floatingActionButton: BlocBuilder<RidesBloc, RidesState>(
-          builder: (context, state) {
-            return FloatingActionButton(
+      child: BlocListener<CoachMarksCubit, CoachMarksState>(
+        listener: (context, state) {
+          if (state is CoachMarksLoaded) {
+            if (state.fabCoachmarkShown) {
+              context.read<CoachMarksCubit>().fabCoachmarkShown();
+            }
+          }
+        },
+        child: Scaffold(
+          // extendBody: true,
+          // extendBodyBehindAppBar: true,
+          appBar: const PreferredSize(
+              preferredSize: Size.fromHeight(80), child: NonSliverAppBar()),
+          floatingActionButton: BlocBuilder<RidesBloc, RidesState>(
+            builder: (context, state) {
+              return FloatingActionButton(
                 child: Icon(PhosphorIcons.plus(PhosphorIconsStyle.bold)),
                 onPressed: () {
                   if (state.myRides?.isNotEmpty ?? false) {
@@ -48,16 +58,18 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                           supabase.auth.currentUser!.id,
                         ],
                       )));
-                });
-          },
-        ),
-        bottomNavigationBar: const BottomNavBar(),
-        body: CustomScrollView(
-          physics: const NeverScrollableScrollPhysics(),
-          slivers: [
-            // const MainSliverAppBar(),
-            SliverFillRemaining(child: MainMap(mapController: mapController)),
-          ],
+                },
+              );
+            },
+          ),
+          bottomNavigationBar: const BottomNavBar(),
+          body: CustomScrollView(
+            physics: const NeverScrollableScrollPhysics(),
+            slivers: [
+              // const MainSliverAppBar(),
+              SliverFillRemaining(child: MainMap(mapController: mapController)),
+            ],
+          ),
         ),
       ),
     );

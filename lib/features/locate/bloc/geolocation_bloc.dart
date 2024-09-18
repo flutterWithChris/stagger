@@ -56,7 +56,7 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
         _encryptionRepository = encryptionRepository,
         _publicKeyRepository = publicKeyRepository,
         _activityBloc = activityBloc,
-        super(GeolocationInitial()) {
+        super(GeolocationLoading()) {
     on<LoadGeolocation>(
       _onLoadGeolocation,
     );
@@ -85,53 +85,17 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
 
       /// Initialize BackgroundGeolocation
       await _backgroundLocationRepository.initBackgroundGeolocation();
-
-      _backgroundLocationRepository
-          .onLocationChange((bg.Location updatedLocation) async {
-        print('Location Updated: $updatedLocation');
-        add(UpdateGeoLocation(location: updatedLocation));
-        return;
-        // if (state is GeolocationUpdating) {
-        //   return;
-        // }
-        // emit(GeolocationUpdating(bgLocation: updatedLocation));
-
-        // print('[Location Updated] - $updatedLocation');
-        // if (updatedLocation.coords.heading != -1.0) {
-        //   scaffoldMessengerKey.currentState!.showSnackBar(SnackBar(
-        //     content: Text(
-        //       'Location updated! Heading: ${updatedLocation.coords.heading},',
-        //     ),
-        //     backgroundColor: Colors.green,
-        //   ));
-        // }
-        // Location? location = await _handleLocationChange(updatedLocation);
-        // if (location == null) {
-        //   scaffoldMessengerKey.currentState!.showSnackBar(const SnackBar(
-        //     content: Text(
-        //       'Failed to fetch location!',
-        //     ),
-        //     backgroundColor: Colors.red,
-        //   ));
-        //   emit(const GeolocationError(message: 'Failed to fetch location.'));
-        //   return;
-        // }
-        // emit(
-        //     GeolocationLoaded(bgLocation: updatedLocation, location: location));
-      });
+      Location? updatedLocation;
 
       /// Initial location fetch
       bg.Location bgLocation = await _backgroundLocationRepository
           .getCurrentLocation()
           .then((bgLocation) async {
-        Location? updatedLocation = await _handleLocationChange(bgLocation);
+        updatedLocation = await _handleLocationChange(bgLocation);
         if (updatedLocation == null) {
           emit(const GeolocationError(message: 'Failed to fetch location.'));
           return bgLocation;
         }
-        print('Initial Location: $updatedLocation');
-        emit(GeolocationLoaded(
-            bgLocation: bgLocation, location: updatedLocation));
 
         return bgLocation;
       });
@@ -141,11 +105,29 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
 
         _locationTrackingNotificationShown = true;
       }
+      if (bgLocation.isMoving == true) {
+        _stillnessTimer?.cancel();
+        _stillnessTimer = Timer(const Duration(minutes: 30), () async {
+          await _locationRealtimeRepository.deleteLocationUpdate(
+              Supabase.instance.client.auth.currentUser!.id);
+          await _backgroundLocationRepository.stopBackgroundGeolocation();
+          emit(GeolocationStopped());
+        });
+      }
 
-      /// Update activity bloc
-      // _activityBloc.add(LoadActivity(activity: bgLocation.activity.type));
-      // _motionBloc.add(LoadMotion(isMoving: location.isMoving));
-      // emit(GeolocationLoaded(bgLocation: bgLocation));
+      if (updatedLocation == null) {
+        emit(const GeolocationError(message: 'Failed to fetch location.'));
+        return;
+      }
+      emit(GeolocationLoaded(
+          bgLocation: bgLocation, location: updatedLocation!));
+
+      _backgroundLocationRepository
+          .onLocationChange((bg.Location updatedLocation) async {
+        print('Location Updated: $updatedLocation');
+        add(UpdateGeoLocation(location: updatedLocation));
+        return;
+      });
     } catch (e) {
       emit(GeolocationError(message: e.toString()));
       return;

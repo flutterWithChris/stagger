@@ -70,6 +70,23 @@ SnackBar getErrorSnackbar(String message) {
   );
 }
 
+// Get Neutral Snackbar
+SnackBar getNeutralSnackbar(String message) {
+  return SnackBar(
+      content: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const Icon(Icons.info, color: Colors.white, size: 20),
+          const SizedBox(width: 10),
+          Text(message,
+              style: const TextStyle(color: Colors.white),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis),
+        ],
+      ),
+      backgroundColor: Colors.grey[800]);
+}
+
 // Extension to convert enum to Title Case & Spaces at Capital Letters
 extension EnumToString on String {
   String enumToString() {

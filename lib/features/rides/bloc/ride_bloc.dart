@@ -95,10 +95,10 @@ class RideBloc extends Bloc<RideEvent, RideState> {
 
     on<UpdateRide>((event, emit) async {
       try {
-         emit(RideLoading());
-       Ride updatedRide = await _rideRepository.updateRide(event.ride);
+        emit(RideLoading());
+        Ride updatedRide = await _rideRepository.updateRide(event.ride);
 
-        print('Updated ride: ${updatedRide}');
+        print('Updated ride: $updatedRide');
         emit(RideUpdated(ride: updatedRide));
         add(LoadRideParticipants(updatedRide));
       } catch (e) {
@@ -186,6 +186,17 @@ class RideBloc extends Bloc<RideEvent, RideState> {
       emit(RideLoading());
       print('Stopping to create ride');
       emit(RideInitial());
+    });
+    on<CancelRide>((event, emit) async {
+      try {
+        emit(RideLoading());
+        print('Cancelling ride: ${event.ride}');
+        await _rideRepository.cancelRide(event.ride);
+        emit(RideCancelled(event.ride));
+      } catch (e) {
+        print('Error cancelling ride: $e');
+        emit(RideError(e.toString(), ride: event.ride));
+      }
     });
   }
 

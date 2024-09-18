@@ -355,10 +355,7 @@ class RideRepository {
 
   Future<Ride?> cancelRide(Ride ride) async {
     try {
-      final response = await ridesTable
-          .update({'status': RideStatus.canceled.name})
-          .eq('id', ride.id!)
-          .select();
+      final response = await ridesTable.delete().eq('id', ride.id!);
       return Ride.fromMap(response.first);
     } catch (e) {
       rethrow;

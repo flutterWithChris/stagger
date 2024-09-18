@@ -5,6 +5,7 @@ import 'package:buoy/features/auth/presentation/cubit/login_cubit.dart';
 import 'package:buoy/features/auth/presentation/cubit/signup_cubit.dart';
 import 'package:buoy/features/auth/data/repository/auth_repository_impl.dart';
 import 'package:buoy/config/router/router.dart';
+import 'package:buoy/features/coach_marks/cubit/coach_marks_cubit.dart';
 import 'package:buoy/features/friends/bloc/friends_bloc.dart';
 import 'package:buoy/features/friends/repository/friend_repository.dart';
 import 'package:buoy/features/locate/bloc/geolocation_bloc.dart';
@@ -118,12 +119,13 @@ class _MyAppState extends State<MyApp> {
       ],
       child: MultiBlocProvider(
         providers: [
-                    BlocProvider(
+          BlocProvider(
               create: (context) => AuthBloc(
-                  authRepository: context.read<AuthRepositoryImpl>(),)),
+                    authRepository: context.read<AuthRepositoryImpl>(),
+                  )),
           BlocProvider(
               create: (context) => ProfileBloc(
-                authBloc: context.read<AuthBloc>(),
+                    authBloc: context.read<AuthBloc>(),
                     userRepository: context.read<UserRepository>(),
                   )),
           BlocProvider(
@@ -198,6 +200,9 @@ class _MyAppState extends State<MyApp> {
           BlocProvider(
             create: (context) =>
                 locator<NotificationBloc>()..add(InitializeNotifications()),
+          ),
+          BlocProvider(
+            create: (context) => CoachMarksCubit()..loadCoachMarks(context),
           )
         ],
         child: BlocBuilder<ThemeCubit, ThemeState>(
