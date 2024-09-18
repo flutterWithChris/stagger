@@ -30,46 +30,37 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return DefaultSheetController(
-      child: BlocListener<CoachMarksCubit, CoachMarksState>(
-        listener: (context, state) {
-          if (state is CoachMarksLoaded) {
-            if (state.fabCoachmarkShown) {
-              context.read<CoachMarksCubit>().fabCoachmarkShown();
-            }
-          }
-        },
-        child: Scaffold(
-          // extendBody: true,
-          // extendBodyBehindAppBar: true,
-          appBar: const PreferredSize(
-              preferredSize: Size.fromHeight(80), child: NonSliverAppBar()),
-          floatingActionButton: BlocBuilder<RidesBloc, RidesState>(
-            builder: (context, state) {
-              return FloatingActionButton(
-                child: Icon(PhosphorIcons.plus(PhosphorIconsStyle.bold)),
-                onPressed: () {
-                  if (state.myRides?.isNotEmpty ?? false) {
-                    scaffoldMessengerKey.currentState?.showSnackBar(
-                        getErrorSnackbar('You already have an active ride!'));
-                    return;
-                  }
-                  context.read<RideBloc>().add(CreateRide(Ride(
-                        senderIds: [
-                          supabase.auth.currentUser!.id,
-                        ],
-                      )));
-                },
-              );
-            },
-          ),
-          bottomNavigationBar: const BottomNavBar(),
-          body: CustomScrollView(
-            physics: const NeverScrollableScrollPhysics(),
-            slivers: [
-              // const MainSliverAppBar(),
-              SliverFillRemaining(child: MainMap(mapController: mapController)),
-            ],
-          ),
+      child: Scaffold(
+        // extendBody: true,
+        // extendBodyBehindAppBar: true,
+        appBar: const PreferredSize(
+            preferredSize: Size.fromHeight(80), child: NonSliverAppBar()),
+        floatingActionButton: BlocBuilder<RidesBloc, RidesState>(
+          builder: (context, state) {
+            return FloatingActionButton(
+              child: Icon(PhosphorIcons.plus(PhosphorIconsStyle.bold)),
+              onPressed: () {
+                if (state.myRides?.isNotEmpty ?? false) {
+                  scaffoldMessengerKey.currentState?.showSnackBar(
+                      getErrorSnackbar('You already have an active ride!'));
+                  return;
+                }
+                context.read<RideBloc>().add(CreateRide(Ride(
+                      senderIds: [
+                        supabase.auth.currentUser!.id,
+                      ],
+                    )));
+              },
+            );
+          },
+        ),
+        bottomNavigationBar: const BottomNavBar(),
+        body: CustomScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          slivers: [
+            // const MainSliverAppBar(),
+            SliverFillRemaining(child: MainMap(mapController: mapController)),
+          ],
         ),
       ),
     );
