@@ -1,10 +1,11 @@
 part of 'subscription_bloc.dart';
 
 sealed class SubscriptionState extends Equatable {
-  const SubscriptionState();
+  final CustomerInfo? customerInfo;
+  const SubscriptionState({this.customerInfo});
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [customerInfo];
 }
 
 final class SubscriptionInitial extends SubscriptionState {

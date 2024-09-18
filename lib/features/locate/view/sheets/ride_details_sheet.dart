@@ -271,29 +271,35 @@ class FinishRideButton extends StatelessWidget {
         }
        
       },
-      child: FilledButton.icon(
-          style: FilledButton.styleFrom(
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
-            side: const BorderSide(
-              color: Colors.red,
-              width: 2.0,
-            ),
+      child: Row(
+        children: [
+          Expanded(
+            child: FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  side: const BorderSide(
+                    color: Colors.red,
+                    width: 2.0,
+                  ),
+                ),
+                onPressed: () {
+                
+                  context.read<RideBloc>().add(FinishRide(
+                        context.read<RideBloc>().state.ride!.copyWith(
+                              status: RideStatus.completed,
+                            ),
+                      ));
+                },
+                icon: PhosphorIcon(
+                  PhosphorIcons.flag(),
+                  size: 20,
+                ),
+                label: const Text('Finish Ride'),
+              ),
           ),
-          onPressed: () {
-    
-            context.read<RideBloc>().add(FinishRide(
-                  context.read<RideBloc>().state.ride!.copyWith(
-                        status: RideStatus.completed,
-                      ),
-                ));
-          },
-          icon: PhosphorIcon(
-            PhosphorIcons.flag(),
-            size: 20,
-          ),
-          label: const Text('Finish Ride'),
-        ),
+        ],
+      ),
     );
   }
 }

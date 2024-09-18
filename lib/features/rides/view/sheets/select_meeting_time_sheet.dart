@@ -151,7 +151,7 @@ class _SelectMeetingTimeSheetState extends State<SelectMeetingTimeSheet> {
                                       );
                                     }
                                     if (subscriptionState
-                                        is SubscriptionLoaded) {
+                                        is SubscriptionLoaded || subscriptionState is SubscriptionInitial) {
                                       return Material(
                                         type: MaterialType.card,
                                         elevation: 1.618,
@@ -240,11 +240,14 @@ class _SelectMeetingTimeSheetState extends State<SelectMeetingTimeSheet> {
                                             ),
                                           ),
                                           onTap: () async {
-                                            if (subscriptionState
+                                          if (subscriptionState
                                                 .customerInfo
-                                                .entitlements
+                                                ?.entitlements
                                                 .active
-                                                .isNotEmpty) {
+                                                 != null && subscriptionState
+                                                .customerInfo
+                                                !.entitlements
+                                                .active.isNotEmpty)  {
                                               await showTimePicker(
                                                 context: context,
                                                 initialTime: TimeOfDay.now(),
