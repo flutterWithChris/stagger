@@ -12,3 +12,8 @@ class UpdateProfile extends ProfileEvent {
   final User user;
   UpdateProfile(this.user);
 }
+
+class DeleteProfile extends ProfileEvent {
+  final String userId;
+  DeleteProfile(this.userId);
+}

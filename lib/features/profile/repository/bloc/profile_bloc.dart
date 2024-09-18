@@ -1,7 +1,10 @@
 import 'package:bloc/bloc.dart';
+import 'package:buoy/features/auth/data/repository/auth_repository_impl.dart';
+import 'package:buoy/features/auth/domain/repositories/auth_repository.dart';
 import 'package:buoy/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:buoy/features/profile/repository/user_repository.dart';
 import 'package:meta/meta.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../shared/models/user.dart';
 
@@ -10,18 +13,26 @@ part 'profile_state.dart';
 
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final UserRepository _userRepository;
+  final AuthRepositoryImpl _authRepository;
   final AuthBloc _authBloc;
-  ProfileBloc({required UserRepository userRepository, required AuthBloc authBloc})
+  ProfileBloc(
+      {required UserRepository userRepository,
+      required AuthBloc authBloc,
+      required AuthRepositoryImpl authRepository})
       : _userRepository = userRepository,
         _authBloc = authBloc,
+        _authRepository = authRepository,
         super(ProfileLoading()) {
-    _authBloc.stream.listen((authState){
-      if (authState.status == AuthStatus.authenticated && authState.user != null){
-        add(LoadProfile(authState.user!.id));
-      }
-    });
+    // _authRepository.authStateChanges.listen((authState) {
+    //   print('Auth state changed: $authState');
+    //   if (state.user != null) {
+    //     print('User authenticated, loading profile');
+    //     add(LoadProfile(state.user!.id!));
+    //   }
+    // });
     on<LoadProfile>(_onLoadProfile);
     on<UpdateProfile>(_onUpdateProfile);
+    on<DeleteProfile>(_onDeleteProfile);
   }
 
   void _onLoadProfile(LoadProfile event, Emitter<ProfileState> emit) async {
@@ -43,6 +54,19 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     try {
       await _userRepository.updateUser(event.user);
       emit(ProfileLoaded(event.user));
+    } catch (e) {
+      emit(ProfileError(e.toString()));
+    }
+  }
+
+  void _onDeleteProfile(DeleteProfile event, Emitter<ProfileState> emit) async {
+    emit(ProfileLoading());
+    try {
+      await _userRepository.deleteUser(event.userId);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+      _authBloc.add(AuthLogoutRequested());
+      emit(ProfileDeleted());
     } catch (e) {
       emit(ProfileError(e.toString()));
     }

@@ -40,9 +40,9 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	 <key>NSMotionUsageDescription</key>
-     <string>Motion is used to stop location tracking when still.</string>
+     <string>This is used to turn off location updates when you're still. Decreasing battery usage and hiding your location for privacy.</string>
      <key>NSLocationWhenInUseUsageDescription</key>
-     <string>Your location is used to show you on the map.</string>
+     <string>Enables yourself and others to see your location on the map.</string>
      <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
      <string>Enables background location updates, geofencing, and auto-stopping when still.</string>
 	<key>UIBackgroundModes</key>

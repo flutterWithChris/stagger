@@ -73,7 +73,7 @@ class AuthRepositoryImpl extends AuthRepository {
 
   @override
   Stream<supabase.AuthState> get authStateChanges =>
-      _supabase.auth.onAuthStateChange;
+      _supabase.auth.onAuthStateChange.asBroadcastStream();
 
   @override
   Future<(supabase.AuthResponse, String? firstName, String? lastName)?>
@@ -153,15 +153,11 @@ class AuthRepositoryImpl extends AuthRepository {
   @override
   Future<void> deleteAccount() async {
     try {
+      print('Deleting account: ${_supabase.auth.currentUser!.id}');
       await _supabase.auth.admin.deleteUser(_supabase.auth.currentUser!.id);
     } catch (e, stackTrace) {
-      // scaffoldKey.currentState?.showSnackBar(
-      //   getErrorSnackBar('Failed to delete account. Please try again.'),
-      // );
-      // await Sentry.captureException(
-      //   e,
-      //   stackTrace: stackTrace,
-      // );
+      print(e);
+      rethrow;
     }
   }
 }

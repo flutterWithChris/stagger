@@ -127,7 +127,8 @@ class _MyAppState extends State<MyApp> {
               create: (context) => ProfileBloc(
                     authBloc: context.read<AuthBloc>(),
                     userRepository: context.read<UserRepository>(),
-                  )),
+                    authRepository: context.read<AuthRepositoryImpl>(),
+                  )..add(LoadProfile(context.read<AuthBloc>().state.user!.id))),
           BlocProvider(
               create: (context) => SignupCubit(
                   authRepository: context.read<AuthRepositoryImpl>())),

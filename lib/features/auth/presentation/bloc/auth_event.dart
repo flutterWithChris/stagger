@@ -12,3 +12,9 @@ class AuthUserChanged extends AuthEvent {
 }
 
 class AuthLogoutRequested extends AuthEvent {}
+
+class DeleteAccount extends AuthEvent {
+  final String userId;
+
+  const DeleteAccount(this.userId);
+}

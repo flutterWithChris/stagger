@@ -20,3 +20,5 @@ class ProfileError extends ProfileState {
   final String message;
   const ProfileError(this.message);
 }
+
+class ProfileDeleted extends ProfileState {}

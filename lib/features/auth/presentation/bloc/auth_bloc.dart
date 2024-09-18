@@ -11,14 +11,11 @@ part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepositoryImpl _authRepository;
-  AuthBloc(
-      {required AuthRepositoryImpl authRepository,
-     })
-      : _authRepository = authRepository,
-     
+  AuthBloc({
+    required AuthRepositoryImpl authRepository,
+  })  : _authRepository = authRepository,
         super(AuthState.initial()) {
     _authRepository.authStateChanges.listen((state) {
-      print('Auth state changed');
       print('Session: ${state.session}');
       if (state.session != null) {
         print('Session is not null');
@@ -39,6 +36,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
     on<AuthLogoutRequested>((event, emit) async {
       await _authRepository.signOut();
+      emit(AuthState.unauthenticated());
+      goRouter.refresh();
+    });
+    on<DeleteAccount>((event, emit) async {
+      await _authRepository.deleteAccount();
       emit(AuthState.unauthenticated());
       goRouter.refresh();
     });

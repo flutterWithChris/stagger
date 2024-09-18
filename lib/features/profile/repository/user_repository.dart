@@ -63,4 +63,13 @@ class UserRepository {
   Future<void> updateUser(User user) async {
     await _client.from('users').update(user.toMap()).eq('id', user.id!);
   }
+
+  /// Delete a user
+  Future<void> deleteUser(String id) async {
+    try {
+      await _client.from('users').delete().eq('id', id);
+    } catch (e) {
+      print(e);
+    }
+  }
 }

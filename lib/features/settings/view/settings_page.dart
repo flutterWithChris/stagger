@@ -3,6 +3,7 @@ import 'package:buoy/core/system/bottom_nav_bar.dart';
 import 'package:buoy/core/system/main_sliver_app_bar.dart';
 import 'package:buoy/config/theme/theme_cubit.dart';
 import 'package:buoy/features/locate/view/home.dart';
+import 'package:buoy/features/profile/repository/bloc/profile_bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -248,6 +249,98 @@ class _SettingsPageState extends State<SettingsPage> {
                                       .add(AuthLogoutRequested());
                                 }),
                             SettingsTile(
+                                onPressed: (context) async {
+                                  // Show confirmation dialog
+                                  await showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return BlocConsumer<ProfileBloc,
+                                          ProfileState>(
+                                        listener: (context, state) {
+                                          if (state is ProfileError) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(state.message),
+                                                duration:
+                                                    const Duration(seconds: 2),
+                                              ),
+                                            );
+                                          }
+                                          if (state is ProfileDeleted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                    'Account deleted successfully'),
+                                                duration: Duration(seconds: 5),
+                                              ),
+                                            );
+                                          }
+                                        },
+                                        builder: (context, state) {
+                                          return BlocListener<AuthBloc,
+                                              AuthState>(
+                                            listener: (context, state) {
+                                              if (state ==
+                                                  AuthState.unauthenticated()) {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        'Account deleted successfully'),
+                                                    duration:
+                                                        Duration(seconds: 5),
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                            child: AlertDialog(
+                                              title:
+                                                  const Text('Delete Account'),
+                                              content: const Text(
+                                                  'Are you sure you want to delete your account? This action cannot be undone.'),
+                                              actions: [
+                                                if (state is ProfileLoading)
+                                                  const CircularProgressIndicator()
+                                                else
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    },
+                                                    child: const Text('Cancel'),
+                                                  ),
+                                                if (state is ProfileLoading)
+                                                  const CircularProgressIndicator()
+                                                else
+                                                  FilledButton(
+                                                    style: ButtonStyle(
+                                                      backgroundColor:
+                                                          WidgetStateProperty
+                                                              .all<Color>(
+                                                                  Colors.red),
+                                                    ),
+                                                    onPressed: () {
+                                                      // Delete account
+                                                      context
+                                                          .read<ProfileBloc>()
+                                                          .add(DeleteProfile(
+                                                              supabase
+                                                                  .auth
+                                                                  .currentUser!
+                                                                  .id));
+                                                    },
+                                                    child: const Text('Delete'),
+                                                  ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
                                 leading:
                                     const Icon(Icons.delete_forever_rounded),
                                 title: const Text('Delete Account'))
