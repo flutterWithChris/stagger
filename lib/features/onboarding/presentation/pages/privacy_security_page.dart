@@ -89,12 +89,9 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                               ),
                             ),
                             const TextSpan(
-                              text: 'button on the map to create a ride.',
+                              text: 'button on the map to create a ride. You can set meeting points, times, & set ride privacy.',
                             ),
-                            const TextSpan(
-                              text:
-                                  'You can set meeting points, times, & set ride privacy.',
-                            ),
+                           
                           ]),
                           style: Theme.of(context).textTheme.bodyLarge,
                         ),
