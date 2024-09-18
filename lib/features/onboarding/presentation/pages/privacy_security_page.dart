@@ -71,29 +71,32 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                       ),
                       const Gutter(),
                       Flexible(
-                        child: 
-                        Text.rich(
-                          TextSpan(
-                            text: 'Use the',
-                            children: [
-                              WidgetSpan(child:     Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text.rich(
+                          TextSpan(text: 'Use the', children: [
+                            WidgetSpan(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
                                 child: SizedBox(
-                                height: 24.0,
-                                child: FittedBox(
-                                  child: FloatingActionButton(
-                                    onPressed: () {},
-                                    child: const Icon(Icons.add_rounded),
+                                  height: 24.0,
+                                  child: FittedBox(
+                                    child: FloatingActionButton(
+                                      onPressed: () {},
+                                      child: const Icon(Icons.add_rounded),
+                                    ),
                                   ),
                                 ),
-                                                            ),
-                              ),),
-    const TextSpan(text: 'button on the map to create a ride.',
-                           ),
+                              ),
+                            ),
                             const TextSpan(
-                               text: 'You can set meeting points, times, & set ride privacy.',
-                                ),
-                            ]),
+                              text: 'button on the map to create a ride.',
+                            ),
+                            const TextSpan(
+                              text:
+                                  'You can set meeting points, times, & set ride privacy.',
+                            ),
+                          ]),
+                          style: Theme.of(context).textTheme.bodyLarge,
                         ),
                       ),
                       const GutterLarge(),

@@ -42,23 +42,30 @@ class JoinRidesPage extends StatelessWidget {
                         ],
                       ),
                       const Gutter(),
-                      const Flexible(
-                        child: Wrap(
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          spacing: 8.0,
-                          children: [
-                            Text(
-                              'Rides that others have created will show as a',
-                              textAlign: TextAlign.left,
-                            ),
-                            CircleAvatar(
-                                radius: 12,
-                                child: Icon(Icons.mode_of_travel_rounded,
-                                    size: 16)),
-                            Text(
-                                'button on the map. Click to see details & join!',
-                                textAlign: TextAlign.left),
-                          ],
+                      Flexible(
+                        child: Text.rich(
+                          const TextSpan(
+                              text:
+                                  'Rides that others have created will show as a',
+                              children: [
+                                WidgetSpan(
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 8.0,
+                                    ),
+                                    child: CircleAvatar(
+                                        radius: 12,
+                                        child: Icon(
+                                            Icons.mode_of_travel_rounded,
+                                            size: 16)),
+                                  ),
+                                ),
+                                TextSpan(
+                                  text:
+                                      'icon on the map. Click to see details & join!',
+                                ),
+                              ]),
+                          style: Theme.of(context).textTheme.bodyLarge,
                         ),
                       ),
                       const GutterLarge(),

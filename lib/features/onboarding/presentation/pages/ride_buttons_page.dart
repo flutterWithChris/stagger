@@ -41,9 +41,10 @@ class RideButtonsPage extends StatelessWidget {
                         ],
                       ),
                       const Gutter(),
-                      const Flexible(
+                      Flexible(
                         child: Text(
                           'Use the buttons to keep riders posted on the ride status.',
+                          style: Theme.of(context).textTheme.bodyLarge,
                         ),
                       ),
                       const GutterLarge(),

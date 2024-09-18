@@ -43,23 +43,38 @@ class SeeNearbyRidersPage extends StatelessWidget {
                         ],
                       ),
                       const Gutter(),
-                      Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: 8.0,
-                        children: [
-                          const Text(
-                            'You can see nearby riders',
-                            textAlign: TextAlign.left,
-                          ),
-                          CircleAvatar(
-                              radius: 12,
-                              child:
-                                  Icon(PhosphorIcons.motorcycle(), size: 16)),
-                          const Text('on the map.', textAlign: TextAlign.left),
-                          const Text(
-                              'Click to see details (limited for rider safety).',
-                              textAlign: TextAlign.left),
-                        ],
+                      Flexible(
+                        child: Text.rich(
+                          TextSpan(
+                              text:
+                                  'You can see nearby riders on the map. Marked by a',
+                              children: [
+                                WidgetSpan(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0,
+                                    ),
+                                    child: CircleAvatar(
+                                        radius: 12,
+                                        backgroundColor: Theme.of(context)
+                                            .colorScheme
+                                            .tertiaryFixed,
+                                        child: Icon(
+                                            PhosphorIcons.motorcycle(
+                                              PhosphorIconsStyle.fill,
+                                            ),
+                                            color: Theme.of(context)
+                                                .scaffoldBackgroundColor,
+                                            size: 16)),
+                                  ),
+                                ),
+                                const TextSpan(
+                                  text:
+                                      'icon. Click to see details (limited for rider safety).',
+                                ),
+                              ]),
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
                       ),
                       const GutterLarge(),
                     ],

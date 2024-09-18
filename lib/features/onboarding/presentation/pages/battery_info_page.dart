@@ -41,9 +41,10 @@ class BatteryInfoPage extends StatelessWidget {
                         ],
                       ),
                       const Gutter(),
-                      const Flexible(
+                      Flexible(
                         child: Text(
                           'Other riders will be able to see/join your ride. You’ll see a list with riders & their arrival status.',
+                          style: Theme.of(context).textTheme.bodyLarge,
                         ),
                       ),
                       const GutterLarge(),
