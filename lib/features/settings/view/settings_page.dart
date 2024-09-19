@@ -369,6 +369,14 @@ class _SettingsPageState extends State<SettingsPage> {
                                     mode: LaunchMode.externalApplication);
                               },
                             ),
+                            SettingsTile(
+                              leading: const Icon(Icons.policy_rounded),
+                              title: const Text('Terms Of Use'),
+                              onPressed: (context) async {
+                                await launchUrlString(eulaUrl,
+                                    mode: LaunchMode.externalApplication);
+                              },
+                            ),
                             // SettingsTile(
                             //   leading: const Icon(Icons.security_rounded),
                             //   title: const Text('Security'),

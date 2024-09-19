@@ -13,6 +13,9 @@ final supabase = Supabase.instance.client;
 const String privacyPolicyUrl =
     'https://gist.github.com/flutterWithChris/9e87960abbb88ab0184a7c11cff7ed6f';
 
+const eulaUrl =
+    'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
+
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gutter/flutter_gutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocationUpdatesSwitch extends StatelessWidget {
@@ -51,6 +52,39 @@ class LocationUpdatesSwitch extends StatelessWidget {
               ),
             );
           } else {
+            // Check location permissions
+            var granted = await Permission.location.isGranted;
+            if (!granted) {
+              // show dialog
+              if (context.mounted) {
+                await showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('Location permissions disabled!'),
+                      content: const Text(
+                          'To enable location updates, please enable location permissions in app settings.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('Cancel'),
+                        ),
+                        FilledButton(
+                          onPressed: () async {
+                            Navigator.of(context).pop();
+                            await openAppSettings();
+                          },
+                          child: const Text('Enable'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              }
+              return;
+            }
             // Show confirmation dialog
             await showDialog(
               context: context,

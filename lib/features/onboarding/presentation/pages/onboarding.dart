@@ -11,6 +11,7 @@ import 'package:buoy/features/onboarding/presentation/pages/ride_style_page.dart
 import 'package:buoy/features/onboarding/presentation/pages/ride_types_page.dart';
 import 'package:buoy/features/onboarding/presentation/pages/rider_profile_summary_page.dart';
 import 'package:buoy/features/onboarding/presentation/pages/riding_experience_page.dart';
+import 'package:buoy/features/onboarding/presentation/pages/safety_page.dart';
 import 'package:buoy/features/onboarding/presentation/pages/see_nearby_riders_page.dart';
 import 'package:buoy/features/onboarding/presentation/pages/signup_page.dart';
 import 'package:flutter/foundation.dart';
@@ -141,6 +142,7 @@ class _OnboardingState extends State<Onboarding> {
               const RideButtonsPage(),
               const JoinRidesPage(),
               const SeeNearbyRidersPage(),
+              const SafetyPage(),
               const RiderProfileSummaryPage(),
               const BikeTypePage(),
               const RidingExperiencePage(),
@@ -148,7 +150,6 @@ class _OnboardingState extends State<Onboarding> {
               const GearPreferencePage(),
               const RideTypesPage(),
               const DestinationsPage(),
-              const LocationPermissionsPage(),
             ],
           ),
         ],

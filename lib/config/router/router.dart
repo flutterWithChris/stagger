@@ -4,6 +4,7 @@ import 'package:buoy/features/friends/view/friend_details.dart';
 import 'package:buoy/features/locate/model/location.dart';
 import 'package:buoy/features/locate/view/home.dart';
 import 'package:buoy/features/profile/view/profile.dart';
+import 'package:buoy/features/riders/model/rider.dart';
 import 'package:buoy/features/riders/profile/rider_profile_page.dart';
 import 'package:buoy/features/settings/view/settings_page.dart';
 import 'package:buoy/shared/models/user.dart';
@@ -42,6 +43,15 @@ GoRouter goRouter = GoRouter(
     GoRoute(
       path: '/profile',
       builder: (context, state) => const Profile(),
+    ),
+    GoRoute(
+      path: '/rider-profile/:id',
+      builder: (context, state) {
+        final String id = state.pathParameters['id']!;
+        return RiderProfilePage(
+          rider: state.extra as Rider?,
+        );
+      },
     ),
     GoRoute(
       path: '/login',

@@ -17,9 +17,9 @@ class SeeNearbyRidersPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Expanded(
-                  flex: 3,
+                  flex: 2,
                   child: Image.asset(
-                    'lib/assets/screenshots/main_map_dark.png',
+                    'lib/assets/screenshots/rider_details.png',
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -28,7 +28,7 @@ class SeeNearbyRidersPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Gutter(),
+                      // const Gutter(),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
@@ -70,7 +70,25 @@ class SeeNearbyRidersPage extends StatelessWidget {
                                 ),
                                 const TextSpan(
                                   text:
-                                      'icon. Click to see details (limited for rider safety).',
+                                      'icon. To enable riders to see your location, you must turn the location switch ',
+                                ),
+                                WidgetSpan(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 0.0,
+                                    ),
+                                    child: SizedBox(
+                                      height: 24,
+                                      child: FittedBox(
+                                        child: Switch.adaptive(
+                                            value: true, onChanged: (value) {}),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const TextSpan(
+                                  text:
+                                      ' (located at the top-right corner) to the on position',
                                 ),
                               ]),
                           style: Theme.of(context).textTheme.bodyLarge,
