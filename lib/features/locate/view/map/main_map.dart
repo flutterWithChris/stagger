@@ -78,10 +78,7 @@ class _MainMapState extends State<MainMap> {
                   backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                   initialCenter:
                       context.read<GeolocationBloc>().state.bgLocation == null
-                          ?
-                          // Los Angeles Coordinates
-                          const LatLng(41.201938132022, -77.194527685642)
-                          // const LatLng(40.8872485685566, -72.9326321040179)
+                          ? const LatLng(40.77575830417105, -73.10188659989765)
                           : LatLng(
                               context
                                       .read<GeolocationBloc>()
@@ -123,6 +120,8 @@ class _MainMapState extends State<MainMap> {
                   onMapEvent: (p0) {
                     if (p0 is MapEventMove &&
                         p0.source != MapEventSource.mapController) {
+                      print(
+                          'Map Event Move Coordinates: ${p0.camera.center.latitude}, ${p0.camera.center.longitude}');
                       EasyDebounce.debounce(
                           'rider-fetch-debounce', const Duration(seconds: 1),
                           () {
@@ -636,11 +635,13 @@ class _MainMapState extends State<MainMap> {
                                                 state.bgLocation!.coords
                                                     .longitude),
                                             child: Opacity(
-                                              opacity:
-                                                  state.locationUpdatesEnabled !=
-                                                          false
-                                                      ? 1.0
-                                                      : 0.5,
+                                              opacity: context
+                                                          .watch<
+                                                              GeolocationBloc>()
+                                                          .locationUpdatesEnabled !=
+                                                      false
+                                                  ? 1.0
+                                                  : 0.5,
                                               child: InkWell(
                                                 onTap: () async {
                                                   await widget.mapController

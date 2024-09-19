@@ -37,6 +37,7 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
   final List<bg.Location> _locationUpdates = [];
   final EncryptionRepository _encryptionRepository;
   final ShowNotificationUsecase showNotificationUsecase;
+  bool locationUpdatesEnabled = false;
   StreamSubscription? _compassSubscription;
   Timer? _timer;
   Timer? _locationDelayTimer;
@@ -83,6 +84,9 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
         return;
       }
 
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      locationUpdatesEnabled = prefs.getBool('locationUpdatesEnabled') ?? false;
+
       /// Initialize BackgroundGeolocation
       await _backgroundLocationRepository.initBackgroundGeolocation();
       Location? updatedLocation;
@@ -91,13 +95,16 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
       bg.Location bgLocation = await _backgroundLocationRepository
           .getCurrentLocation()
           .then((bgLocation) async {
-        updatedLocation = await _handleLocationChange(bgLocation);
-        if (updatedLocation == null) {
-          emit(const GeolocationError(message: 'Failed to fetch location.'));
+        if (locationUpdatesEnabled == false) {
+          return bgLocation;
+        } else {
+          updatedLocation = await _sendLocationUpdateToDB(bgLocation);
+          if (updatedLocation == null) {
+            emit(const GeolocationError(message: 'Failed to fetch location.'));
+            return bgLocation;
+          }
           return bgLocation;
         }
-
-        return bgLocation;
       });
       if (_locationTrackingNotificationShown == false) {
         await showNotificationUsecase.call('Stagger', 'Location Service Active',
@@ -116,11 +123,11 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
       }
 
       if (updatedLocation == null) {
-        emit(const GeolocationError(message: 'Failed to fetch location.'));
+        emit(GeolocationLoaded(bgLocation: bgLocation));
         return;
       }
-      emit(GeolocationLoaded(
-          bgLocation: bgLocation, location: updatedLocation!));
+      emit(
+          GeolocationLoaded(bgLocation: bgLocation, location: updatedLocation));
 
       _backgroundLocationRepository
           .onLocationChange((bg.Location updatedLocation) async {
@@ -134,7 +141,7 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
     }
   }
 
-  Future<Location?> _handleLocationChange(bg.Location bgLocation) async {
+  Future<Location?> _sendLocationUpdateToDB(bg.Location bgLocation) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       bool activityTrackingEnabled =
@@ -252,10 +259,11 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
       _locationDelayTimer?.cancel();
 
       /// Encrypt Location & Send a location update to the server
-
-      _locationDelayTimer = Timer(const Duration(minutes: 2), () async {
-        await _locationRealtimeRepository.sendLocationUpdate(location);
-      });
+      if (locationUpdatesEnabled == true) {
+        _locationDelayTimer = Timer(const Duration(minutes: 2), () async {
+          await _locationRealtimeRepository.sendLocationUpdate(location);
+        });
+      }
 
       // Handle stillness: Cancel previous stillness timer if user is moving
       if (event.location.isMoving == true) {
@@ -299,6 +307,7 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
       emit(GeolocationLoading());
       await _locationRealtimeRepository
           .deleteLocationUpdate(Supabase.instance.client.auth.currentUser!.id);
+      locationUpdatesEnabled = false;
       // await _backgroundLocationRepository.stopBackgroundGeolocation();
       emit(GeolocationLoaded(
           bgLocation: oldState.bgLocation!,

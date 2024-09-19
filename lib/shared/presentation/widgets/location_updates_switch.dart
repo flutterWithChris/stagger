@@ -1,10 +1,13 @@
 import 'dart:io';
 
+import 'package:buoy/config/router/router.dart';
 import 'package:buoy/core/constants.dart';
 import 'package:buoy/features/locate/bloc/geolocation_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gutter/flutter_gutter.dart';
+import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LocationUpdatesSwitch extends StatelessWidget {
   const LocationUpdatesSwitch({super.key});
@@ -13,7 +16,7 @@ class LocationUpdatesSwitch extends StatelessWidget {
   Widget build(BuildContext context) {
     return Switch.adaptive(
         thumbIcon: WidgetStatePropertyAll(
-          context.watch<GeolocationBloc>().state.locationUpdatesEnabled != false
+          context.watch<GeolocationBloc>().locationUpdatesEnabled != false
               ? Icon(
                   Icons.location_on_rounded,
                   color: Platform.isIOS ? Colors.black87 : null,
@@ -23,9 +26,10 @@ class LocationUpdatesSwitch extends StatelessWidget {
                   color: Platform.isIOS ? Colors.black87 : null,
                 ),
         ),
-        value: context.watch<GeolocationBloc>().state.locationUpdatesEnabled !=
-            false,
-        onChanged: (value) {
+        value: context.watch<GeolocationBloc>().locationUpdatesEnabled != false,
+        onChanged: (value) async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('locationUpdatesEnabled', value);
           if (context.read<GeolocationBloc>().state is GeolocationLoading) {
             return;
           }
@@ -47,11 +51,36 @@ class LocationUpdatesSwitch extends StatelessWidget {
               ),
             );
           } else {
-            context.read<GeolocationBloc>().add(LoadGeolocation());
-            ScaffoldMessenger.of(context).showSnackBar(
-              getSuccessSnackbar(
-                'Location updates enabled',
-              ),
+            // Show confirmation dialog
+            await showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: const Text('Enable location updates?'),
+                  content: const Text(
+                      'This will allow others to see your location (delayed by 2 minutes).'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Cancel'),
+                    ),
+                    FilledButton(
+                      onPressed: () {
+                        context.pop();
+                        context.read<GeolocationBloc>().add(LoadGeolocation());
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          getSuccessSnackbar(
+                            'Location updates enabled',
+                          ),
+                        );
+                      },
+                      child: const Text('Enable'),
+                    ),
+                  ],
+                );
+              },
             );
           }
         });

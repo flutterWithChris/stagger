@@ -34,13 +34,11 @@ class GeolocationLoaded extends GeolocationState {
   @override
   final bg.Location bgLocation;
   @override
-  final Location location;
+  final Location? location;
   @override
   final bool? locationUpdatesEnabled;
   const GeolocationLoaded(
-      {required this.bgLocation,
-      required this.location,
-      this.locationUpdatesEnabled});
+      {required this.bgLocation, this.location, this.locationUpdatesEnabled});
 
   @override
   // TODO: implement props
