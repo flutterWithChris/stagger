@@ -31,7 +31,6 @@ class BlockRecord extends BlockRecordEntity {
       userId: map['user_id'],
       blockedUserId: map['blocked_user_id'],
       createdAt: DateTime.parse(map['created_at']),
-      updatedAt: DateTime.parse(map['updated_at']),
     );
   }
 

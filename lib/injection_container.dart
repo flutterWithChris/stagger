@@ -1,3 +1,10 @@
+import 'package:buoy/features/block/data/data_sources/block_record_data_source.dart';
+import 'package:buoy/features/block/data/repository/block_record_repository_impl.dart';
+import 'package:buoy/features/block/domain/repository/block_repository.dart';
+import 'package:buoy/features/block/domain/usecases/block_user_usecase.dart';
+import 'package:buoy/features/block/domain/usecases/get_blocked_users_usecase.dart';
+import 'package:buoy/features/block/domain/usecases/unblock_user_usecase.dart';
+import 'package:buoy/features/block/presentation/bloc/block_records_bloc.dart';
 import 'package:buoy/features/notifications/data/repository/notification_repository_impl.dart';
 import 'package:buoy/features/notifications/domain/repository/notification_repository.dart';
 import 'package:buoy/features/notifications/domain/usecase/check_notification_permission_usecase.dart';
@@ -45,4 +52,15 @@ void setupLocator() {
       showNotificationUsecase: locator(),
       setNotificationsListenerUsecase: locator(),
       checkNotificationPermissionUsecase: locator()));
+  // Block Records
+  locator.registerLazySingleton(() => BlockRecordDataSource());
+  locator.registerFactory<BlockRecordRepository>(
+      () => BlockRecordRepositoryImpl(locator()));
+  locator.registerLazySingleton(() => GetBlockedUsersUsecase(locator()));
+  locator.registerLazySingleton(() => BlockUserUsecase(locator()));
+  locator.registerLazySingleton(() => UnblockUserUsecase(locator()));
+  locator.registerLazySingleton(() => BlockRecordsBloc(
+      getBlockedUsersUsecase: locator(),
+      blockUserUsecase: locator(),
+      unblockUserUsecase: locator()));
 }

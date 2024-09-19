@@ -4,19 +4,21 @@ import 'package:buoy/shared/models/user.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 class BlockRecordDataSource {
-  final blockTable = sb.Supabase.instance.client.from('blocks');
+  final blockTable = sb.Supabase.instance.client.from('block_records');
+
   Future<BlockRecord> blockUser(String userId) {
     try {
       return blockTable
           .upsert({
-            'user_id': sb.Supabase.instance.client.auth.currentUser!.id,
             'blocked_user_id': userId,
           })
           .select()
           .then((value) {
+            print(value.first);
             return BlockRecord.fromMap(value.first);
           });
     } catch (e) {
+      print(e);
       rethrow;
     }
   }

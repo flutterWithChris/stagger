@@ -89,9 +89,12 @@ class RiderDetailsSheet extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text('Exp: ',
-                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              )),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                )),
                         const GutterSmall(),
                         Flexible(
                           child: Chip(
@@ -99,9 +102,9 @@ class RiderDetailsSheet extends StatelessWidget {
                             side: BorderSide.none,
                             label: Text(
                               rider.yearsRiding == 0
-                              ? 'New Rider'
-                              : '${rider.yearsRiding} Years',
-                              style: TextStyle(
+                                  ? 'New Rider'
+                                  : '${rider.yearsRiding} Years',
+                              style: const TextStyle(
                                 color: Colors.white,
                               ),
                             ),
@@ -111,16 +114,19 @@ class RiderDetailsSheet extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Gutter(),
+                  const Gutter(),
                   // Gear Preference
                   Flexible(
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text('Gear: ',
-                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              )),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                )),
                         const GutterSmall(),
                         Flexible(
                           child: Chip(
@@ -128,7 +134,7 @@ class RiderDetailsSheet extends StatelessWidget {
                             side: BorderSide.none,
                             label: Text(
                               rider.gearLevel?.name.enumToString() ?? 'Gear',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.white,
                               ),
                             ),
@@ -141,9 +147,10 @@ class RiderDetailsSheet extends StatelessWidget {
                 ],
               ),
               const Gutter(),
-              Text('Preferred Ride Types', style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              )),
+              Text('Preferred Ride Types',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      )),
               const GutterSmall(),
               Wrap(
                 spacing: 6,
@@ -158,9 +165,10 @@ class RiderDetailsSheet extends StatelessWidget {
                 ],
               ),
               const Gutter(),
-               Text('I Like Stops At', style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              )),
+              Text('I Like Stops At',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      )),
               const GutterSmall(),
               Wrap(
                 spacing: 6,
@@ -172,45 +180,12 @@ class RiderDetailsSheet extends StatelessWidget {
                         visualDensity: VisualDensity.compact,
                         label: Text(rideDestination.name.enumToString()),
                       ),
-                  
                 ],
               ),
             ],
           ),
         );
       },
-    );
-  }
-
-  Chip buildRiderStyleChip(BuildContext context, RidingStyle ridingStyle) {
-    return Chip(
-      avatar: Icon(
-        switch (rider.ridingStyle) {
-          RidingStyle.cruiser => PhosphorIcons.mountains(
-              PhosphorIconsStyle.fill,
-            ),
-          RidingStyle.balanced => PhosphorIcons.motorcycle(
-              PhosphorIconsStyle.fill,
-            ),
-          RidingStyle.fast => PhosphorIcons.flagCheckered(
-              PhosphorIconsStyle.fill,
-            ),
-          null => PhosphorIcons.motorcycle(
-              PhosphorIconsStyle.fill,
-            ),
-        },
-        color: Colors.orange[300],
-        size: 18,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      label: Text.rich(
-        TextSpan(
-          text: ' ${rider.ridingStyle!.name.enumToString()} Rider',
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-      ),
     );
   }
 }

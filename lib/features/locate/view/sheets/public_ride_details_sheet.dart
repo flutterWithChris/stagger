@@ -1,3 +1,4 @@
+import 'package:buoy/features/block/presentation/bloc/block_records_bloc.dart';
 import 'package:buoy/features/profile/repository/bloc/profile_bloc.dart';
 import 'package:buoy/features/riders/bloc/rider_profile_bloc.dart';
 import 'package:buoy/features/riders/bloc/riders_bloc.dart';
@@ -71,10 +72,11 @@ class PublicRideDetailsSheet extends StatelessWidget {
                           Supabase.instance.client.auth.currentUser!.id)
                       .toList();
                   bool allRideParticipantsAtMeetingPoint =
-                          rideParticipants.every((rideParticipant) =>
-                              rideParticipant.arrivalStatus ==
-                              ArrivalStatus.atMeetingPoint);
-                  bool waitingForRideParticipants = allRideParticipantsAtMeetingPoint == false &&
+                      rideParticipants.every((rideParticipant) =>
+                          rideParticipant.arrivalStatus ==
+                          ArrivalStatus.atMeetingPoint);
+                  bool waitingForRideParticipants =
+                      allRideParticipantsAtMeetingPoint == false &&
                           rideParticipants.any((rideParticipant) =>
                               rideParticipant.arrivalStatus ==
                                   ArrivalStatus.stopped ||
@@ -146,20 +148,20 @@ class PublicRideDetailsSheet extends StatelessWidget {
                             ),
                           if (ride.status != RideStatus.pending &&
                               ride.status != RideStatus.meetingUp)
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: PublicRideActionCard(
-                                ride: ride,
-                                atMeetingPoint: atMeetingPoint,
-                                waitingForRideParticipants:
-                                    waitingForRideParticipants,
-                                allRideParticipantsAtMeetingPoint:
-                                    allRideParticipantsAtMeetingPoint,
-                                enRoute: enRoute,
-                                rideParticipant: rideParticipant,
-                                stopped: stopped),
-                          ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: PublicRideActionCard(
+                                  ride: ride,
+                                  atMeetingPoint: atMeetingPoint,
+                                  waitingForRideParticipants:
+                                      waitingForRideParticipants,
+                                  allRideParticipantsAtMeetingPoint:
+                                      allRideParticipantsAtMeetingPoint,
+                                  enRoute: enRoute,
+                                  rideParticipant: rideParticipant,
+                                  stopped: stopped),
+                            ),
                           // const SizedBox(height: 8.0),
                           // Get Directions Button
                           if (ride.status == RideStatus.meetingUp && enRoute)
@@ -349,182 +351,334 @@ class RideParticipantsList extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8.0),
-        BlocBuilder<RidersBloc, RidersState>(
-          builder: (context, state) {
-            if (state is RidersLoading) {
+        BlocBuilder<BlockRecordsBloc, BlockRecordsState>(
+          builder: (context, blockRecordsState) {
+            if (blockRecordsState is BlockRecordsLoading) {
               return const Center(
                 child: CircularProgressIndicator(),
               );
-            } else if (state is RidersError) {
+            } else if (blockRecordsState is BlockRecordsError) {
               return const Center(
                 child: Text('Error'),
               );
-            } else if (state is RidersLoaded) {
-              print('Riders going into list view: ${state.riders}');
-              return ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: ride.rideParticipants!.length,
-                itemBuilder: (context, index) {
-                  RideParticipant rideParticipant =
-                      ride.rideParticipants![index];
-
-                  Rider? rider = state.riders.firstWhereOrNull(
-                      (rider) => rider.id == rideParticipant.userId);
-                  print('Rider: ${rider.toString()}');
-
-                  if (rider == null) {
-                    return const SizedBox.shrink();
-                  }
-
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-                    child: Material(
-                      type: MaterialType.transparency,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16.0),
-                      ),
-                      // borderRadius: BorderRadius.circular(16.0),
-                      child: InkWell(
-                        radius: 16.0,
-                        customBorder: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                        ),
-                        borderRadius: BorderRadius.circular(16.0),
-                        onTap: () =>
-                            context.push('/profile/${rideParticipant.userId}'),
-                        child: InkWell(
-                          // shape: RoundedRectangleBorder(
-                          //   borderRadius: BorderRadius.circular(16.0),
-                          // ),
-                          onTap: () {
-                            context
-                                .read<RiderProfileBloc>()
-                                .add(LoadRiderProfile(rider: rider));
-                            context
-                                .push('/rider-profile/${rideParticipant.userId}');
-                          },
-                          child: Row(
-                            children: [
-                              CircleAvatar(
-                            radius: 24.0,
-                            // foregroundImage: rideParticipant.photoUrl != null
-                            //     ? CachedNetworkImageProvider(rideParticipant.photoUrl!)
-                            //     : null,
-                            child: rideParticipant.photoUrl == null
-                                ? PhosphorIcon(
-                                    PhosphorIcons.personSimple(),
-                                    size: 24,
-                                  )
-                                : ClipRRect(
-                                    borderRadius: BorderRadius.circular(50.0),
-                                    child: CachedNetworkImage(
-                                      imageUrl: rideParticipant.photoUrl!,
-                                      height: 48.0,
-                                      width: 48.0,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                          ),
-                          Gutter(),
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                           if (rider.id == ride.userId)
-                            const Padding(
-                              padding: EdgeInsets.only(right: 4.0),
-                              child: Icon(Icons.star,
-                                  size: 16, color: Colors.yellow),
-                            ),
-                                  Text(
-                                    rideParticipant.firstName ?? 'N/A',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                                    children: [
-                          const Icon(Icons.share_location_rounded, size: 16),
-                          const SizedBox(width: 4.0),
-                          Text(
-                            switch (rideParticipant.arrivalStatus) {
-                              ArrivalStatus.atMeetingPoint =>
-                                'At Meeting Point',
-                              ArrivalStatus.atDestination => 'At Destination',
-                              ArrivalStatus.enRoute => 'En Route',                                ArrivalStatus.stopped => 'Stopped',
-                              null => 'Unknown',
-                            },
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                                                    ],
-                                                  ),
-                            ],
-                          ),
-                          const SizedBox(width: 16.0),
-                          
-                          const SizedBox(
-                            width: 8.0,
-                          ),
-                          // if (rider.ridingStyle != null)
-                          //   Chip(
-                          //     visualDensity: VisualDensity.compact,
-                          //     avatar: PhosphorIcon(
-                          //       PhosphorIcons.bicycle(
-                          //         PhosphorIconsStyle.fill,
-                          //       ),
-                          //       size: 16,
-                          //     ),
-                          //     label: Text(
-                          //       rider.ridingStyle!.name.enumToString(),
-                          //       style: Theme.of(context).textTheme.bodySmall,
-                          //     ),
-                          //   ),
-                          rider.bike != null
-                          ? Expanded(
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Flexible(
-                                  child: Chip(
-                                      visualDensity: VisualDensity.compact,
-                                      avatar: PhosphorIcon(
-                                        PhosphorIcons.motorcycle(
-                                          PhosphorIconsStyle.fill,
-                                        ),
-                                        size: 16,
-                                      ),
-                                      label: Text(
-                                        rider.bike!,
-                                        style: Theme.of(context).textTheme.bodySmall,
-                                      ),
-                                    ),
-                                ),
-                              ],
-                            ),
-                          )
-                          : SizedBox(),
-                            ],
-                          ),
-                        
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              );
-            } else {
-              return const Center(
-                child: Text('Something Went Wrong...'),
-              );
             }
+            return BlocConsumer<RidersBloc, RidersState>(
+              listener: (context, state) async {
+                if (state is RidersLoaded) {
+                  bool hasBlockedRider = state.riders.any((rider) =>
+                      blockRecordsState.blockRecords!.any((blockRecord) =>
+                          blockRecord.blockedUserId == rider.id));
+
+                  if (hasBlockedRider) {
+                    await showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Row(
+                            children: [
+                              Icon(Icons.warning_rounded, color: Colors.red),
+                              GutterSmall(),
+                              Text('Warning'),
+                            ],
+                          ),
+                          content: const Text(
+                              'This ride contains a rider you have blocked.'),
+                          actions: [
+                            FilledButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('Okay'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+                }
+              },
+              builder: (context, state) {
+                if (state is RidersLoading) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (state is RidersError) {
+                  return const Center(
+                    child: Text('Error'),
+                  );
+                } else if (state is RidersLoaded) {
+                  print('Riders going into list view: ${state.riders}');
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: ride.rideParticipants!.length,
+                    itemBuilder: (context, index) {
+                      RideParticipant rideParticipant =
+                          ride.rideParticipants![index];
+
+                      Rider? rider = state.riders.firstWhereOrNull(
+                          (rider) => rider.id == rideParticipant.userId);
+                      print('Rider: ${rider.toString()}');
+
+                      if (rider == null) {
+                        return const SizedBox.shrink();
+                      }
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 4.0),
+                        child: Material(
+                          type: MaterialType.transparency,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                          ),
+                          // borderRadius: BorderRadius.circular(16.0),
+                          child:
+                              BlocBuilder<BlockRecordsBloc, BlockRecordsState>(
+                            builder: (context, state) {
+                              return InkWell(
+                                // shape: RoundedRectangleBorder(
+                                //   borderRadius: BorderRadius.circular(16.0),
+                                // ),
+                                onTap: () {
+                                  if (state is BlockRecordsLoaded ||
+                                      state is BlockRecordsUpdated) {
+                                    bool isBlocked = state.blockRecords!.any(
+                                        (blockRecord) =>
+                                            blockRecord.blockedUserId ==
+                                            rider.id);
+                                    if (isBlocked) {
+                                      scaffoldMessengerKey.currentState!
+                                          .showSnackBar(
+                                        getErrorSnackbar(
+                                            'Can\'t view profile. This rider is blocked!'),
+                                      );
+                                      return;
+                                    }
+                                  }
+                                  context
+                                      .read<RiderProfileBloc>()
+                                      .add(LoadRiderProfile(rider: rider));
+                                  context.push(
+                                      '/rider-profile/${rideParticipant.userId}',
+                                      extra: rider.copyWith(
+                                          firstName: rideParticipant.firstName,
+                                          photoUrl: rideParticipant.photoUrl,
+                                          lastName: rideParticipant.lastName));
+                                },
+                                child: Row(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 24.0,
+                                      // foregroundImage: rideParticipant.photoUrl != null
+                                      //     ? CachedNetworkImageProvider(rideParticipant.photoUrl!)
+                                      //     : null,
+                                      child: rideParticipant.photoUrl == null
+                                          ? PhosphorIcon(
+                                              PhosphorIcons.personSimple(),
+                                              size: 24,
+                                            )
+                                          : ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(50.0),
+                                              child: CachedNetworkImage(
+                                                imageUrl:
+                                                    rideParticipant.photoUrl!,
+                                                height: 48.0,
+                                                width: 48.0,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                    ),
+                                    const Gutter(),
+                                    Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            if (rider.id == ride.userId)
+                                              const Padding(
+                                                padding:
+                                                    EdgeInsets.only(right: 4.0),
+                                                child: Icon(Icons.star,
+                                                    size: 16,
+                                                    color: Colors.yellow),
+                                              ),
+                                            BlocBuilder<BlockRecordsBloc,
+                                                BlockRecordsState>(
+                                              builder: (context, state) {
+                                                if (state
+                                                        is BlockRecordsLoaded ||
+                                                    state
+                                                        is BlockRecordsUpdated) {
+                                                  bool isBlocked = state
+                                                      .blockRecords!
+                                                      .any((blockRecord) =>
+                                                          blockRecord
+                                                              .blockedUserId ==
+                                                          rider.id);
+                                                  if (isBlocked) {
+                                                    print(
+                                                        'Rider is blocked: ${rider.id}');
+                                                    return Row(
+                                                      children: [
+                                                        Text(
+                                                          rideParticipant
+                                                                  .firstName ??
+                                                              'N/A',
+                                                          style: Theme.of(
+                                                                  context)
+                                                              .textTheme
+                                                              .titleMedium
+                                                              ?.copyWith(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                        ),
+                                                        const SizedBox(
+                                                            width: 12.0),
+                                                        const SizedBox(
+                                                          height: 32.0,
+                                                          child: FittedBox(
+                                                            child: Chip(
+                                                              side: BorderSide
+                                                                  .none,
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .zero,
+                                                              labelPadding:
+                                                                  EdgeInsets.only(
+                                                                      right:
+                                                                          12.0),
+                                                              visualDensity:
+                                                                  VisualDensity
+                                                                      .compact,
+                                                              backgroundColor:
+                                                                  Colors.red,
+                                                              avatar: Icon(
+                                                                Icons
+                                                                    .error_rounded,
+                                                                size: 16,
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
+                                                              label: Text(
+                                                                  'Blocked'),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  }
+                                                }
+                                                return Text(
+                                                  rideParticipant.firstName ??
+                                                      'N/A',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .titleMedium
+                                                      ?.copyWith(
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                );
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                                Icons.share_location_rounded,
+                                                size: 16),
+                                            const SizedBox(width: 4.0),
+                                            Text(
+                                              switch (rideParticipant
+                                                  .arrivalStatus) {
+                                                ArrivalStatus.atMeetingPoint =>
+                                                  'At Meeting Point',
+                                                ArrivalStatus.atDestination =>
+                                                  'At Destination',
+                                                ArrivalStatus.enRoute =>
+                                                  'En Route',
+                                                ArrivalStatus.stopped =>
+                                                  'Stopped',
+                                                null => 'Unknown',
+                                              },
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodySmall,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(width: 16.0),
+
+                                    const SizedBox(
+                                      width: 8.0,
+                                    ),
+                                    // if (rider.ridingStyle != null)
+                                    //   Chip(
+                                    //     visualDensity: VisualDensity.compact,
+                                    //     avatar: PhosphorIcon(
+                                    //       PhosphorIcons.bicycle(
+                                    //         PhosphorIconsStyle.fill,
+                                    //       ),
+                                    //       size: 16,
+                                    //     ),
+                                    //     label: Text(
+                                    //       rider.ridingStyle!.name.enumToString(),
+                                    //       style: Theme.of(context).textTheme.bodySmall,
+                                    //     ),
+                                    //   ),
+                                    rider.bike != null
+                                        ? Expanded(
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: [
+                                                Flexible(
+                                                  child: Chip(
+                                                    visualDensity:
+                                                        VisualDensity.compact,
+                                                    avatar: PhosphorIcon(
+                                                      PhosphorIcons.motorcycle(
+                                                        PhosphorIconsStyle.fill,
+                                                      ),
+                                                      size: 16,
+                                                    ),
+                                                    label: Text(
+                                                      rider.bike!,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodySmall,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                        : const SizedBox(),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                } else {
+                  return const Center(
+                    child: Text('Something Went Wrong...'),
+                  );
+                }
+              },
+            );
           },
         ),
       ],
@@ -714,16 +868,14 @@ class PublicRideActionCard extends StatelessWidget {
           },
           title: Text(
             ride.status == RideStatus.inProgress
-            ? 'Ride In Progress'
-            :
-            ride.status == RideStatus.pending
-                ? 'Waiting For Riders..'
-                : ride.status == RideStatus.meetingUp
-                    ? '${ride.meetingPointAddress}'
+                ? 'Ride In Progress'
+                : ride.status == RideStatus.pending
+                    ? 'Waiting For Riders..'
+                    : ride.status == RideStatus.meetingUp
+                        ? '${ride.meetingPointAddress}'
                         : atMeetingPoint && waitingForRideParticipants
                             ? 'Wait for riders to arrive...'
-                            : 
-                                    allRideParticipantsAtMeetingPoint
+                            : allRideParticipantsAtMeetingPoint
                                 ? 'Waiting for host to start ride...'
                                 : ride.status == RideStatus.rejected
                                     ? 'Ride Request Rejected'
@@ -731,8 +883,7 @@ class PublicRideActionCard extends StatelessWidget {
                                         ? 'Ride Complete'
                                         : ride.status == RideStatus.canceled
                                             ? 'Ride Canceled'
-                                            : 'Ride Status Unknown'
-                   ,
+                                            : 'Ride Status Unknown',
             style: Theme.of(context).textTheme.titleMedium,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

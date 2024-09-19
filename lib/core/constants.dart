@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:buoy/features/riders/model/rider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -112,4 +114,36 @@ EventTransformer<T> debounce<T>(Duration duration) {
 /// Throttle transformer to limit event firing frequency
 EventTransformer<T> throttle<T>(Duration duration) {
   return (events, mapper) => events.throttleTime(duration).switchMap(mapper);
+}
+
+Chip buildRiderStyleChip(BuildContext context, RidingStyle ridingStyle) {
+  return Chip(
+    avatar: Icon(
+      switch (ridingStyle) {
+        RidingStyle.cruiser => PhosphorIcons.mountains(
+            PhosphorIconsStyle.fill,
+          ),
+        RidingStyle.balanced => PhosphorIcons.motorcycle(
+            PhosphorIconsStyle.fill,
+          ),
+        RidingStyle.fast => PhosphorIcons.flagCheckered(
+            PhosphorIconsStyle.fill,
+          ),
+        null => PhosphorIcons.motorcycle(
+            PhosphorIconsStyle.fill,
+          ),
+      },
+      color: Colors.orange[300],
+      size: 18,
+    ),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(16),
+    ),
+    label: Text.rich(
+      TextSpan(
+        text: ' ${ridingStyle.name.enumToString()} Rider',
+        style: Theme.of(context).textTheme.bodyMedium,
+      ),
+    ),
+  );
 }

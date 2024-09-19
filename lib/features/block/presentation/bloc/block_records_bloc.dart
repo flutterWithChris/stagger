@@ -40,11 +40,18 @@ class BlockRecordsBloc extends Bloc<BlockRecordsEvent, BlockRecordsState> {
     BlockUser event,
     Emitter<BlockRecordsState> emit,
   ) async {
-    final result = await blockUserUsecase(event.userId);
-    result.fold(
-      (failure) => emit(BlockRecordsError(failure.message)),
-      (blockRecord) => emit(BlockRecordsUpdated([blockRecord])),
-    );
+    try {
+      final result = await blockUserUsecase(event.userId);
+      result.fold(
+        (failure) {
+          print(failure.message);
+          emit(BlockRecordsError(failure.message));
+        },
+        (blockRecord) => emit(BlockRecordsUpdated([blockRecord])),
+      );
+    } catch (e) {
+      print(e);
+    }
   }
 
   void _onUnblockUser(

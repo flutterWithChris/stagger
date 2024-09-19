@@ -6,8 +6,12 @@ enum SignupStatus { initial, submitting, success, failure }
 class SignupState {
   final SignupStatus status;
   final supabase.User? user;
+  final String? firstName;
+  final String? lastName;
   const SignupState({
     required this.status,
+    this.firstName,
+    this.lastName,
     this.user,
   });
 
@@ -23,10 +27,13 @@ class SignupState {
     );
   }
 
-  factory SignupState.success(supabase.User user) {
+  factory SignupState.success(supabase.User user,
+      {String? firstName, String? lastName}) {
     return SignupState(
       status: SignupStatus.success,
       user: user,
+      firstName: firstName,
+      lastName: lastName,
     );
   }
 

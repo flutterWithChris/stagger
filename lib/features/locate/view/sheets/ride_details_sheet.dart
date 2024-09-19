@@ -1,5 +1,6 @@
 import 'package:buoy/features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import 'package:buoy/features/profile/repository/bloc/profile_bloc.dart';
+import 'package:buoy/features/riders/bloc/rider_profile_bloc.dart';
 import 'package:buoy/features/riders/bloc/riders_bloc.dart';
 import 'package:buoy/features/riders/model/rider.dart';
 import 'package:buoy/features/rides/bloc/ride_bloc.dart';
@@ -341,7 +342,7 @@ class RidersList extends StatelessWidget {
                       ride.rideParticipants![index];
                   Rider? rider = state.riders.firstWhereOrNull(
                       (rider) => rider.id == rideParticipant.userId);
-
+                  print('Ride Participant: $rideParticipant');
                   if (rider == null) {
                     return const SizedBox();
                   }
@@ -357,7 +358,17 @@ class RidersList extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16.0),
                       ),
                       borderRadius: BorderRadius.circular(16.0),
-                      onTap: () => context.go('/profile/${rider.id}'),
+                      onTap: () {
+                        context.read<RiderProfileBloc>().add(LoadRiderProfile(
+                              riderId: rider.id,
+                              rider: rider,
+                            ));
+                        context.go('/rider-profile/${rider.id}',
+                            extra: rider.copyWith(
+                                firstName: rideParticipant.firstName,
+                                photoUrl: rideParticipant.photoUrl,
+                                lastName: rideParticipant.lastName));
+                      },
                       child: Row(
                         children: [
                           CircleAvatar(

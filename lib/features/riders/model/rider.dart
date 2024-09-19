@@ -86,10 +86,10 @@ class Rider extends User {
   // fromMAp
   factory Rider.fromMap(Map<String, dynamic> map) {
     return Rider(
-      id: map['id'] ?? '',
-      firstName: map['first_name'] ?? '',
-      lastName: map['last_name'] ?? '',
-      email: map['email'] ?? '',
+      id: map['id'],
+      firstName: map['first_name'],
+      lastName: map['last_name'],
+      email: map['email'],
       bikeType: BikeType.values.firstWhereOrNull(
           (e) => e.toString().split('.').last == map['bike_type']),
       bike: map['bike'],

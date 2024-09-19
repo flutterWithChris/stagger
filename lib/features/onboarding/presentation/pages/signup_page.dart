@@ -73,9 +73,10 @@ class _SignupState extends State<Signup> {
                   if (state.status == SignupStatus.success) {
                     ScaffoldMessenger.of(context)
                         .showSnackBar(getSuccessSnackbar('Signup success!'));
-                    context
-                        .read<OnboardingBloc>()
-                        .add(StartOnboarding(user: state.user!));
+                    context.read<OnboardingBloc>().add(StartOnboarding(
+                        user: state.user!,
+                        firstName: state.firstName,
+                        lastName: state.lastName));
                     context.read<OnboardingBloc>().add(const MoveForward());
                   }
                 },

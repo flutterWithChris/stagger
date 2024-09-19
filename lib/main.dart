@@ -5,6 +5,7 @@ import 'package:buoy/features/auth/presentation/cubit/login_cubit.dart';
 import 'package:buoy/features/auth/presentation/cubit/signup_cubit.dart';
 import 'package:buoy/features/auth/data/repository/auth_repository_impl.dart';
 import 'package:buoy/config/router/router.dart';
+import 'package:buoy/features/block/presentation/bloc/block_records_bloc.dart';
 import 'package:buoy/features/coach_marks/cubit/coach_marks_cubit.dart';
 import 'package:buoy/features/friends/bloc/friends_bloc.dart';
 import 'package:buoy/features/friends/repository/friend_repository.dart';
@@ -116,6 +117,9 @@ class _MyAppState extends State<MyApp> {
         ),
         RepositoryProvider(
             create: (context) => locator<NotificationRepositoryImpl>()),
+        RepositoryProvider(
+            create: (context) =>
+                SubscriptionRepositoryImpl(subscriptionDataSource: locator())),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -204,6 +208,13 @@ class _MyAppState extends State<MyApp> {
           ),
           BlocProvider(
             create: (context) => CoachMarksCubit()..loadCoachMarks(context),
+          ),
+          BlocProvider(
+            create: (context) => BlockRecordsBloc(
+              getBlockedUsersUsecase: locator(),
+              blockUserUsecase: locator(),
+              unblockUserUsecase: locator(),
+            )..add(FetchBlockRecords()),
           )
         ],
         child: BlocBuilder<ThemeCubit, ThemeState>(
