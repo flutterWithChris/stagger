@@ -13,7 +13,6 @@ class LocationRealtimeRepository {
 
   Future<void> sendLocationUpdate(Location location) async {
     try {
-      print('-Sent location update-');
       await _supabase.from('location_updates').upsert([
         location
             .copyWith(
@@ -21,7 +20,6 @@ class LocationRealtimeRepository {
             .toJson(),
       ], onConflict: 'user_id');
     } catch (e) {
-      print('Error updating location: $e');
       scaffoldMessengerKey.currentState!.showSnackBar(
         const SnackBar(
           content: Text(

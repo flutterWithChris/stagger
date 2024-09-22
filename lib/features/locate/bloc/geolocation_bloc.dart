@@ -131,7 +131,6 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
 
       _backgroundLocationRepository
           .onLocationChange((bg.Location updatedLocation) async {
-        print('Location Updated: $updatedLocation');
         add(UpdateGeoLocation(location: updatedLocation));
         return;
       });
@@ -216,8 +215,6 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
       bool batteryTrackingEnabled =
           prefs.getBool('batteryTrackingEnabled') ?? false;
 
-      print('activityTrackingEnabled: $activityTrackingEnabled');
-
       Location location = Location.fromBGLocation(event.location).copyWith(
           activity:
               activityTrackingEnabled ? event.location.activity.type : null,
@@ -226,8 +223,6 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
               ? (event.location.battery.level * 100).toInt()
               : null,
           includeNull: true);
-
-      print('Updated location: $location');
 
       /// Reverse geocode the location
       String? address;
@@ -241,7 +236,6 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
           event.location.coords.latitude, event.location.coords.longitude);
       if (reverseGeocodeResults?.success != null) {
         address = reverseGeocodeResults!.success![0].placeName;
-        print('Updated address: $address');
 
         /// Extract the address components
         city = _mapboxSearchRepository

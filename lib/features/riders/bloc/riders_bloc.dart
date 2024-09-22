@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:buoy/core/constants.dart';
 import 'package:buoy/features/riders/model/rider.dart';
 import 'package:buoy/features/riders/repo/riders_repository.dart';
 import 'package:buoy/features/rides/bloc/ride_bloc.dart';
@@ -46,52 +47,45 @@ class RidersBloc extends Bloc<RidersEvent, RidersState> {
         print(e);
         emit(RidersError(e.toString()));
       }
-    });
-    on<LoadRiders>((event, emit) async {
+    }, transformer: throttle(const Duration(seconds: 2)));
+    on<LoadRiders>(
+      (event, emit) async {
+        try {
+          List<Rider> oldStateRiders = state.riders ?? [];
+
+          emit(RidersLoading());
+
+          await _ridersRepository.fetchRiders(event.riderIds).then((riders) {
+            print('riders: ${riders.map((rider) => rider.toString())}');
+            emit(RidersLoaded(riders));
+          }).catchError((error) {
+            print(error);
+            emit(RidersError(error.toString()));
+          });
+        } catch (e) {
+          print(e);
+          emit(RidersError(e.toString()));
+        }
+      },
+    );
+    on<UpdateRider>((event, emit) async {
       try {
-        List<Rider> oldStateRiders = state.riders ?? [];
-        print('LoadRiders');
-        print('Rider IDs: ${event.riderIds}');
-
-        emit(RidersLoading());
-
-        await _ridersRepository.fetchRiders(event.riderIds).then((riders) {
-          print('riders: ${riders.map((rider) => rider.toString())}');
-          emit(RidersLoaded(riders));
-        }).catchError((error) {
-          print(error);
-          emit(RidersError(error.toString()));
+        List<Rider>? oldStateRiders = state.riders;
+        final response = await _ridersRepository.updateRider(event.rider);
+        response.fold((failure) {
+          emit(const RidersError('Error updating Rider!'));
+        }, (rider) {
+          oldStateRiders?.removeWhere((rider) => rider.id == rider.id);
+          List<Rider> updateRiderList = [
+            ...?oldStateRiders,
+            rider,
+          ];
+          emit(RidersLoaded(updateRiderList));
         });
       } catch (e) {
         print(e);
-        emit(RidersError(e.toString()));
-      }
-    }
-    
-    ,);
-    on<UpdateRider>((event, emit) async {
-      try {
-      List<Rider>? oldStateRiders = state.riders;
-      final response = await _ridersRepository.updateRider(
-        event.rider
-      );
-      response.fold((failure){
-        emit(RidersError('Error updating Rider!'));
-      }, (rider){
-           oldStateRiders?.removeWhere((rider) => rider.id == rider.id);
-           List<Rider> updateRiderList = [
-            ...?oldStateRiders,
-            rider,
-
-      ];
-      emit(RidersLoaded(updateRiderList));
-      });
-   
-      } catch (e) {
-          print(e);
-          emit(RidersError('Error updating Rider'));
+        emit(const RidersError('Error updating Rider'));
       }
     });
- 
   }
 }

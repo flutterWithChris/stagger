@@ -26,3 +26,12 @@ class FetchRiders extends RidesEvent {
   @override
   List<Object> get props => [myRides, receivedRides];
 }
+
+class LoadRidesWithinBounds extends RidesEvent {
+  final LatLngBounds bounds;
+
+  const LoadRidesWithinBounds(this.bounds);
+
+  @override
+  List<Object> get props => [bounds];
+}

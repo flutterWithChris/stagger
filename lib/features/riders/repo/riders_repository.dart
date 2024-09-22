@@ -56,21 +56,6 @@ class RidersRepository {
         'max_long': bounds.northEast.longitude,
       });
 
-      // print('Got data: $data');
-
-      // final southwest = bounds.southWest;
-      // final northeast = bounds.northEast;
-
-      // // Step 1: Fetch location updates within the bounds
-      // final locationResponse = await locationUpdatesTable
-      //     .select()
-      //     .gt('latitude', southwest.latitude)
-      //     .lt('latitude', northeast.latitude)
-      //     .gt('longitude', southwest.longitude)
-      //     .lt('longitude', northeast.longitude);
-
-      print('Location Response: $locationResponse');
-
       if (locationResponse.isEmpty) {
         return []; // No riders found in the bounds
       }
@@ -78,15 +63,12 @@ class RidersRepository {
       final riderIds =
           locationResponse.map((location) => location['id'] as String).toList();
 
-      print('Rider IDs: $riderIds');
-
       // Step 3: Fetch rider details based on rider IDs
       final ridersResponse = await ridersTable
           .select()
           .inFilter('id', riderIds)
           .eq('location_status', 'sharing')
           .select();
-      print('Riders Response: $ridersResponse');
       // Step 4: Map the results to Rider models and attach location
       List<Rider> riders = ridersResponse.map((rider) {
         final matchingLocation = locationResponse.firstWhere(
@@ -101,8 +83,6 @@ class RidersRepository {
           ),
         );
       }).toList();
-
-      print('Riders Witin Bounds: $riders');
 
       return riders;
     } catch (error) {
@@ -130,8 +110,6 @@ class RidersRepository {
         );
       }).toList();
 
-      print('Streamed Riders: $riders');
-
       return ridersWithLocation;
     }).handleError((error) {
       print('Error in location stream: $error');
@@ -141,16 +119,12 @@ class RidersRepository {
 
   Future<List<Rider>> fetchRiders(List<String> riderIds) async {
     try {
-      print('Fetching riders: $riderIds');
       final ridersResponse =
           await ridersTable.select().inFilter('id', riderIds).select();
-      print('Response: $ridersResponse');
 
       // Step 1: Fetch location updates within the bounds
       final locationResponse =
           await locationUpdatesTable.select().inFilter('user_id', riderIds);
-
-      print('Location Response: ${locationResponse.length}');
 
       // Step 4: Map the results to Rider models and attach location
       return ridersResponse.map((rider) {

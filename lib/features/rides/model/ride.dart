@@ -31,6 +31,7 @@ class Ride {
   final DateTime? updatedAt;
   final String? userId;
   final List<RideParticipant>? rideParticipants;
+  final String? location;
 
   Ride({
     this.id,
@@ -49,6 +50,7 @@ class Ride {
     this.updatedAt,
     this.userId,
     this.rideParticipants,
+    this.location,
   });
 
   Ride copyWith({
@@ -68,6 +70,7 @@ class Ride {
     DateTime? updatedAt,
     String? userId,
     List<RideParticipant>? rideParticipants,
+    String? location,
   }) {
     return Ride(
       id: id ?? this.id,
@@ -86,6 +89,7 @@ class Ride {
       updatedAt: updatedAt ?? this.updatedAt,
       userId: userId ?? this.userId,
       rideParticipants: rideParticipants ?? this.rideParticipants,
+      location: location ?? this.location,
     );
   }
 
@@ -101,6 +105,7 @@ class Ride {
       'destination': destination,
       'destination_name': destinationName,
       'destination_address': destinationAddress,
+      'location': location,
     };
   }
 
@@ -115,6 +120,7 @@ class Ride {
       'destination': destination,
       'destination_name': destinationName,
       'destination_address': destinationAddress,
+      'location': location,
     };
   }
 
@@ -140,8 +146,10 @@ class Ride {
       destination: map['destination'] == null
           ? null
           : List<double>.from(map['destination']),
-      createdAt: DateTime.parse(map['created_at']),
-      updatedAt: DateTime.parse(map['updated_at']),
+      createdAt:
+          map['created_at'] == null ? null : DateTime.parse(map['created_at']),
+      updatedAt:
+          map['updated_at'] == null ? null : DateTime.parse(map['updated_at']),
       userId: map['user_id'],
     );
   }

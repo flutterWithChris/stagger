@@ -13,7 +13,6 @@ class MapboxSearchRepository {
       ({FailureResponse? failure, List<MapBoxPlace>? success}) places =
           await _geoCoding.getAddress((lat: lat, long: lng));
 
-      print('Reverse Geocode: ${places.success!.first.placeName}');
       return places;
     } catch (e) {
       scaffoldMessengerKey.currentState!.showSnackBar(

@@ -407,7 +407,6 @@ class RideParticipantsList extends StatelessWidget {
                     child: Text('Error'),
                   );
                 } else if (state is RidersLoaded) {
-                  print('Riders going into list view: ${state.riders}');
                   return ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),

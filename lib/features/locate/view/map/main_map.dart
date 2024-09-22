@@ -105,31 +105,29 @@ class _MainMapState extends State<MainMap> {
                         InteractiveFlag.doubleTapZoom |
                         InteractiveFlag.flingAnimation,
                   ),
-                  // interactiveFlags: InteractiveFlag.pinchZoom |
-                  //     InteractiveFlag.drag |
-                  //     InteractiveFlag.doubleTapZoom |
-                  //     InteractiveFlag.flingAnimation,
                   onMapReady: () {
                     context.read<RidersBloc>().add(LoadRidersWithinBounds(widget
                         .mapController!.mapController.camera.visibleBounds));
-                    context.read<RidesBloc>().add(LoadRides(
-                          bounds: widget.mapController!.mapController.camera
+                    // context.read<RidesBloc>().add(LoadRides(
+                    //       bounds: widget.mapController!.mapController.camera
+                    //           .visibleBounds,
+                    //     ));
+                    context.read<RidesBloc>().add(LoadRidesWithinBounds(
+                          widget.mapController!.mapController.camera
                               .visibleBounds,
                         ));
                   },
                   onMapEvent: (p0) {
                     if (p0 is MapEventMove &&
                         p0.source != MapEventSource.mapController) {
-                      print(
-                          'Map Event Move Coordinates: ${p0.camera.center.latitude}, ${p0.camera.center.longitude}');
-                      EasyDebounce.debounce(
-                          'rider-fetch-debounce', const Duration(seconds: 1),
-                          () {
-                        print('Fetching riders... ${DateTime.now()}');
-                        context.read<RidersBloc>().add(LoadRidersWithinBounds(
+                      context.read<RidersBloc>().add(LoadRidersWithinBounds(
+                          widget.mapController!.mapController.camera
+                              .visibleBounds));
+
+                      context.read<RidesBloc>().add(LoadRidesWithinBounds(
                             widget.mapController!.mapController.camera
-                                .visibleBounds));
-                      });
+                                .visibleBounds,
+                          ));
                     }
                     // context.read<RidersBloc>().add(LoadRiders(
                     //     mapController!.mapController.camera.visibleBounds));
@@ -395,8 +393,13 @@ class _MainMapState extends State<MainMap> {
                                           ),
                                         for (Ride ride in ridesState.myRides
                                                 ?.where((ride) =>
-                                                    ride.meetingPoint !=
-                                                    null) ??
+                                                    ride.meetingPoint != null &&
+                                                    ride.status !=
+                                                        RideStatus.inProgress &&
+                                                    ride.status !=
+                                                        RideStatus.completed &&
+                                                    ride.status !=
+                                                        RideStatus.canceled) ??
                                             [])
                                           Marker(
                                             height: 36.0,
@@ -462,15 +465,12 @@ class _MainMapState extends State<MainMap> {
                                                       child: PhosphorIcon(
                                                         switch (ride.status) {
                                                           RideStatus.pending =>
-                                                            PhosphorIcons.mapPin(
-                                                                PhosphorIconsStyle
-                                                                    .fill),
+                                                            Icons
+                                                                .mode_of_travel,
                                                           RideStatus
                                                                 .meetingUp =>
-                                                            PhosphorIcons
-                                                                .mapPinArea(
-                                                                    PhosphorIconsStyle
-                                                                        .fill),
+                                                            Icons
+                                                                .mode_of_travel,
                                                           RideStatus.rejected =>
                                                             PhosphorIcons.prohibit(
                                                                 PhosphorIconsStyle
@@ -507,8 +507,13 @@ class _MainMapState extends State<MainMap> {
                                         for (Ride ride in ridesState
                                                 .receivedRides
                                                 ?.where((ride) =>
-                                                    ride.meetingPoint !=
-                                                    null) ??
+                                                    ride.meetingPoint != null &&
+                                                    ride.status !=
+                                                        RideStatus.inProgress &&
+                                                    ride.status !=
+                                                        RideStatus.completed &&
+                                                    ride.status !=
+                                                        RideStatus.canceled) ??
                                             [])
                                           Marker(
                                             height: 36.0,

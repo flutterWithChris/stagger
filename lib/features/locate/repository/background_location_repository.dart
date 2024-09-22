@@ -14,11 +14,10 @@ class BackgroundLocationRepository {
           key: supabase.auth.currentUser!.id,
         ));
 
-    channel.onPresenceSync((payload) {
-      print('Synced presence state: ${channel.presenceState()}');
-    }).onPresenceJoin((payload) {
-      print('Newly joined presences $payload');
-    }).onPresenceLeave((payload) async {
+    channel
+        .onPresenceSync((payload) {})
+        .onPresenceJoin((payload) {})
+        .onPresenceLeave((payload) async {
       try {
         await supabase
             .from('location_updates')
@@ -26,17 +25,14 @@ class BackgroundLocationRepository {
             .eq('user_id', Supabase.instance.client.auth.currentUser!.id);
 
         await bg.BackgroundGeolocation.stop();
-        print('Newly left presences: $payload');
       } catch (e) {
-        print('Error leaving presence: $e');
+        print(e);
       }
     }).subscribe((status, error) async {
       if (status == RealtimeSubscribeStatus.subscribed) {
         await channel.track({'online_at': DateTime.now().toIso8601String()});
       }
-      if (status == RealtimeSubscribeStatus.closed) {
-        print('Channel closed');
-      }
+      if (status == RealtimeSubscribeStatus.closed) {}
     });
     await bg.BackgroundGeolocation.ready(bg.Config(
             desiredAccuracy: bg.Config.DESIRED_ACCURACY_MEDIUM,

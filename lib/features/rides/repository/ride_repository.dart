@@ -1,6 +1,7 @@
 import 'package:buoy/features/rides/model/ride.dart';
 import 'package:buoy/features/rides/model/ride_participant.dart';
 import 'package:buoy/core/constants.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
@@ -419,6 +420,44 @@ class RideRepository {
 
       return Ride.fromMap(response.first);
     } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<Ride>> fetchRidesWithinBounds(LatLngBounds bounds) async {
+    try {
+      final ridesWithinBounds = await supabase.rpc('rides_in_view', params: {
+        'min_lat': bounds.southWest.latitude,
+        'max_lat': bounds.northEast.latitude,
+        'min_long': bounds.southWest.longitude,
+        'max_long': bounds.northEast.longitude,
+      });
+
+      print('Rides Within Bounds Response: $ridesWithinBounds');
+
+      if (ridesWithinBounds.isEmpty) {
+        return []; // No riders found in the bounds
+      }
+      // Step 2: Extract rider IDs from location updates
+      final rideIds =
+          ridesWithinBounds.map((ride) => ride['id'] as String).toList();
+
+      print('Rider IDs: $rideIds');
+
+      // Step 3: Fetch rider details based on rider IDs
+      final ridesResponse =
+          await ridesTable.select().inFilter('id', rideIds).select();
+      print('Fetched rides within bounds: $ridesResponse');
+      // Step 4: Map the results to Rider models and attach location
+      List<Ride> rides = ridesResponse.map((ride) {
+        return Ride.fromMap(ride);
+      }).toList();
+
+      print('Riders Witin Bounds: $rides');
+
+      return rides;
+    } catch (error) {
+      print(error);
       rethrow;
     }
   }

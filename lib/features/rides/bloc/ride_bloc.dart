@@ -171,12 +171,15 @@ class RideBloc extends Bloc<RideEvent, RideState> {
       } else {
         MapBoxPlace place = placeResult.success!.first;
         rideWithMeetingPoint = ride.copyWith(
+            meetingPoint: event.meetingPoint,
+            meetingPointName: place.placeName,
+            meetingPointAddress: place.placeName,
+            location:
+                'POINT(${event.meetingPoint[1]} ${event.meetingPoint[0]})');
+        emit(SelectingMeetingPoint(
+          rideWithMeetingPoint,
           meetingPoint: event.meetingPoint,
-          meetingPointName: place.placeName,
-          meetingPointAddress: place.placeName,
-        );
-        emit(SelectingMeetingPoint(rideWithMeetingPoint,
-            meetingPoint: event.meetingPoint));
+        ));
       }
     });
     on<SetMeetingPoint>((event, emit) async {
