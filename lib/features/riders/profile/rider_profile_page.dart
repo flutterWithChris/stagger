@@ -30,7 +30,6 @@ class RiderProfilePage extends StatelessWidget {
             return Center(child: Text(state.message));
           }
           if (state is RiderProfileLoaded) {
-            print('RiderProfileLoaded: ${state.rider}');
             Rider loadedRider = rider ?? state.rider;
             return CustomScrollView(
               slivers: [
@@ -239,7 +238,6 @@ class RiderProfilePage extends StatelessWidget {
                                   }
                                 },
                                 builder: (context, state) {
-                                  print('BlockRecordsBloc: $state');
                                   if (state is BlockRecordsError) {
                                     return FilledButton(
                                       style: ButtonStyle(

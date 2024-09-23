@@ -86,7 +86,6 @@ class _BikeTypePageState extends State<BikeTypePage> {
                       DropdownButtonFormField<BikeType>(
                         onChanged: (bikeType) => setState(() {
                           _selectedBikeType = bikeType!;
-                          print('Selected bike type: $_selectedBikeType');
                         }),
                         validator: (value) =>
                             value == null ? 'Please select a bike type' : null,

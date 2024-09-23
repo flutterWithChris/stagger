@@ -61,8 +61,6 @@ class RideDetailsCard extends StatelessWidget {
           context.read<RideBloc>().add(LoadRideParticipants(ride));
           // context.read<RideBloc>().add(SelectRide(ride));
           if (ride.meetingPoint != null) {
-            print('Animating to ride meeting point...');
-
             showBottomSheet(
                 context: context,
                 builder: (context) {
@@ -71,7 +69,6 @@ class RideDetailsCard extends StatelessWidget {
                   );
                 }).closed.then(
               (value) async {
-                print('Sheet closed');
                 await mapController?.animateTo(
                   dest: LatLng(ride.meetingPoint![0], ride.meetingPoint![1]),
                   // zoom: 12,

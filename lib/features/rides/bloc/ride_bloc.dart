@@ -37,22 +37,18 @@ class RideBloc extends Bloc<RideEvent, RideState> {
       emit(RideLoading());
 
       emit(CreatingRide(event.ride));
-      print('Creating ride: ${event.ride}');
     });
     on<UpdateRideDraft>((event, emit) async {
       Ride ride = event.ride;
 
-      print('Updating ride draft: $ride');
       emit(CreatingRide(ride));
     });
     on<SendRideRequest>((event, emit) async {
       try {
         emit(RideLoading());
         await _rideRepository.createRide(event.ride);
-        print('Requesting ride: ${event.ride}');
         emit(RideRequestSent(event.ride));
       } catch (e) {
-        print('Error requesting ride: $e');
         emit(RideError(e.toString(), ride: event.ride));
       }
     });
@@ -62,7 +58,6 @@ class RideBloc extends Bloc<RideEvent, RideState> {
         await _rideRepository.updateArrivalStatus(
             event.ride, event.userId, event.arrivalStatus);
 
-        print('Updating ride: ${event.ride}');
         emit(RideUpdated(ride: event.ride));
 
         scaffoldMessengerKey.currentState!.showSnackBar(
@@ -71,7 +66,6 @@ class RideBloc extends Bloc<RideEvent, RideState> {
           ),
         );
       } catch (e) {
-        print('Error updating ride: $e');
         emit(RideError(e.toString(), ride: event.ride));
       }
     });
@@ -82,13 +76,10 @@ class RideBloc extends Bloc<RideEvent, RideState> {
             event.ride, Supabase.instance.client.auth.currentUser!.id);
         if (updatedRide == null) {
           emit(const RideError('Error joining ride'));
-          print('Error joining ride');
           return;
         }
-        print('Joining ride: $updatedRide');
         emit(JoinedRide(updatedRide));
       } catch (e) {
-        print('Error accepting ride: $e');
         emit(RideError(e.toString(), ride: event.ride));
       }
     });
@@ -98,11 +89,9 @@ class RideBloc extends Bloc<RideEvent, RideState> {
         emit(RideLoading());
         Ride updatedRide = await _rideRepository.updateRide(event.ride);
 
-        print('Updated ride: $updatedRide');
         emit(RideUpdated(ride: updatedRide));
         add(LoadRideParticipants(updatedRide));
       } catch (e) {
-        print('Error updating ride: $e');
         emit(RideError(e.toString(), ride: event.ride));
       }
     });
@@ -112,54 +101,44 @@ class RideBloc extends Bloc<RideEvent, RideState> {
         Ride? completedRide = await _rideRepository.finishRide(event.ride);
         if (completedRide == null) {
           emit(const RideError('Error finishing ride'));
-          print('Error finishing ride');
           return;
         }
-        print('Finishing ride: ${event.ride}');
         emit(RideCompleted(event.ride));
       } catch (e) {
-        print('Error finishing ride: $e');
         emit(RideError(e.toString(), ride: event.ride));
       }
     });
     on<SelectRide>((event, emit) async {
       emit(RideLoading());
-      print('Selected ride: ${event.ride}');
       emit(RideLoaded(event.ride));
     });
     on<LoadRideParticipants>((event, emit) async {
       try {
         emit(RideLoading());
-        print('Loading ride participants: ${event.ride}');
         await emit
             .forEach(_rideRepository.getRideParticipantsStream(event.ride.id!),
                 onData: (rideParticipants) {
           if (rideParticipants.isEmpty) {
-            print('No ride participants found.');
             return RideLoaded(event.ride);
           }
-          print(
-              'Ride participants: ${rideParticipants.map((e) => e.toString())}');
+
           List<String> riderIds = rideParticipants.map((e) => e.id!).toList();
           _ridersBloc.add(LoadRiders(riderIds: riderIds));
           return RideLoaded(
               event.ride.copyWith(rideParticipants: rideParticipants));
         });
       } catch (e) {
-        print('Error loading ride: $e');
         emit(RideError(e.toString()));
       }
     });
     on<StartSelectingMeetingPoint>((event, emit) async {
       emit(RideLoading());
-      print('Starting to select meeting point');
       emit(SelectingMeetingPoint(event.ride));
     });
     on<SelectMeetingPoint>((event, emit) async {
       Ride ride = state.ride!;
       emit(RideLoading());
       Ride? rideWithMeetingPoint;
-      print('Selected meeting point: ${event.ride}');
 
       var placeResult = await _mapboxSearchRepository.reverseGeocode(
         event.meetingPoint[0],
@@ -187,17 +166,14 @@ class RideBloc extends Bloc<RideEvent, RideState> {
     });
     on<StopCreatingRide>((event, emit) async {
       emit(RideLoading());
-      print('Stopping to create ride');
       emit(RideInitial());
     });
     on<CancelRide>((event, emit) async {
       try {
         emit(RideLoading());
-        print('Cancelling ride: ${event.ride}');
         await _rideRepository.cancelRide(event.ride);
         emit(RideCancelled(event.ride));
       } catch (e) {
-        print('Error cancelling ride: $e');
         emit(RideError(e.toString(), ride: event.ride));
       }
     });

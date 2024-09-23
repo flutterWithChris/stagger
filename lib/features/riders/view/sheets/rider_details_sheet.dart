@@ -10,7 +10,6 @@ class RiderDetailsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('Selected Rider: $rider');
     return DraggableScrollableSheet(
       initialChildSize: 0.6,
       minChildSize: 0.33,

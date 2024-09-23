@@ -19,7 +19,6 @@ class RidersBloc extends Bloc<RidersEvent, RidersState> {
         super(RidersInitial()) {
     on<LoadRidersWithinBounds>((event, emit) async {
       try {
-        print('Load Riders Within Bounds');
         emit(RidersLoading());
         await _ridersRepository.fetchRidersWithinBounds(event.bounds).then(
           (riders) async {
@@ -27,8 +26,7 @@ class RidersBloc extends Bloc<RidersEvent, RidersState> {
                 .where((rider) =>
                     rider.id != Supabase.instance.client.auth.currentUser?.id)
                 .toList();
-            print(
-                'riders without user: ${riders.map((rider) => rider.toString())}');
+
             // emit(RidersLoaded(ridersWithoutUser));
             await emit.forEach(
               _ridersRepository.streamRiderLocations(ridersWithoutUser),
@@ -56,7 +54,6 @@ class RidersBloc extends Bloc<RidersEvent, RidersState> {
           emit(RidersLoading());
 
           await _ridersRepository.fetchRiders(event.riderIds).then((riders) {
-            print('riders: ${riders.map((rider) => rider.toString())}');
             emit(RidersLoaded(riders));
           }).catchError((error) {
             print(error);

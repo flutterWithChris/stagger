@@ -179,7 +179,6 @@ class _MainMapState extends State<MainMap> {
                         listener: (context, state) async {
                           if (state is CreatingRide &&
                               state.ride.meetingPoint == null) {
-                            print('Creating Ride State...');
                             // Show public or private selection
                             showBottomSheet(
                                 context: context,
@@ -408,8 +407,6 @@ class _MainMapState extends State<MainMap> {
                                                 ride.meetingPoint![1]),
                                             child: InkWell(
                                               onTap: () async {
-                                                print('Tapped ride Marker');
-
                                                 context.read<RideBloc>().add(
                                                     LoadRideParticipants(ride));
 
@@ -522,8 +519,6 @@ class _MainMapState extends State<MainMap> {
                                                 ride.meetingPoint![1]),
                                             child: InkWell(
                                               onTap: () async {
-                                                print('Tapped ride Marker');
-
                                                 context.read<RideBloc>().add(
                                                     LoadRideParticipants(ride));
 

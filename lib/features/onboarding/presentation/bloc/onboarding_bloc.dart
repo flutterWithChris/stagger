@@ -26,7 +26,6 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     on<StartOnboarding>((event, emit) async {
       emit(OnboardingLoading());
       try {
-        print('Starting onboarding with user: ${event.user}');
         final response = await _userRepository.createUser(
             user: User(
           id: event.user.id,
@@ -56,7 +55,6 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
         await _ridersRepository.createRider(
           rider,
         );
-        print('Rider created');
         emit(OnboardingLoaded(
             isOnboardingComplete: true, user: event.user, rider: rider));
       } catch (e) {

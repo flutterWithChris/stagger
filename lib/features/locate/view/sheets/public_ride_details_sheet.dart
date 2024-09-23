@@ -57,14 +57,12 @@ class PublicRideDetailsSheet extends StatelessWidget {
                 } else if (state is RideLoaded) {
                   Ride ride = state.ride;
 
-                  print('All Participants: ${ride.rideParticipants?.length}');
                   RideParticipant? rideParticipant = ride.rideParticipants!
                       .firstWhereOrNull((rideParticipant) =>
                           rideParticipant.userId ==
                           Supabase.instance.client.auth.currentUser!.id);
                   bool joinedRide = rideParticipant != null;
-                  print(
-                      'RideParticipant arrival status: ${rideParticipant?.arrivalStatus}');
+
                   List<RideParticipant> rideParticipants = ride
                       .rideParticipants!
                       .where((rideParticipant) =>
@@ -417,7 +415,6 @@ class RideParticipantsList extends StatelessWidget {
 
                       Rider? rider = state.riders.firstWhereOrNull(
                           (rider) => rider.id == rideParticipant.userId);
-                      print('Rider: ${rider.toString()}');
 
                       if (rider == null) {
                         return const SizedBox.shrink();

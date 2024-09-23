@@ -35,7 +35,6 @@ class MapboxSearchRepository {
 
   String getCityFromMapboxPlace(MapBoxPlace place) {
     String city = '';
-    print('place: $place');
     for (var i = 0; i < place.geometry!.type.length; i++) {
       if (place.geometry!.type[i].contains('place')) {
         city = place.geometry!.type;

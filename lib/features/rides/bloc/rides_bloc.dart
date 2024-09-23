@@ -40,7 +40,6 @@ class RidesBloc extends Bloc<RidesEvent, RidesState> {
       // Stream My Rides
       await emit.forEach(_rideRepository.getRidesStream(), onData: (rides) {
         if (rides.isEmpty) {
-          print('No rides found.');
           return const RidesLoaded([], []);
         }
 
@@ -52,7 +51,6 @@ class RidesBloc extends Bloc<RidesEvent, RidesState> {
               ride.meetingPoint![1],
             ));
           }).toList();
-          print('Filtered rides: $rides');
         }
 
         final myRides = rides
@@ -64,12 +62,9 @@ class RidesBloc extends Bloc<RidesEvent, RidesState> {
                 ride.userId != sb.Supabase.instance.client.auth.currentUser!.id)
             .toList();
 
-        print('My rides: $myRides, Received rides: $receivedRides');
-
         return RidesLoaded(myRides, receivedRides);
       });
     } catch (e) {
-      print('Error loading rides: $e');
       emit(RidesError(e.toString()));
     }
   }
@@ -85,7 +80,6 @@ class RidesBloc extends Bloc<RidesEvent, RidesState> {
       List<Ride> myRidesWithParticipants = [];
       List<Ride> receivedRidesWithParticipants = [];
       for (Ride ride in myRides) {
-        print('Ride ID: ${ride.id}');
         List<RideParticipant>? participants =
             await _rideRepository.getRideParticipants(ride.id!);
         if (participants == null) {
@@ -99,7 +93,6 @@ class RidesBloc extends Bloc<RidesEvent, RidesState> {
       for (Ride ride in receivedRides) {
         List<RideParticipant>? participants =
             await _rideRepository.getRideParticipants(ride.id!);
-        print('Participants: $participants');
         if (participants == null) {
           emit(const RidesError('Error loading ride participants'));
           return;
@@ -108,12 +101,8 @@ class RidesBloc extends Bloc<RidesEvent, RidesState> {
             .add(ride.copyWith(rideParticipants: participants));
       }
 
-      print('My rides with participants: $myRidesWithParticipants');
-      print('Received rides with participants: $receivedRidesWithParticipants');
-
       emit(RidesLoaded(myRidesWithParticipants, receivedRidesWithParticipants));
     } catch (e) {
-      print('Error loading ride participants: $e');
       emit(RidesError(e.toString()));
     }
   }
@@ -121,7 +110,6 @@ class RidesBloc extends Bloc<RidesEvent, RidesState> {
   Future<void> _onLoadRidesWithinBounds(
       LoadRidesWithinBounds event, Emitter<RidesState> emit) async {
     try {
-      print('Loading rides within bounds: $event');
       List<Ride> myRides = [
         ...?state.myRides,
       ];
@@ -138,7 +126,6 @@ class RidesBloc extends Bloc<RidesEvent, RidesState> {
         emit(RidesLoaded(myRides, receivedRides));
         return;
       } else {
-        print('Rides within bounds: $ridesWithinBounds');
         receivedRides.addAll(ridesWithinBounds
             .where((ride) =>
                 ride.userId != sb.Supabase.instance.client.auth.currentUser!.id)
@@ -151,7 +138,6 @@ class RidesBloc extends Bloc<RidesEvent, RidesState> {
         emit(RidesLoaded(myRides, receivedRides));
       }
     } catch (e) {
-      print('Error loading rides: $e');
       emit(RidesError(e.toString()));
     }
   }

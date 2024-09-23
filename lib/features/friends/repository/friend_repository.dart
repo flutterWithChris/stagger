@@ -38,10 +38,8 @@ class FriendRepository {
           .from('users')
           .select()
           .eq('id', friendsList.keys.toList());
-      print('Friend objects: $response');
       return response.map((e) => User.fromMap(e)).toList();
     } catch (e) {
-      print(e);
       scaffoldMessengerKey.currentState!.showSnackBar(
         const SnackBar(
           content: Text('Error fetching friends'),

@@ -39,10 +39,8 @@ class LocationRealtimeRepository {
 
   Future<void> deleteLocationUpdate(String userId) async {
     try {
-      print('-Deleted location update-');
       await _supabase.from('location_updates').delete().eq('user_id', userId);
     } catch (e) {
-      print('Error deleting location: $e');
       await Sentry.captureException(
         e,
         stackTrace: StackTrace.current,

@@ -135,7 +135,6 @@ class _RidePrivacySheetState extends State<RidePrivacySheet> {
                                     // TODO: implement listener
                                   },
                                   builder: (context, subscriptionState) {
-                                    print('Subscription State: $subscriptionState');
                                     if (subscriptionState
                                         is SubscriptionError) {
                                       return const Center(
@@ -150,7 +149,9 @@ class _RidePrivacySheetState extends State<RidePrivacySheet> {
                                       );
                                     }
                                     if (subscriptionState
-                                        is SubscriptionLoaded || subscriptionState is SubscriptionInitial)  {
+                                            is SubscriptionLoaded ||
+                                        subscriptionState
+                                            is SubscriptionInitial) {
                                       return Material(
                                         type: MaterialType.card,
                                         elevation: 1.618,
@@ -233,14 +234,14 @@ class _RidePrivacySheetState extends State<RidePrivacySheet> {
                                                         .duotone)),
                                           ),
                                           onTap: () {
-                                            if (subscriptionState
-                                                .customerInfo
-                                                ?.entitlements
-                                                .active
-                                                 != null && subscriptionState
-                                                .customerInfo
-                                                !.entitlements
-                                                .active.isNotEmpty) {
+                                            if (subscriptionState.customerInfo
+                                                        ?.entitlements.active !=
+                                                    null &&
+                                                subscriptionState
+                                                    .customerInfo!
+                                                    .entitlements
+                                                    .active
+                                                    .isNotEmpty) {
                                               context.read<RideBloc>().add(
                                                   UpdateRideDraft(state.ride!
                                                       .copyWith(

@@ -24,7 +24,6 @@ class MotionBloc extends Bloc<MotionEvent, MotionState> {
   ) async {
     emit(MotionLoading());
     _backgroundLocationRepository.onMotionChange((bg.Location location) {
-      print('[moving initial] - $event');
       add(UpdateMotion(isMoving: location.isMoving));
       return;
     });
@@ -38,7 +37,6 @@ class MotionBloc extends Bloc<MotionEvent, MotionState> {
     emit(MotionLoading());
     emit(MotionLoaded(isMoving: event.isMoving));
     _backgroundLocationRepository.onMotionChange((bg.Location location) {
-      print('[moving updated] - $event');
       add(UpdateMotion(isMoving: location.isMoving));
     });
   }

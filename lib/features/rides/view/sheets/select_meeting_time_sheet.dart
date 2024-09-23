@@ -111,7 +111,6 @@ class _SelectMeetingTimeSheetState extends State<SelectMeetingTimeSheet> {
                                           _selectedDate = null;
                                           _selectedTimeString = null;
                                         });
-                                        print('Meeting Time: $_selectedDate');
                                         // Show search bar
                                         context.read<RideBloc>().add(
                                             UpdateRideDraft(state.ride!
@@ -151,7 +150,9 @@ class _SelectMeetingTimeSheetState extends State<SelectMeetingTimeSheet> {
                                       );
                                     }
                                     if (subscriptionState
-                                        is SubscriptionLoaded || subscriptionState is SubscriptionInitial) {
+                                            is SubscriptionLoaded ||
+                                        subscriptionState
+                                            is SubscriptionInitial) {
                                       return Material(
                                         type: MaterialType.card,
                                         elevation: 1.618,
@@ -240,14 +241,14 @@ class _SelectMeetingTimeSheetState extends State<SelectMeetingTimeSheet> {
                                             ),
                                           ),
                                           onTap: () async {
-                                          if (subscriptionState
-                                                .customerInfo
-                                                ?.entitlements
-                                                .active
-                                                 != null && subscriptionState
-                                                .customerInfo
-                                                !.entitlements
-                                                .active.isNotEmpty)  {
+                                            if (subscriptionState.customerInfo
+                                                        ?.entitlements.active !=
+                                                    null &&
+                                                subscriptionState
+                                                    .customerInfo!
+                                                    .entitlements
+                                                    .active
+                                                    .isNotEmpty) {
                                               await showTimePicker(
                                                 context: context,
                                                 initialTime: TimeOfDay.now(),

@@ -120,7 +120,6 @@ class NotificationRepositoryImpl extends NotificationRepository {
         e,
         stackTrace: StackTrace.current,
       );
-      print('Error requesting permissions: $e');
       return Left(NotificationFailure('Failed to grant permissions'));
     }
   }

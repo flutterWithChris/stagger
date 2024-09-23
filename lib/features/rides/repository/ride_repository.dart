@@ -14,11 +14,9 @@ class RideRepository {
       sb.Supabase.instance.client.from('ride_participants');
 
   Future<Ride?> createRide(Ride ride) async {
-    print('Creating ride: $ride');
     try {
       // Insert the ride into the rides table
       final rideResponse = await ridesTable.insert(ride.toSupabase()).select();
-      print('Ride Response: $rideResponse');
       // Check if the ride was successfully inserted
       if (rideResponse.first.isNotEmpty) {
         final insertedRide = rideResponse.first;
@@ -52,7 +50,6 @@ class RideRepository {
         throw Exception(
             'Failed to create ride. Please try again or contact support.');
       }
-      print('Created ride: $ride');
       return Ride.fromMap(rideResponse.first);
     } catch (e) {
       scaffoldMessengerKey.currentState?.showSnackBar(
@@ -108,7 +105,6 @@ class RideRepository {
         .eq('id', rideId)
         .map((data) => data.isNotEmpty ? Ride.fromMap(data.first) : null)
         .handleError((error, stackTrace) async {
-          print('Error fetching ride: $error');
           scaffoldMessengerKey.currentState?.showSnackBar(
             getErrorSnackbar('Failed to fetch ride'),
           );
@@ -126,7 +122,6 @@ class RideRepository {
           return data.map((json) => Ride.fromJson(json)).toList();
         })
         .handleError((error, stackTrace) async {
-          print('Error fetching my rides: $error');
           scaffoldMessengerKey.currentState?.showSnackBar(
             getErrorSnackbar('Failed to fetch rides'),
           );
@@ -143,7 +138,6 @@ class RideRepository {
         .map((data) {
           final rideIds =
               data.map((json) => json['ride_id'].toString()).toList();
-          print('Ride Ids: $rideIds');
           return client
               .from('rides')
               .stream(primaryKey: ['id'])
@@ -153,7 +147,6 @@ class RideRepository {
               });
         })
         .handleError((error) {
-          print('Error fetching participant rides: $error');
           scaffoldMessengerKey.currentState?.showSnackBar(
             getErrorSnackbar('Failed to fetch participant rides'),
           );
@@ -179,13 +172,11 @@ class RideRepository {
 
   // Stream of rides created by the user (where the user is the sender)
   Stream<List<Ride>> getMyRidesStream(String userId) {
-    print('Getting my rides for user: $userId');
     return ridesTable
         .stream(primaryKey: ['id'])
         .eq('user_id', userId) // Assuming there's a created_by field
         .map((data) => data.map((e) => Ride.fromJson(e)).toList())
         .handleError((error) async {
-          print('Error fetching my rides: $error');
           scaffoldMessengerKey.currentState?.showSnackBar(
             getErrorSnackbar('Failed to fetch rides'),
           );
@@ -196,13 +187,10 @@ class RideRepository {
 
   // Stream of rides where the user is a participant as a receiver
   Stream<List<RideParticipant>> getMyParticipantsStream(String userId) {
-    print('Getting received rides for user: $userId');
-
     return rideParticipantsTable
         .stream(primaryKey: ['id'])
         .eq('user_id', userId)
         .handleError((error) {
-          print('Error fetching participants: $error');
           return []; // Return an empty list in case of error
         })
         .map((data) => data.isNotEmpty
@@ -243,11 +231,9 @@ class RideRepository {
 
               return RideParticipant.fromMap(participant);
             }).toList();
-            print('Ride Participants: $futures');
             // Wait for all user data to be fetched
             return await Future.wait(futures);
           } else {
-            print('No ride participants found.');
             return <RideParticipant>[];
           }
         });
@@ -256,10 +242,7 @@ class RideRepository {
   // Stream of all participants in a ride
   Future<List<RideParticipant>?>? getRideParticipants(String rideId) async {
     try {
-      print('Getting ride participants for ride: $rideId');
       var response = await rideParticipantsTable.select().eq('ride_id', rideId);
-
-      print('Ride Participants: $response');
 
       return response.map((e) => RideParticipant.fromMap(e)).toList();
     } catch (e) {
@@ -276,8 +259,6 @@ class RideRepository {
         List<Ride> receivedRides,
         List<RideParticipant> allParticipants
       )> getReceivedRides(String userId) {
-    print('Getting received rides for user: $userId');
-
     final userRideParticipantsStream = sb.Supabase.instance.client
         .from('ride_participants')
         .stream(primaryKey: ['id']).eq('user_id', userId);
@@ -291,8 +272,6 @@ class RideRepository {
       (userParticipants, rides) async* {
         List<Ride> receivedRides = [];
         List<Ride> myCreatedRides = [];
-
-        print('User Participants: $userParticipants');
 
         if (userParticipants.isNotEmpty) {
           final receivedRideIds = userParticipants
@@ -332,8 +311,7 @@ class RideRepository {
             await for (final participants in allParticipantsStream) {
               final allParticipants =
                   participants.map((e) => RideParticipant.fromMap(e)).toList();
-              print(
-                  'All Participants: ${allParticipants.map((e) => e.id).toList()}');
+
               yield (myCreatedRides, receivedRides, allParticipants);
             }
           } else {
@@ -344,7 +322,6 @@ class RideRepository {
         }
       },
     ).asyncExpand((data) => data).handleError((error) {
-      print('Error fetching received rides: $error');
       scaffoldMessengerKey.currentState?.showSnackBar(
         getErrorSnackbar('Failed to fetch received rides'),
       );
@@ -390,7 +367,6 @@ class RideRepository {
 
         // Insert the sender participants into the past_ride_participants table
         for (RideParticipant rideParticipant in ride.rideParticipants!) {
-          print('Archiving ride participant: $rideParticipant');
           await client
               .from('past_ride_participants')
               .insert(rideParticipant.copyWith(rideId: rideId).toMap());
@@ -501,8 +477,6 @@ class RideRepository {
         'max_long': bounds.northEast.longitude,
       });
 
-      print('Rides Within Bounds Response: $ridesWithinBounds');
-
       if (ridesWithinBounds.isEmpty) {
         return []; // No riders found in the bounds
       }
@@ -510,18 +484,13 @@ class RideRepository {
       final rideIds =
           ridesWithinBounds.map((ride) => ride['id'] as String).toList();
 
-      print('Rider IDs: $rideIds');
-
       // Step 3: Fetch rider details based on rider IDs
       final ridesResponse =
           await ridesTable.select().inFilter('id', rideIds).select();
-      print('Fetched rides within bounds: $ridesResponse');
       // Step 4: Map the results to Rider models and attach location
       List<Ride> rides = ridesResponse.map((ride) {
         return Ride.fromMap(ride);
       }).toList();
-
-      print('Riders Witin Bounds: $rides');
 
       return rides;
     } catch (error) {

@@ -15,7 +15,6 @@ class PublicKeyRepository {
   //         .single();
   //     return response.data['public_key'] as String;
   //   } catch (e) {
-  //     print('Error getting public key: $e');
   //     rethrow;
   //   }
   // }
@@ -26,7 +25,6 @@ class PublicKeyRepository {
   //       publicKeyEntry.toMap(),
   //     ], onConflict: 'user_id');
   //   } catch (e) {
-  //     print('Error storing public key: $e');
   //     rethrow;
   //   }
   // }

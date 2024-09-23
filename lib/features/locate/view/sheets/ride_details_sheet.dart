@@ -44,7 +44,6 @@ class RideDetailsSheet extends StatelessWidget {
                 }
               },
               builder: (context, state) {
-                print('Ride Details Sheet State: $state');
                 if (state is RideLoading || state is RideUpdated) {
                   return const Center(
                     child: CircularProgressIndicator(),
@@ -57,12 +56,10 @@ class RideDetailsSheet extends StatelessWidget {
                 } else if (state is RideLoaded) {
                   Ride ride = state.ride;
 
-                  print('Ride: $ride');
                   RideParticipant rider = ride.rideParticipants!.firstWhere(
                       (rider) =>
                           rider.userId ==
                           Supabase.instance.client.auth.currentUser!.id);
-                  print('Rider arrival status: ${rider.arrivalStatus}');
                   List<RideParticipant> riders = ride.rideParticipants!
                       .where((rider) =>
                           rider.id !=
@@ -342,7 +339,6 @@ class RidersList extends StatelessWidget {
                       ride.rideParticipants![index];
                   Rider? rider = state.riders.firstWhereOrNull(
                       (rider) => rider.id == rideParticipant.userId);
-                  print('Ride Participant: $rideParticipant');
                   if (rider == null) {
                     return const SizedBox();
                   }

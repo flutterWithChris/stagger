@@ -29,20 +29,16 @@ class FriendsBloc extends Bloc<FriendsEvent, FriendsState> {
   }
 
   void _onLoadFriends(LoadFriends event, Emitter<FriendsState> emit) async {
-    print('Loading friends...');
     final List<dynamic> friends = await _friendRepository.getFriendList() ?? [];
-    print('Friends in bloc $friends');
     final List<User> friendObjects = [];
     if (friends.isNotEmpty) {
       for (int i = 0; i < friends.length; i++) {
-        print('Loading friend: ${friends[i]['friend_id']}');
         final User friend =
             await _userRepository.getUserById(friends[i]['friend_id']) ??
                 User();
         friendObjects.add(friend);
       }
     }
-    print('Friends loaded: $friendObjects');
 
     /// Subscribe to friends location updates.
     // Create a list of streams for each friend's location updates
@@ -50,7 +46,6 @@ class FriendsBloc extends Bloc<FriendsEvent, FriendsState> {
     //     await _subscribeToFriendsLocationUpdates(friendObjects);
     // _locationUpdatesSubscription =
     //     locationUpdatesListStream.listen((locations) {
-    //   print('Locations updated: $locations');
     //   if (locations.isNotEmpty) {
     //     add(UpdateFriends(friendObjects, locations));
     //   }
@@ -62,20 +57,16 @@ class FriendsBloc extends Bloc<FriendsEvent, FriendsState> {
     if (state is! FriendsLoading) {
       emit(FriendsLoading());
     }
-    print('Updating friends...');
     emit(FriendsLoaded(event.friends, event.locations));
   }
 
   void _onAddFriend(AddFriend event, Emitter<FriendsState> emit) async {
     emit(FriendsLoading());
-    print('Adding friend...');
     final User? friend = await _userRepository.getUserByEmail(event.email);
     if (friend != null) {
       await _friendRepository.addFriend(friend);
-      print('Friend added');
       add(LoadFriends());
     } else {
-      print('Friend not found');
       emit(const FriendsError('Friend not found'));
     }
   }

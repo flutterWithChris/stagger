@@ -150,7 +150,6 @@ class SelectMeetingPointSheet extends StatelessWidget {
               const SizedBox(height: 8.0),
               BlocBuilder<RideBloc, RideState>(
                 builder: (context, state) {
-                  print('State: $state');
                   if (state is RideError) {
                     return Text(state.error);
                   }

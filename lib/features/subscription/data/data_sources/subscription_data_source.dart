@@ -26,16 +26,13 @@ class SubscriptionDataSourceImpl extends SubscriptionDataSource {
           dotenv.env['REVCAT_IOS_API_KEY']!,
         );
       }
-      await Purchases.configure(configuration..appUserID ??= userId).then(
-          (value) {
-        print('Purchases configured');
-      }, onError: (error) {
+      await Purchases.configure(configuration..appUserID ??= userId)
+          .then((value) {}, onError: (error) {
         throw Exception('Error configuring purchases');
       });
 
       return true;
     } catch (e) {
-      print('Error caught in data source');
       throw Exception('Error initializing subscription');
     }
   }
@@ -60,9 +57,7 @@ class SubscriptionDataSourceImpl extends SubscriptionDataSource {
 
   @override
   void setCustomerInfoUpdateListener() {
-    Purchases.addCustomerInfoUpdateListener((purchaserInfo) {
-      print('Purchaser info updated');
-    });
+    Purchases.addCustomerInfoUpdateListener((purchaserInfo) {});
   }
 
   @override
