@@ -6,6 +6,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   awesome_notifications
   flutter_secure_storage_linux
   gtk
+  sentry_flutter
   url_launcher_linux
 )
 

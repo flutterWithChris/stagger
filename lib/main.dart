@@ -40,6 +40,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
@@ -57,8 +58,13 @@ void main() async {
             channelName: 'notifications',
             channelDescription: 'Stagger notifications')
       ],
-      debug: true);
-  runApp(const MyApp());
+      debug: false);
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = dotenv.get('SENTRY_DSN');
+    },
+    appRunner: () => runApp(const MyApp()),
+  );
 }
 
 class MyApp extends StatefulWidget {

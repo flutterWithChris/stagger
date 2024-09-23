@@ -7,6 +7,7 @@ import 'package:collection/collection.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -19,7 +20,13 @@ class RidersRepository {
     try {
       await ridersTable.insert(rider.toMap());
     } catch (error) {
-      print(error);
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to create rider'),
+      );
+      await Sentry.captureException(
+        error,
+        stackTrace: StackTrace.current,
+      );
       rethrow;
     }
   }
@@ -31,7 +38,13 @@ class RidersRepository {
           await ridersTable.update(rider.toMap()).eq('id', rider.id!).select();
       return Right(Rider.fromMap(response.first));
     } catch (error) {
-      print(error);
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to update rider'),
+      );
+      await Sentry.captureException(
+        error,
+        stackTrace: StackTrace.current,
+      );
       return Left(DatabaseFailure('Failed to update rider'));
     }
   }
@@ -42,7 +55,13 @@ class RidersRepository {
 
       return Rider.fromMap(response);
     } catch (error) {
-      print(error);
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to fetch rider'),
+      );
+      await Sentry.captureException(
+        error,
+        stackTrace: StackTrace.current,
+      );
       rethrow;
     }
   }
@@ -86,7 +105,13 @@ class RidersRepository {
 
       return riders;
     } catch (error) {
-      print(error);
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to fetch riders'),
+      );
+      await Sentry.captureException(
+        error,
+        stackTrace: StackTrace.current,
+      );
       rethrow;
     }
   }
@@ -111,8 +136,14 @@ class RidersRepository {
       }).toList();
 
       return ridersWithLocation;
-    }).handleError((error) {
-      print('Error in location stream: $error');
+    }).handleError((error) async {
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to stream rider locations'),
+      );
+      await Sentry.captureException(
+        error,
+        stackTrace: StackTrace.current,
+      );
       return [];
     });
   }
@@ -146,7 +177,13 @@ class RidersRepository {
         );
       }).toList();
     } catch (error) {
-      print(error);
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to fetch riders'),
+      );
+      await Sentry.captureException(
+        error,
+        stackTrace: StackTrace.current,
+      );
       rethrow;
     }
   }

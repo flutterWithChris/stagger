@@ -1,6 +1,8 @@
+import 'package:buoy/core/constants.dart';
 import 'package:buoy/core/errors/failure.dart';
 import 'package:buoy/shared/models/user.dart';
 import 'package:dartz/dartz.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 class UserRepository {
@@ -15,6 +17,10 @@ class UserRepository {
       return Right(User.fromMap(response.first));
     } catch (e) {
       print(e);
+      await Sentry.captureException(e, stackTrace: StackTrace.current);
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to create user'),
+      );
       return Left(DatabaseFailure('Failed to create user'));
       print(e);
     }
@@ -22,28 +28,19 @@ class UserRepository {
 
   /// Fetch a user by id
   Future<User?> getUserById(String id) async {
-    final Map<String, dynamic> response =
-        await _client.from('users').select().eq('id', id).single();
+    try {
+      final Map<String, dynamic> response =
+          await _client.from('users').select().eq('id', id).single();
 
-    // if (response.error != null) {
-    //   throw response.error!;
-    // }
-
-    // Check if any data was returned
-    // if (response.data == null || response.data.isEmpty) {
-    //   print('User not found');
-    //   throw Exception('User not found');
-
-    //   return null;
-    // }
-
-    // // Check if more than one user was returned
-    // if (response.data.length > 1) {
-    //   print('Duplicate user IDs detected');
-    //   throw Exception('Duplicate user IDs detected');
-    // }
-
-    return User.fromMap(response);
+      return User.fromMap(response);
+    } catch (e) {
+      print(e);
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to fetch user'),
+      );
+      await Sentry.captureException(e, stackTrace: StackTrace.current);
+      return null;
+    }
   }
 
   /// Fetch a user by email
@@ -55,13 +52,25 @@ class UserRepository {
       return User.fromMap(response);
     } catch (e) {
       print(e);
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to fetch user'),
+      );
+      await Sentry.captureException(e, stackTrace: StackTrace.current);
       return null;
     }
   }
 
   /// Update a user
   Future<void> updateUser(User user) async {
-    await _client.from('users').update(user.toMap()).eq('id', user.id!);
+    try {
+      await _client.from('users').update(user.toMap()).eq('id', user.id!);
+    } catch (e) {
+      print(e);
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to update user'),
+      );
+      await Sentry.captureException(e, stackTrace: StackTrace.current);
+    }
   }
 
   /// Delete a user
@@ -69,6 +78,10 @@ class UserRepository {
     try {
       await _client.from('users').delete().eq('id', id);
     } catch (e) {
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to delete user'),
+      );
+      await Sentry.captureException(e, stackTrace: StackTrace.current);
       print(e);
     }
   }

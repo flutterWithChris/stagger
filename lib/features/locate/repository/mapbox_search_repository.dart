@@ -2,6 +2,7 @@ import 'package:buoy/core/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mapbox_search/mapbox_search.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class MapboxSearchRepository {
   final GeoCoding _geoCoding =
@@ -15,6 +16,10 @@ class MapboxSearchRepository {
 
       return places;
     } catch (e) {
+      await Sentry.captureException(
+        e,
+        stackTrace: StackTrace.current,
+      );
       scaffoldMessengerKey.currentState!.showSnackBar(
         SnackBar(
           content: Text(

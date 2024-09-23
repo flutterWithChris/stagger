@@ -142,25 +142,12 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
 
   Future<Location?> _sendLocationUpdateToDB(bg.Location bgLocation) async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      bool activityTrackingEnabled =
-          prefs.getBool('activityTrackingEnabled') ?? false;
-      bool motionTrackingEnabled =
-          prefs.getBool('motionTrackingEnabled') ?? false;
-      bool batteryTrackingEnabled =
-          prefs.getBool('batteryTrackingEnabled') ?? false;
-
-      print('activityTrackingEnabled: $activityTrackingEnabled');
-      print('motionTrackingEnabled: $motionTrackingEnabled');
-      print('batteryTrackingEnabled: $batteryTrackingEnabled');
-
       Location location = Location.fromBGLocation(bgLocation).copyWith(
         activity: null,
         isMoving: null,
         batteryLevel: null,
         includeNull: true,
       );
-      print('Handling Location: ${location.toJson().toString()}');
 
       /// Reverse geocode the initial location
       String? address;
@@ -187,14 +174,12 @@ class GeolocationBloc extends Bloc<GeolocationEvent, GeolocationState> {
           city: city,
           state: state,
         );
-        print('Initial address: $address');
       }
 
       await _locationRealtimeRepository.sendLocationUpdate(location);
 
       return location;
     } catch (e) {
-      print('Error: $e');
       return null;
     }
   }

@@ -26,7 +26,6 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     emit(ActivityLoaded(activity: event.activity));
     _backgroundLocationRepository
         .onActivityChange((bg.ActivityChangeEvent event) {
-      print('[activitychange] - $event');
       add(UpdateActivity(activity: event.activity));
     });
   }
@@ -39,7 +38,6 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     emit(ActivityLoaded(activity: event.activity));
     _backgroundLocationRepository
         .onActivityChange((bg.ActivityChangeEvent event) {
-      print('[activitychange] - $event');
       add(UpdateActivity(activity: event.activity));
     });
   }

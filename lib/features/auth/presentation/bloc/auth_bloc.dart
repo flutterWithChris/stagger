@@ -16,20 +16,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   })  : _authRepository = authRepository,
         super(AuthState.initial()) {
     _authRepository.authStateChanges.listen((state) {
-      print('Session: ${state.session}');
       if (state.session != null) {
-        print('Session is not null');
         add(AuthUserChanged(state.session!.user));
         return;
       }
     });
     on<AuthUserChanged>((event, emit) {
-      print('User changed');
       if (event.user == null) {
         emit(AuthState.unauthenticated());
         return;
       } else {
-        print('User is not null');
         emit(AuthState.authenticated(event.user!));
       }
       goRouter.refresh();

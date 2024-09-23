@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:buoy/core/constants.dart';
 import 'package:buoy/features/auth/domain/repositories/auth_repository.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
@@ -58,15 +60,13 @@ class AuthRepositoryImpl extends AuthRepository {
         lastName
       );
     } catch (e, stackTrace) {
-      print(e);
-      print(stackTrace);
-      // scaffoldKey.currentState?.showSnackBar(
-      //   getErrorSnackBar('Failed to sign in. Please try again.'),
-      // );
-      // await Sentry.captureException(
-      //   e,
-      //   stackTrace: stackTrace,
-      // );
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to sign in. Please try again.'),
+      );
+      await Sentry.captureException(
+        e,
+        stackTrace: stackTrace,
+      );
       return null;
     }
   }
@@ -114,13 +114,13 @@ class AuthRepositoryImpl extends AuthRepository {
         lastName
       );
     } catch (e, stackTrace) {
-      // scaffoldKey.currentState?.showSnackBar(
-      //   getErrorSnackBar('Failed to sign in. Please try again.'),
-      // );
-      // await Sentry.captureException(
-      //   e,
-      //   stackTrace: stackTrace,
-      // );
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to sign in. Please try again.'),
+      );
+      await Sentry.captureException(
+        e,
+        stackTrace: stackTrace,
+      );
       return null;
     }
   }
@@ -139,13 +139,13 @@ class AuthRepositoryImpl extends AuthRepository {
     try {
       await _supabase.auth.signOut();
     } catch (e, stackTrace) {
-      // scaffoldKey.currentState?.showSnackBar(
-      //   getErrorSnackBar('Failed to sign out. Please try again.'),
-      // );
-      // await Sentry.captureException(
-      //   e,
-      //   stackTrace: stackTrace,
-      // );
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to sign out. Please try again.'),
+      );
+      await Sentry.captureException(
+        e,
+        stackTrace: stackTrace,
+      );
       return;
     }
   }
@@ -153,10 +153,16 @@ class AuthRepositoryImpl extends AuthRepository {
   @override
   Future<void> deleteAccount() async {
     try {
-      print('Deleting account: ${_supabase.auth.currentUser!.id}');
       await _supabase.auth.admin.deleteUser(_supabase.auth.currentUser!.id);
     } catch (e, stackTrace) {
       print(e);
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to delete account. Please try again.'),
+      );
+      await Sentry.captureException(
+        e,
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
   }

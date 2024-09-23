@@ -13,12 +13,10 @@ class FriendRepository {
   ///  SELECT friend_id FROM Friendships WHERE user_id = ?
   Future<List<dynamic>?> getFriendList() async {
     try {
-      print('current user id: ${_client.auth.currentUser!.id}');
       final response = await _client
           .from('friendships')
           .select('friend_id')
           .eq('user_id', _client.auth.currentUser!.id);
-      print('Friend list: $response');
       return response;
     } catch (e) {
       print(e);

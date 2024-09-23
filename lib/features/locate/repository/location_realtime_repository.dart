@@ -5,6 +5,7 @@ import 'package:buoy/core/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:encrypt/encrypt.dart' as encrpyt;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
@@ -28,6 +29,10 @@ class LocationRealtimeRepository {
           backgroundColor: Colors.red,
         ),
       );
+      await Sentry.captureException(
+        e,
+        stackTrace: StackTrace.current,
+      );
       rethrow;
     }
   }
@@ -38,6 +43,10 @@ class LocationRealtimeRepository {
       await _supabase.from('location_updates').delete().eq('user_id', userId);
     } catch (e) {
       print('Error deleting location: $e');
+      await Sentry.captureException(
+        e,
+        stackTrace: StackTrace.current,
+      );
       scaffoldMessengerKey.currentState!.showSnackBar(
         const SnackBar(
           content: Text(

@@ -1,6 +1,7 @@
 import 'package:buoy/core/constants.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase/supabase.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
@@ -9,48 +10,69 @@ class BackgroundLocationRepository {
 
   /// Initialize BackgroundGeolocation
   Future<void> initBackgroundGeolocation() async {
-    final channel = supabase.channel('riders',
-        opts: RealtimeChannelConfig(
-          key: supabase.auth.currentUser!.id,
-        ));
+    try {
+      final channel = supabase.channel('riders',
+          opts: RealtimeChannelConfig(
+            key: supabase.auth.currentUser!.id,
+          ));
 
-    channel
-        .onPresenceSync((payload) {})
-        .onPresenceJoin((payload) {})
-        .onPresenceLeave((payload) async {
-      try {
-        await supabase
-            .from('location_updates')
-            .delete()
-            .eq('user_id', Supabase.instance.client.auth.currentUser!.id);
+      channel
+          .onPresenceSync((payload) {})
+          .onPresenceJoin((payload) {})
+          .onPresenceLeave((payload) async {
+        try {
+          await supabase
+              .from('location_updates')
+              .delete()
+              .eq('user_id', Supabase.instance.client.auth.currentUser!.id);
 
-        await bg.BackgroundGeolocation.stop();
-      } catch (e) {
-        print(e);
-      }
-    }).subscribe((status, error) async {
-      if (status == RealtimeSubscribeStatus.subscribed) {
-        await channel.track({'online_at': DateTime.now().toIso8601String()});
-      }
-      if (status == RealtimeSubscribeStatus.closed) {}
-    });
-    await bg.BackgroundGeolocation.ready(bg.Config(
-            desiredAccuracy: bg.Config.DESIRED_ACCURACY_MEDIUM,
-            stopOnTerminate: true,
-            debug: false,
-            logLevel: bg.Config.LOG_LEVEL_VERBOSE,
-            stopTimeout: 3,
-            showsBackgroundLocationIndicator: true))
-        .then((state) {
-      if (!state.enabled) {
-        bg.BackgroundGeolocation.start();
-      }
-    });
+          await bg.BackgroundGeolocation.stop();
+        } catch (e) {
+          print(e);
+        }
+      }).subscribe((status, error) async {
+        if (status == RealtimeSubscribeStatus.subscribed) {
+          await channel.track({'online_at': DateTime.now().toIso8601String()});
+        }
+        if (status == RealtimeSubscribeStatus.closed) {}
+      });
+      await bg.BackgroundGeolocation.ready(bg.Config(
+              desiredAccuracy: bg.Config.DESIRED_ACCURACY_MEDIUM,
+              stopOnTerminate: true,
+              debug: false,
+              logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+              stopTimeout: 3,
+              showsBackgroundLocationIndicator: true))
+          .then((state) {
+        if (!state.enabled) {
+          bg.BackgroundGeolocation.start();
+        }
+      });
+    } catch (e) {
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to initialize background location.'),
+      );
+      await Sentry.captureException(
+        e,
+        stackTrace: StackTrace.current,
+      );
+    }
   }
 
   /// Fetch current location
   Future<bg.Location> getCurrentLocation() async {
-    return await bg.BackgroundGeolocation.getCurrentPosition();
+    try {
+      return await bg.BackgroundGeolocation.getCurrentPosition();
+    } catch (e) {
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to fetch current location.'),
+      );
+      await Sentry.captureException(
+        e,
+        stackTrace: StackTrace.current,
+      );
+      rethrow;
+    }
   }
 
   /// Subscribe to motion change events
@@ -94,6 +116,16 @@ class BackgroundLocationRepository {
 
   // Stop background geolocation
   Future<void> stopBackgroundGeolocation() async {
-    await bg.BackgroundGeolocation.stop();
+    try {
+      await bg.BackgroundGeolocation.stop();
+    } catch (e) {
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to stop background location.'),
+      );
+      await Sentry.captureException(
+        e,
+        stackTrace: StackTrace.current,
+      );
+    }
   }
 }

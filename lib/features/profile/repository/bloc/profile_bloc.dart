@@ -23,13 +23,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         _authBloc = authBloc,
         _authRepository = authRepository,
         super(ProfileLoading()) {
-    // _authRepository.authStateChanges.listen((authState) {
-    //   print('Auth state changed: $authState');
-    //   if (state.user != null) {
-    //     print('User authenticated, loading profile');
-    //     add(LoadProfile(state.user!.id!));
-    //   }
-    // });
     on<LoadProfile>(_onLoadProfile);
     on<UpdateProfile>(_onUpdateProfile);
     on<DeleteProfile>(_onDeleteProfile);
@@ -38,12 +31,10 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   void _onLoadProfile(LoadProfile event, Emitter<ProfileState> emit) async {
     emit(ProfileLoading());
     try {
-      print('Loading profile for user ${event.userId}');
       final user = await _userRepository.getUserById(event.userId);
       user == null
           ? emit(const ProfileError('User not found'))
           : emit(ProfileLoaded(user));
-      print('Profile loaded: $user');
     } catch (e) {
       emit(ProfileError(e.toString()));
     }

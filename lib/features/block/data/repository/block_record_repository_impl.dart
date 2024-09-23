@@ -7,6 +7,7 @@ import 'package:buoy/features/block/domain/usecases/get_blocked_users_usecase.da
 import 'package:buoy/features/block/domain/usecases/unblock_user_usecase.dart';
 import 'package:buoy/features/block/entitities/block_record.dart';
 import 'package:dartz/dartz.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class BlockRecordRepositoryImpl extends BlockRecordRepository {
   final BlockRecordDataSource blockRecordDataSource;
@@ -23,8 +24,11 @@ class BlockRecordRepositoryImpl extends BlockRecordRepository {
         return Right(value);
       });
     } catch (e) {
+      await Sentry.captureException(
+        e,
+        stackTrace: StackTrace.current,
+      );
       return Left(ServerFailure(e.toString()));
-      rethrow;
     }
   }
 
@@ -34,8 +38,11 @@ class BlockRecordRepositoryImpl extends BlockRecordRepository {
       return await (blockRecordDataSource.unblockUser(userId))
           .then((value) => Right(value));
     } catch (e) {
+      await Sentry.captureException(
+        e,
+        stackTrace: StackTrace.current,
+      );
       return Left(ServerFailure(e.toString()));
-      rethrow;
     }
   }
 
@@ -47,6 +54,10 @@ class BlockRecordRepositoryImpl extends BlockRecordRepository {
         return Right(value);
       });
     } catch (e) {
+      await Sentry.captureException(
+        e,
+        stackTrace: StackTrace.current,
+      );
       return Left(ServerFailure(e.toString()));
     }
   }

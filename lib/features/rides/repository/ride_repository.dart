@@ -3,6 +3,7 @@ import 'package:buoy/features/rides/model/ride_participant.dart';
 import 'package:buoy/core/constants.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 class RideRepository {
@@ -54,7 +55,10 @@ class RideRepository {
       print('Created ride: $ride');
       return Ride.fromMap(rideResponse.first);
     } catch (e) {
-      print(e);
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to create ride'),
+      );
+      await Sentry.captureException(e, stackTrace: StackTrace.current);
       rethrow;
     }
   }
@@ -65,6 +69,10 @@ class RideRepository {
           await ridesTable.update(ride.toJson()).eq('id', ride.id!).select();
       return Ride.fromMap(response.first);
     } catch (e) {
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to update ride'),
+      );
+      await Sentry.captureException(e, stackTrace: StackTrace.current);
       rethrow;
     }
   }
@@ -73,6 +81,10 @@ class RideRepository {
     try {
       return await ridesTable.delete().eq('id', ride.id!);
     } catch (e) {
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to delete ride'),
+      );
+      await Sentry.captureException(e, stackTrace: StackTrace.current);
       rethrow;
     }
   }
@@ -82,6 +94,10 @@ class RideRepository {
       final response = await ridesTable.select().eq('id', rideId).single();
       return Ride.fromMap(response);
     } catch (e) {
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to fetch ride'),
+      );
+      await Sentry.captureException(e, stackTrace: StackTrace.current);
       rethrow;
     }
   }
@@ -90,7 +106,14 @@ class RideRepository {
     return ridesTable
         .stream(primaryKey: ['id'])
         .eq('id', rideId)
-        .map((data) => data.isNotEmpty ? Ride.fromMap(data.first) : null);
+        .map((data) => data.isNotEmpty ? Ride.fromMap(data.first) : null)
+        .handleError((error, stackTrace) async {
+          print('Error fetching ride: $error');
+          scaffoldMessengerKey.currentState?.showSnackBar(
+            getErrorSnackbar('Failed to fetch ride'),
+          );
+          await Sentry.captureException(error, stackTrace: stackTrace);
+        });
   }
 
   // Stream of rides created by the user
@@ -101,6 +124,13 @@ class RideRepository {
         .eq('user_id', userId)
         .map((data) {
           return data.map((json) => Ride.fromJson(json)).toList();
+        })
+        .handleError((error, stackTrace) async {
+          print('Error fetching my rides: $error');
+          scaffoldMessengerKey.currentState?.showSnackBar(
+            getErrorSnackbar('Failed to fetch rides'),
+          );
+          await Sentry.captureException(error, stackTrace: stackTrace);
         });
   }
 
@@ -121,6 +151,13 @@ class RideRepository {
               .map((ridesData) {
                 return ridesData.map((json) => Ride.fromJson(json)).toList();
               });
+        })
+        .handleError((error) {
+          print('Error fetching participant rides: $error');
+          scaffoldMessengerKey.currentState?.showSnackBar(
+            getErrorSnackbar('Failed to fetch participant rides'),
+          );
+          return [];
         });
     return null;
   }
@@ -132,6 +169,10 @@ class RideRepository {
 
       return response.map((e) => Ride.fromJson(e)).toList();
     } catch (e) {
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to fetch rides'),
+      );
+      await Sentry.captureException(e, stackTrace: StackTrace.current);
       rethrow;
     }
   }
@@ -142,7 +183,15 @@ class RideRepository {
     return ridesTable
         .stream(primaryKey: ['id'])
         .eq('user_id', userId) // Assuming there's a created_by field
-        .map((data) => data.map((e) => Ride.fromJson(e)).toList());
+        .map((data) => data.map((e) => Ride.fromJson(e)).toList())
+        .handleError((error) async {
+          print('Error fetching my rides: $error');
+          scaffoldMessengerKey.currentState?.showSnackBar(
+            getErrorSnackbar('Failed to fetch rides'),
+          );
+          await Sentry.captureException(error, stackTrace: StackTrace.current);
+          return []; // Return an empty list in case of error
+        });
   }
 
   // Stream of rides where the user is a participant as a receiver
@@ -214,7 +263,7 @@ class RideRepository {
 
       return response.map((e) => RideParticipant.fromMap(e)).toList();
     } catch (e) {
-      print(e);
+      await Sentry.captureException(e, stackTrace: StackTrace.current);
       showErrorSnackbar('Error loading ride participants');
       rethrow;
     }
@@ -294,7 +343,13 @@ class RideRepository {
           yield (myCreatedRides, receivedRides, <RideParticipant>[]);
         }
       },
-    ).asyncExpand((data) => data);
+    ).asyncExpand((data) => data).handleError((error) {
+      print('Error fetching received rides: $error');
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        getErrorSnackbar('Failed to fetch received rides'),
+      );
+      return [];
+    });
   }
 
   Future<Ride?> updateArrivalStatus(
@@ -308,6 +363,8 @@ class RideRepository {
 
       return Ride.fromMap(response.first);
     } catch (e) {
+      showErrorSnackbar('Error updating arrival status');
+      await Sentry.captureException(e, stackTrace: StackTrace.current);
       rethrow;
     }
   }
@@ -348,7 +405,8 @@ class RideRepository {
         return Ride.fromMap(pastRideResponse.first);
       }
     } catch (e) {
-      print(e);
+      showErrorSnackbar('Error finishing ride');
+      await Sentry.captureException(e, stackTrace: StackTrace.current);
       rethrow;
     }
     return null;
@@ -359,6 +417,8 @@ class RideRepository {
       final response = await ridesTable.delete().eq('id', ride.id!);
       return Ride.fromMap(response.first);
     } catch (e) {
+      showErrorSnackbar('Error cancelling ride');
+      await Sentry.captureException(e, stackTrace: StackTrace.current);
       rethrow;
     }
   }
@@ -371,6 +431,8 @@ class RideRepository {
           .select();
       return Ride.fromMap(response.first);
     } catch (e) {
+      showErrorSnackbar('Error updating ride status');
+      await Sentry.captureException(e, stackTrace: StackTrace.current);
       rethrow;
     }
   }
@@ -388,6 +450,8 @@ class RideRepository {
           .select();
       return Ride.fromMap(response.first);
     } catch (e) {
+      showErrorSnackbar('Error accepting ride request');
+      await Sentry.captureException(e, stackTrace: StackTrace.current);
       rethrow;
     }
   }
@@ -402,6 +466,8 @@ class RideRepository {
           .select();
       return Ride.fromMap(response.first);
     } catch (e) {
+      showErrorSnackbar('Error declining ride request');
+      await Sentry.captureException(e, stackTrace: StackTrace.current);
       rethrow;
     }
   }
@@ -420,6 +486,8 @@ class RideRepository {
 
       return Ride.fromMap(response.first);
     } catch (e) {
+      showErrorSnackbar('Error joining ride');
+      await Sentry.captureException(e, stackTrace: StackTrace.current);
       rethrow;
     }
   }
@@ -457,7 +525,11 @@ class RideRepository {
 
       return rides;
     } catch (error) {
-      print(error);
+      showErrorSnackbar('Error fetching rides within bounds');
+      await Sentry.captureException(
+        error,
+        stackTrace: StackTrace.current,
+      );
       rethrow;
     }
   }
